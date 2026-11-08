@@ -10,7 +10,7 @@ metadata:
 
 # Risk limits and sizing
 
-The user sets the desk's limits, in writing, once; the Risk Manager enforces them on every ticket using live data. Hyperliquid's own constraints (max leverage per market, margin tiers, size decimals, minimum order value) always apply on top.
+The user sets any stricter limits in writing. The Risk Manager enforces the paper simulator on every ticket: $100 starting equity, BTC and ETH only, a trailing stop, and at least 2:1 after fees and slippage.
 
 ## 0. Desk ceilings
 
@@ -71,17 +71,15 @@ PASS: journal equity, quote, trail, target, planned loss, and `scripts/paper_sim
 
 ## 3. Book check ("how's the book")
 
-From `clearinghouseState`, `openOrders`/`frontendOpenOrders`, `metaAndAssetCtxs`:
+Replay the paper journal. That is the book.
 
-- equity, free margin, `crossMaintenanceMarginUsed`, margin ratio (`crossMaintenanceMarginUsed / crossMarginSummary.accountValue`), and the distance from mark to `liquidationPx` per position in percent
-- positions: coin, side, size, entry, mark, unrealised PnL, leverage and mode, margin used
-- open risk to stop per position, pending risk and margin by ticket, and the combined risk versus limits
-- protection: for each position, is there a reduce-only stop resting on the exchange (trigger order, `reduceOnly: true`, correct side, and either size at least the position size or a position-tied stop with `sz: 0.0` and `isPositionTpsl: true`, which closes the whole position)? If not: **unprotected**, flagged as an incident to the Desk Lead
-- open orders that no longer belong to a position (orphans)
-- day PnL versus the daily loss stop
-- funding paid so far today from `userFunding` when relevant
+- equity after the explicit reset and later fills, fees, and closes
+- open paper positions: symbol (BTC or ETH), side, size, fill, trailing stop, target, and unrealised result versus the latest quote
+- open risk versus 1% of journal equity
+- a position whose journal event has no trailing stop: reject new risk and treat it as an incident
+- day change in journal equity
 
-Timestamp everything. Save a copy under `/workspace/trading-desk/briefs/YYYY-MM-DD-book.md` when the user asks for a written check.
+Timestamp the quote and the journal hash you read. Save a copy under `/workspace/trading-desk/briefs/YYYY-MM-DD-book.md` when the user asks for a written check. Do not read an exchange account.
 
 ## 4. When the desk hits a limit
 
@@ -91,10 +89,8 @@ Timestamp everything. Save a copy under `/workspace/trading-desk/briefs/YYYY-MM-
 
 ## Pitfalls
 
-- Sizing from a desired profit or from "what the margin allows" instead of from the stop. The stop defines the size.
-- Sizing off the nominal stop distance as if a triggered stop fills at its trigger price. It does not. Use `stressed_distance`.
-- Reading a failed, empty or stale account call as a clean book. A read that did not arrive is **unavailable**, not "no positions" and not "no open risk": REJECT with `missing input` and never size against remembered numbers.
-- Using account leverage or headline max leverage instead of the tier that applies.
-- Counting correlated positions as independent.
-- Treating a plan file, a chat message or a screenshot as an open order. Only the exchange record is.
-- Rounding size up to reach the minimum notional. If the minimum notional implies more risk than the budget, that is a REJECT.
+- Sizing from a desired profit instead of from the trailing distance.
+- Treating a gap fill as if it happened at the stop. The simulator fills a gapped stop at the mark.
+- Reading a missing journal as a fresh $100 wallet. It is not. Ask for an explicit reset.
+- Treating a chat message as an open paper position. Only the journal is.
+- Adding a symbol other than BTC or ETH.

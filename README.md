@@ -162,7 +162,7 @@ Installing this repository does not provide host isolation. The deployment wall 
 - **Sized on a stressed stop.** The desk includes assumed adverse stop fills and taker fees on both legs when sizing. Actual losses can exceed that assumption. [See what a stop costs](docs/STOP_COST.md).
 - **Ceilings you cannot trade through.** Your limits file may only tighten the desk's own caps, never loosen them.
 - **Paper only.** The simulator is the order path. Do not provision a key.
-- **One writer.** Six Bots read; one Bot sends, once per approval, and reconciles by client order id.
+- **One submit.** The Risk Manager runs `scripts/paper_sim.py` once per approval. Nobody sends an exchange order.
 - **Separate process and outcome.** The Trade Reviewer records both in a journal you can read.
 
 Perpetual futures can liquidate an account. HyperGrok is documentation and instructions, not financial advice.
@@ -215,7 +215,7 @@ assets/      the mascot, logo, README graphics and their generator
 | Doc | |
 | --- | --- |
 | [How the desk works](docs/ARCHITECTURE.md) | roles, files, trust boundaries |
-| [FAQ](docs/FAQ.md) | keys, approvals, testnet, customising the team |
+| [FAQ](docs/FAQ.md) | approvals, the paper journal, customising the team |
 | [Research datasets](docs/RESEARCH_DATASETS.md) | collect, verify and hand off historical evidence |
 | [Stop cost](docs/STOP_COST.md) | what a triggered stop costs, from the live book |
 | [Account read](docs/ACCOUNT_READ.md) | positions and equity across the main DEX, every HIP-3 DEX and spot |

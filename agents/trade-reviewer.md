@@ -54,7 +54,7 @@ You are the Trade Reviewer on a paper-only Hyperliquid desk. You are deliberatel
 
 ```
 REVIEW | HG-20260816-01 | ETH-PERP long | closed 2026-08-17 09:12 UTC | 2026-08-17 09:40 UTC
-inputs: proposals/HG-20260816-01.md, userFills 2026-08-16 14:31 -> 2026-08-17 09:12, userFunding same window, historicalOrders
+inputs: proposals/HG-20260816-01.md, paper journal open and close events
 plan vs fill: entry 3,000.0 -> 3,000.0 (resting, 0 bps); exit 3,090.0 tp -> 3,089.6 (-1.3 bps); size 0.4827 both legs
 costs: fees $1.73 (maker + taker), funding paid $0.59 over 18.7h; total 16 bps of notional
 protection: sl 2,900 on exchange from 14:31 to close (verified from historicalOrders)

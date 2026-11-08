@@ -88,7 +88,7 @@ trades 58 (IS) / 6 (OOS) | win 41% / 50% | avg win 1.9R / 1.6R | avg loss 1.0R /
 expectancy 0.19R / 0.30R | max DD 9.4% / 2.1% | fees+funding 31% of gross PnL
 expectancy 5th pct 0.02R (block bootstrap, 2000 resamples, 10-trade blocks) | profit factor 1.31
 trials 9 (3 stop multipliers x 3 markets) | holdout reads 1 | verdict: WEAK - forward test before believing
-caveats: stop multiplier chosen from {1.5, 2, 3}; slippage 5 bps assumed; SOL history shorter than others
+caveats: stop multiplier chosen from {1.5, 2, 3}; slippage 5 bps assumed; BTC and ETH only
 ```
 
 No annualised return headline. Distributions and costs are the result.

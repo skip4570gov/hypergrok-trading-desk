@@ -4,22 +4,13 @@ HyperGrok turns Grok Build into a paper-only desk: six roles and seventeen skill
 
 ## Install
 
-Install the reviewed release:
-
 ```bash
 git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git
 cd hypergrok-trading-desk
 python3 scripts/verify_install.py
 ```
 
-Or register this repository's Grok marketplace, which pins the same release, and install by name:
-
-```bash
-grok plugin marketplace add skip4570gov/hypergrok-trading-desk
-grok plugin install hypergrok --trust
-```
-
-The installation format was tested with Grok Build 1.0.30 for an earlier release; 1.6.1 has no native installation proof yet.
+Do not use `grok plugin marketplace add` without this check. The branch only fetches the line. `python3 scripts/verify_install.py` checks `install-manifest.json` and the reviewed ancestor.
 
 Load `desk-operating-model` before asking the roles to act.
 
@@ -36,8 +27,6 @@ Ask for a market brief, for example "Brief me on ETH". The reads use Hyperliquid
 
 ```bash
 git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git
-cd hypergrok-trading-desk
-python3 scripts/verify_install.py
 cd hypergrok-trading-desk
 python3 scripts/opening_bell.py --coin ETH
 ```

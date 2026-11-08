@@ -62,7 +62,7 @@ There is no testnet engagement and no mainnet engagement. Do not provision a key
 
 ## Evidence standard
 
-- Every number carries a source (endpoint and request type, page URL, or file path), the network (`mainnet`/`testnet`) where relevant, and a UTC timestamp.
+- Every number carries a source and a UTC timestamp. Name the feed (`file` or `hyperliquid`) when the number is a price.
 - Facts, derived figures and interpretation are labelled and kept apart.
 - What could not be fetched or verified is **unavailable**, and unavailable is a verdict in its own right, never a quiet negative. Missing, stale, gapped, partial or cross-network data does not mean the condition did not fire, the level was not crossed or the check passed. It means the desk cannot tell. A Bot that cannot tell those apart says so and stops that path.
 - Freshness is checked on each result, not inferred from a call that worked a minute ago. State the age accepted and the age received.

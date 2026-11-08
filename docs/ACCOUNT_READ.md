@@ -6,7 +6,7 @@ Hyperliquid runs builder-deployed (HIP-3) perp DEXs, such as `xyz`, beside the m
 
 ## Run it
 
-From the root of a checkout, pass the account (main wallet) address, not an API wallet's address:
+From the root of a checkout, pass a public address for a research read. This is not the paper wallet and it is not a key:
 
 ```bash
 python3 scripts/account_read.py --address 0xYOUR_ACCOUNT_ADDRESS
@@ -66,7 +66,7 @@ total_usd  = sum of dex_usd over every DEX + spot_usd
 
 In the `unifiedAccount` and `portfolioMargin` modes, one balance backs spot and perps, and Hyperliquid documents that `spotClearinghouseState` then holds all balances and that per-DEX user states are not meaningful. Adding them would count collateral twice, so the script reports the positions, per-DEX states and spot value with `total_usd` null. It does the same for any other mode, including the discontinued DEX abstraction.
 
-Not included: staked HYPE, vault deposits and sub-accounts, which have their own reads in `hyperliquid-account`. Reads are sequential, so prices can move between them.
+Not included: staking, vaults, and sub-accounts. The paper book is the journal. Reads are sequential, so prices can move between them.
 
 ## Comparing with the Hyperliquid app
 

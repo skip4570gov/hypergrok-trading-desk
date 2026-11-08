@@ -25,37 +25,37 @@
     {
       "name": "desk-incident-response",
       "path": "skills/desk-incident-response/SKILL.md",
-      "sha256": "b0fdd30ef0930506e669943e6789a76b4c301e9bb4104b58ac956d435878c94d"
+      "sha256": "4a930be23ec9677287a641a880a91e7e2a3c2429001656cc014692815e4c4a8c"
     },
     {
       "name": "desk-monitoring",
       "path": "skills/desk-monitoring/SKILL.md",
-      "sha256": "fb45389c3ecefc5d6eee9e8e682b5426fcc871bfa26872ff29a78b2d3674c0d3"
+      "sha256": "1aa69067aa0eab5ba2e72f60181dc2e13fb0ed963e68c53b92988a18de89113d"
     },
     {
       "name": "desk-operating-model",
       "path": "skills/desk-operating-model/SKILL.md",
-      "sha256": "2e2310a46eff0e2ee21cb37d5619d421aca59644be30fce49020ab987450356a"
+      "sha256": "2f858b0ce38cda4e9906a50d3743f27d8f6a30fc9c59453dc8ba90b8fb840c61"
     },
     {
       "name": "desk-post-trade-review",
       "path": "skills/desk-post-trade-review/SKILL.md",
-      "sha256": "5e8bf93374811743b4881f4717d7159089d8c01a24fd1ab2cc9344ea39c09763"
+      "sha256": "1aaab1f17251439562b018ccd190bd4a0fd819b9a24c32b38d81857aa4fa7b73"
     },
     {
       "name": "desk-risk-limits",
       "path": "skills/desk-risk-limits/SKILL.md",
-      "sha256": "69fc1b890a971539862d43aa43d542cf9fff56b5f271812a4f2701f0387ff3d8"
+      "sha256": "4af860a8db8a6fad9be8c01991e9956e23c4ee09be112e7a0abcdaaf94ac6e40"
     },
     {
       "name": "desk-strategy-lab",
       "path": "skills/desk-strategy-lab/SKILL.md",
-      "sha256": "a86fae4964f9ddeeff7d4c95776fc521c88c0b0271613f6e2587cf497f377a2d"
+      "sha256": "84382854d064121095b1256245f92309ddece2d069ad4f62a890fd9acb01dd5a"
     },
     {
       "name": "desk-trade-lifecycle",
       "path": "skills/desk-trade-lifecycle/SKILL.md",
-      "sha256": "85a62bd97eac323f6c1c3bd46542638099a3d0d0d1d914c065f97f71dd9989c7"
+      "sha256": "1e19d41f445f283b41b02d4e8c35fd991422d7bcd38b677e2e995abf94fb2711"
     },
     {
       "name": "hypergrok-bootstrap",
@@ -65,7 +65,7 @@
     {
       "name": "hyperliquid-account",
       "path": "skills/hyperliquid-account/SKILL.md",
-      "sha256": "bc5377c211407f1ba1161078efe93dd3957384cc6a1a44b94b981ef34ac0a76d"
+      "sha256": "4aa0d94084d84fd149d94c0afa97bc063a7c0fffbc6fa400eb942066fa98d30b"
     },
     {
       "name": "hyperliquid-advanced",
@@ -80,7 +80,7 @@
     {
       "name": "hyperliquid-market-data",
       "path": "skills/hyperliquid-market-data/SKILL.md",
-      "sha256": "0b42329274e363efff129c0876eb5bf291f938fc2c5a7bf6fa4e1b45d8b68cc0"
+      "sha256": "ffcfd5058fa6f3e4ed0582a04b3c7964eb99f660e5d7351afbc1a4ce674abc4d"
     },
     {
       "name": "hyperliquid-orders",
@@ -100,7 +100,7 @@
     {
       "name": "hyperliquid-websocket",
       "path": "skills/hyperliquid-websocket/SKILL.md",
-      "sha256": "e883933a31dbb7decb28442895459a2fe1fe8ef27a1c953c463f14854d507e3b"
+      "sha256": "f051523d90de293ef5dc447b52f2c8c3ffd8bc5d261c2fc5518afe2154df414e"
     }
   ],
   "plugins": [],

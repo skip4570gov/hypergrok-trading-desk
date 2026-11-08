@@ -33,7 +33,7 @@ A HIP-3 snapshot requests `metaAndAssetCtxs` with the explicit DEX and `l2Book` 
 ## Prices
 
 ```bash
-hl '{"type":"allMids"}' | jq '{BTC, ETH, SOL}'                          # mid per coin, strings
+hl '{"type":"allMids"}' | jq '{BTC, ETH}'
 ```
 
 `allMids` falls back to last trade when the book is empty. For mark, oracle and mid together use `metaAndAssetCtxs` below. Python: `info.all_mids()`.
@@ -43,7 +43,7 @@ hl '{"type":"allMids"}' | jq '{BTC, ETH, SOL}'                          # mid pe
 ```bash
 hl '{"type":"metaAndAssetCtxs"}' | jq -r '
   .[0].universe as $u | .[1] | to_entries[] | . as $e | $u[$e.key] as $m
-  | select($m.name == "BTC" or $m.name == "ETH" or $m.name == "SOL")
+  | select($m.name == "BTC" or $m.name == "ETH")
   | [$m.name, $e.value.midPx, $e.value.markPx, $e.value.oraclePx, $e.value.funding, $e.value.openInterest, $e.value.dayNtlVlm, $e.value.premium, $m.maxLeverage, $m.szDecimals] | @tsv'
 ```
 
@@ -72,7 +72,7 @@ hl '{"type":"l2Book","coin":"ETH"}' | jq '{time, bids: .levels[0][:5], asks: .le
 
 Up to 20 levels per side; each level is `{px, sz, n}` (`n` = number of orders). Optional `nSigFigs` (2-5) aggregates price levels; `mantissa` (1, 2 or 5) only with `nSigFigs: 5`.
 
-**Twenty levels is a page, not the book.** On a liquid perp those levels stop a few bps from the mid - around 8 bps on ETH and under 3 bps on BTC at normal spreads - so a 25 bps band summed from the default response is whatever the page happened to contain, not the depth within 25 bps. Read the reach before quoting a band: when the side came back with 20 levels and the furthest one is nearer than the band, the number is a floor. To reach further, re-request with `nSigFigs: 4`, which buckets prices coarsely enough to push 20 levels out to roughly 20-25 bps on a major perp (measured live: 82 bps ETH, 25 BTC, 24 HYPE, 20 SOL), and drop to `nSigFigs: 3` when even that stops short. Read each band off the finest page that reaches it - the coarse page moves the band edges by up to one bucket, and its top of book is not the real one - and say which page a figure came from. `scripts/opening_bell.py` is that ladder in code.
+**Twenty levels is a page, not the book.** On BTC or ETH those levels stop a few bps from the mid, so a wide band summed from the default response can be only what the page contained. Re-request with coarser `nSigFigs` when the page stops short, and say which page a figure came from. `scripts/opening_bell.py` does that. The paper desk trades BTC and ETH only.
 
 Depth within a band, the way the Risk Manager wants it before a paper submit:
 
@@ -117,7 +117,7 @@ python3 scripts/research_dataset.py --verify /workspace/trading-desk/data/eth-se
 
 Choose explicit aligned UTC boundaries for the question, with end no later than collection time. The tool uses `[start,end)`, closed candles only, at most 5,000 requested slots and fixed intervals from `1m` through `1d` (excluding `3d`, `1w`, `1M`). With funding, boundaries must also be whole hours. It records canonical perp/DEX identity, origin/network, requests, decoded responses and retrieval times in `sources.json`; saves observed CSV rows; and writes a hashed manifest with `complete`, `incomplete` or `unavailable` coverage. It refuses an existing output directory. `--schema` and `--verify` do not use the network.
 
-Return the bundle path, manifest hash, requested range, coverage gaps and offline verification result. Exit zero requires complete coverage, including funding if requested; an intact incomplete bundle still exits nonzero. No gap is filled, no absent rate becomes zero, and conflicting duplicates fail. Current metadata may include a delisted perp for historical research, flagged in the bundle; this does not enable trading it. A selected HIP-3 prefix/`--dex`, testnet or custom origin remains explicit. Spot is not supported by this collector.
+Return the bundle path, manifest hash, requested range, coverage gaps and offline verification result. Exit zero requires complete coverage, including funding if requested; an intact incomplete bundle still exits nonzero. No gap is filled, no absent rate becomes zero, and conflicting duplicates fail. Current metadata may include a delisted perp for historical research. That does not enable trading it. This collector uses the pinned public info host only. Spot is not a paper market.
 
 See [Research datasets](../../docs/RESEARCH_DATASETS.md) for request bounds, pagination and handoff details. Replay and hashes establish internal consistency, not source authenticity, historical universe completeness, strategy edge or Risk PASS. Never describe a requested year as a collected year until the coverage proves it.
 
@@ -145,7 +145,7 @@ hl '{"type":"spotMeta"}' | jq '.universe[] | select(.name=="PURR/USDC" or .name=
 hl '{"type":"spotMetaAndAssetCtxs"}' | jq '.[1][:3]'
 ```
 
-Spot pairs are named `PURR/USDC` or `@<index>` on the API (the app shows `HYPE/USDC`); `tokens: [base, quote]` indexes into `spotMeta.tokens`. A pair's asset id for orders is `10000 + universe index`; its size decimals are the **base token's** `szDecimals`. Ids differ between mainnet and testnet.
+Spot metadata is a public read. This checkout does not trade spot and has no order asset id.
 
 ## HIP-3 builder perps
 

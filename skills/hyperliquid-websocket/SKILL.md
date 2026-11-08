@@ -46,15 +46,12 @@ Do not install a client SDK and do not open a socket from this checkout. A watch
 
 ## Recover after a gap or restart
 
-Treat account events as prompts to reconcile, not proof of a gap-free history. On a disconnect, stale heartbeat, process restart or uncertain event order, record the last good UTC time, alert `unavailable`, and pause new-risk sends. Retain pending risk reservations and the daily-stop latch; restarting does not clear either.
+On a stale quote or a restart, pause new paper risk and replay the journal. A missed poll is unavailable data.
 
-1. Re-establish the account subscriptions and confirm their acknowledgements. Record a new connection generation so cached messages and old snapshots cannot satisfy recovery.
-2. Fetch fresh `/info` account state, `frontendOpenOrders`, and order statuses for every outstanding ticket after reconnect. Recover `userFillsByTime` from an overlap before the last good time through the new reads, with pagination. At desk startup use the last durable reconciliation time; if it is absent or outside the retained history, say that coverage is unavailable.
-3. Merge REST history and streamed fills without double counting, using account/network plus `(time, coin, tid)` as the fill identity. Include snapshot fills not already processed. Preserve equal-timestamp boundaries when paging; a saturated page with no forward progress is incomplete evidence, not the end of history.
-4. Compare positions, orders, protection and proposal reservations. Separate responses are not atomic: if account activity occurs during the reads or they disagree, refresh the affected state. Keep unknown sends reserved and follow `desk-execution-protocol`; silence never resolves them.
-5. Record the recovery window, sources, timestamps and any unresolved gaps. Risk permits new risk only after coverage is complete, the account agrees with the reconciled journal, and a fresh capacity check passes. Report the recovery once. If evidence remains incomplete, keep new risk paused and route protection or exits through the normal approval gates using verified live state.
-
-For a public price/book watch, refresh that market's snapshot and reset its condition baseline before reporting an unchanged result. A recovered price feed alone cannot restore account readiness.
+1. Read the journal hash chain. If it fails, stop.
+2. Fetch a fresh BTC or ETH quote from `scripts/market_data.py`.
+3. Run `scripts/paper_sim.py mark` only when the user has an open paper position and the quote is valid.
+4. Do not send an order and do not look up exchange fills.
 
 ## Watch pattern
 

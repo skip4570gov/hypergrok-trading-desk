@@ -43,7 +43,7 @@ Every later stage appends under its heading. The file is the single record of th
 
 **Owner: Market Analyst, and Research Analyst when the idea depends on anything beyond exchange data.**
 
-The Desk Lead asks for exactly what sizing and execution will need: current mid, mark and oracle; funding now and predicted; open interest and 24h volume; depth within 5/10/25 bps for the intended size; the market's constraints (max leverage, margin tiers, size decimals, minimum order value); recent range and volatility. Research adds anything scheduled or breaking that touches the market. Both write their blocks under `## evidence` with sources and UTC times.
+The Desk Lead asks for the quote, funding, open interest, volume, and depth the paper ticket needs. Research adds anything scheduled that touches BTC or ETH. Both write their blocks under `## evidence` with sources and UTC times.
 
 Done when: the Risk Manager has every input it needs and nothing is older than a few minutes.
 
@@ -88,7 +88,7 @@ If the ticket expires before approval, it is void; a fresh Risk sign-off is need
 
 ## Adjustments and exits are trades too
 
-Moving a stop, adding to a position, reducing, closing, changing leverage: each is a new ticket under the same proposal id with a suffix (`HG-20260816-01-B`). Begin every adjustment ticket with the parent proposal id and the original proposal's `- idea:` text, then state what is changing and why. This retains the user's original context when an adjustment is read on its own.
+Moving a stop, adding, reducing, or closing: each is a new paper ticket under the same proposal id with a suffix (`HG-20260816-01-B`). There is no leverage change.
 
 Each adjustment receives fresh evidence and a new Risk Manager PASS, the exact suffixed ticket id for user approval, and its own expiry. Earlier approval or Risk PASS does not carry forward. Closing a position at market needs a ticket stating the reduce-only size read live from the account and the slippage bound. Execute once within expiry, then reconcile the adjustment against the exchange record under the parent proposal.
 

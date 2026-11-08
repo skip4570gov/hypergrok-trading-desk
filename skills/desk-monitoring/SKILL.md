@@ -52,8 +52,7 @@ Post changed conditions, failures, stale reads, missing data and gaps with their
 
 A watch is a condition plus an alert. Two ways to run one on the desk computer:
 
-- **Polling** with `/info` calls on a short loop from a script under `/workspace/trading-desk/watch/` (respect rate limits: `/info` requests carry weight; a poll every 5-15 seconds per market is plenty for a desk).
-- **WebSocket** subscriptions (`allMids`, `l2Book`, `trades`, `candle`, `userFills`, `orderUpdates`, `userEvents`) per `hyperliquid-websocket`. Better for fills and order updates. Keep the process supervised (a routine can restart it) and log to a file.
+- **Polling** the configured price feed. A poll every few minutes is enough for a paper desk.
 
 Common watch conditions:
 
@@ -62,9 +61,9 @@ Common watch conditions:
 | Price crosses a level | `allMids` or `candle` | user, Desk Lead |
 | Funding flips sign or exceeds a threshold | `metaAndAssetCtxs` `funding` / `predictedFundings` | user, Desk Lead |
 | Paper stop or target filled | `scripts/paper_sim.py mark` journal line | Risk Manager, Trade Reviewer |
-| Margin ratio above X or liquidation distance below Y | `clearinghouseState` | user, Risk Manager, Desk Lead |
-| Position without a resting stop | `clearinghouseState` + `frontendOpenOrders` | Risk Manager, Desk Lead (incident) |
-| Daily loss stop approached (80%) or hit | `clearinghouseState` vs start-of-day equity | user, Risk Manager |
+| Paper stop or target filled | journal line from `scripts/paper_sim.py mark` | Risk Manager, Trade Reviewer |
+| Journal equity down more than the planned trail | journal replay | user, Risk Manager |
+| Quote feed stale or missing | `scripts/market_data.py` | Desk Lead |
 | Exchange unreachable for more than N minutes | any `/info` call failing | Desk Lead |
 
 An alert message carries: what fired, the value and the threshold, the source and UTC time, and the proposal id if related. Alerts do not include instructions to trade.

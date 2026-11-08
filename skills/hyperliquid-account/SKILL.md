@@ -93,7 +93,7 @@ hl "{\"type\":\"userRole\",\"user\":\"$ADDR\"}" | jq .
 hl "{\"type\":\"extraAgents\",\"user\":\"$ADDR\"}" | jq '.[] | {address, name, validUntil}'
 ```
 
-`portfolio` gives PnL and account-value history per period (`day`, `week`, `month`, `allTime`, and perp-only variants); `userFees` gives the account's base taker (`userCrossRate`) and maker (`userAddRate`) rates; apply the documented referral, collateral, stable-pair and HIP-3 deployer/growth modifiers for the chosen market before estimating costs, then reconcile actual `fee` and `feeToken` from fills; `userRateLimit` shows the address's action budget (`nRequestsUsed`, `nRequestsCap`, `cumVlm`); `userRole` classifies an address (`user`, `agent`, `vault`, `subAccount`, `missing`); `extraAgents` lists approved API wallets with expiry. Python: `info.portfolio(ADDR)`, `info.user_fees(ADDR)`, `info.user_rate_limit(ADDR)`, `info.user_role(ADDR)`, `info.extra_agents(ADDR)`.
+Public account fields such as open orders and recent fills are research only. This checkout has no API wallet and does not reconcile a paper trade from them. The paper book is the journal.
 
 Per-market account data (leverage setting, available to trade, max trade sizes) without opening a position: `hl "{\"type\":\"activeAssetData\",\"user\":\"$ADDR\",\"coin\":\"ETH\"}"`.
 
@@ -105,18 +105,17 @@ A successful public info read needs no key and does not authorize a paper submit
 
 ## Book check recipe (Risk Manager)
 
-1. `clearinghouseState` for equity, positions, margin, liquidation prices.
-2. `frontendOpenOrders` for protection (reduce-only triggers per position) and orphans.
-3. `metaAndAssetCtxs` for mark prices to compute liquidation distance.
-4. `userFunding` since start of day for funding paid.
-5. `portfolio` or the journal for start-of-day equity, to compute day PnL against the daily loss stop.
+The paper book is the journal, not this read. If you use the public account endpoints for research, they are not the $100 wallet and they do not authorize a submit.
 
-Report per `desk-risk-limits` section 3.
+1. Replay the paper journal for equity, positions, and stops.
+2. Use the configured quote for mark.
+3. Report per `desk-risk-limits` section 3.
 
 ## Pitfalls
 
-- Querying the API wallet's address. Everything comes back empty and looks like "no positions".
+- Treating this public read as the paper wallet.
+- There is no API wallet on this checkout. Do not look one up.
 - Assuming `openOrders` shows trigger details; it does not. Use `frontendOpenOrders`.
-- Reading `userFills` and forgetting the 2000-item window; use `userFillsByTime` with pagination for reviews.
+- Do not review a paper trade from these public fill reads. Use the journal.
 - Treating `withdrawable`, spot balances or `accountValue - totalMarginUsed` as universal trading capacity. Verify the abstraction mode, use its documented margin basis with headroom, and check `activeAssetData` and the notional tier.
-- Mixing networks: a mainnet address on the testnet endpoint is a different (probably empty) account.
+- This checkout has one public info host. Do not switch networks.
