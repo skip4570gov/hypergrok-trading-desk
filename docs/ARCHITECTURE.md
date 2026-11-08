@@ -8,20 +8,19 @@ In Grok Bot, HyperGrok uses your Bots, shared cloud computer and conversations. 
 you
  |
  v
-Trading Floor (group chat, 6 Bots)                 DM
+Trading Floor (group chat, 5 Bots)                 DM
   Desk Lead ------------------------------------> Trade Reviewer
-   |     |     |     |     |                       journal, reviews
-   |     |     |     |     +-- Execution Trader ---> Hyperliquid /exchange   (the one writer)
-   |     |     |     +-------- Risk Manager -------> Hyperliquid /info       (your account, live)
-   |     |     +-------------- Strategist ---------> Hyperliquid /info       (history, backtests)
+   |     |     |     |                            journal
+   |     |     |     +-------- Risk Manager -------> scripts/paper_sim.py
+   |     |     +-------------- Strategist ---------> public info (history)
    |     +-------------------- Research Analyst ---> browser, public data
-   +-------------------------- Market Analyst -----> Hyperliquid /info, /ws (markets)
+   +-------------------------- Market Analyst -----> public info (markets)
 
 computer:  /workspace/hypergrok (this repo)   /workspace/trading-desk (the desk's files)
-secret:    HYPERLIQUID_PRIVATE_KEY - a trade-only API wallet, from Grok Bot's secure secret store
+secret:    none. This branch does not read a private key.
 ```
 
-The shared Desk Lead starts on the read plane. `hypergrok-bootstrap` installs the pinned release, runs `scripts/opening_bell.py` against public `/info`, prepares the desk, creates the team when the product allows it, and finishes with `scripts/desk_doctor.py`. None of those first-run paths reads a key or calls `/exchange`.
+The shared Desk Lead starts on the read plane. `hypergrok-bootstrap` installs the `paper-only` branch, runs `scripts/opening_bell.py` against the allowlisted public info URL, prepares the desk, creates the team when the product allows it, and finishes with `scripts/desk_doctor.py`. None of those paths reads a key or sends an order.
 
 The six-Bot group limit leaves the Trade Reviewer outside the Floor. Bots share the computer and skills, so role separation is a working convention rather than credential isolation. Native approval controls and the secret store provide separate controls; setup verifies their availability.
 
@@ -31,7 +30,7 @@ The six-Bot group limit leaves the Trade Reviewer outside the Floor. Bots share 
 idea -> evidence -> risk sign-off -> your approval by ticket id -> one send -> reconciliation -> review
 ```
 
-The Desk Lead keeps it moving. Analysts bring sourced, timestamped evidence. The Risk Manager sizes from your live account and the exchange's real limits, and issues a ticket. You approve it by id. The Execution Trader sends it once, reads the response, and confirms it on the exchange. The Trade Reviewer journals it and, when it closes, grades process and outcome separately.
+The Desk Lead keeps it moving. Analysts bring sourced, timestamped evidence. The Risk Manager sizes against the $100 paper wallet and issues a ticket. You approve it by id. The Risk Manager runs the simulator once. The Trade Reviewer reads the journal and grades process and outcome separately.
 
 Adjusting, adding, reducing and closing are trades too: same path, new ticket under the same id.
 

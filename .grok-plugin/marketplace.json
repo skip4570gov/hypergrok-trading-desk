@@ -7,12 +7,12 @@
   "plugins": [
     {
       "name": "hypergrok",
-      "description": "Turn Grok Build into a 7-role Hyperliquid trading desk: research, risk, execution and review.",
+      "description": "Turn Grok Build into a 6-role paper-only Hyperliquid desk: research, risk, and review.",
       "category": "development",
       "source": {
         "source": "url",
         "url": "https://github.com/galleonlabs/hypergrok-trading-desk.git",
-        "ref": "v1.7.1"
+        "ref": "paper-only"
       },
       "homepage": "https://github.com/galleonlabs/hypergrok-trading-desk",
       "keywords": ["hypergrok", "hyperliquid", "trading desk", "grok bot"],

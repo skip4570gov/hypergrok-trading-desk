@@ -115,7 +115,9 @@ def main(root):
     manifest = load_json(os.path.join(root, "plugin.json"), errors)
     template = load_json(os.path.join(root, TEMPLATE), errors)
     version = manifest.get("version")
-    expected_release = f"v{version}"
+    expected_release = "paper-only"
+    if not isinstance(version, str):
+        errors.append("plugin.json: version is required so the package identity stays checkable")
 
     if template.get("schemaVersion") != 2:
         errors.append(f"{TEMPLATE}: schemaVersion must be 2")

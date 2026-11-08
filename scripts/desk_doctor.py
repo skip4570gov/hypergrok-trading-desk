@@ -197,19 +197,14 @@ def check_workspace(root: str) -> list[Check]:
 
 
 def check_public_api(base_url: str, timeout: float) -> Check:
-    request = urllib.request.Request(
-        f"{base_url.rstrip('/')}/info",
-        data=b'{"type":"allMids"}',
-        headers={"Content-Type": "application/json", "User-Agent": "hypergrok-desk-doctor/1.0"},
-        method="POST",
-    )
+    from market_data import HYPERLIQUID_ORIGIN, post_public_info
+    if base_url.rstrip("/") != HYPERLIQUID_ORIGIN:
+        return Check("FAIL", "public API", "origin is not the allowlisted public info endpoint")
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            payload = json.load(response)
+        payload = post_public_info({"type": "allMids"}, timeout=timeout, user_agent="hypergrok-desk-doctor/1.0")
         if not isinstance(payload, dict) or not payload.get("ETH"):
             return Check("FAIL", "public API", "allMids response did not contain ETH")
-        network = "mainnet" if base_url == "https://api.hyperliquid.xyz" else "testnet" if base_url == "https://api.hyperliquid-testnet.xyz" else "custom"
-        return Check("PASS", "public API", f"{network} /info allMids answered without a key")
+        return Check("PASS", "public API", "public-info /info allMids answered without a key")
     except (OSError, urllib.error.URLError, json.JSONDecodeError) as exc:
         return Check("FAIL", "public API", f"unavailable: {exc}")
 

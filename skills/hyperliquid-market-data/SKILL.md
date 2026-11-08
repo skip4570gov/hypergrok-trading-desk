@@ -1,6 +1,6 @@
 ---
 name: hyperliquid-market-data
-description: Read live Hyperliquid market data from the desk computer with curl or the Python SDK - mid, mark and oracle prices, order book depth, funding (current, predicted, historical), open interest, volume, candles, perp and spot metadata, margin tiers, and how to save datasets for the strategy lab. Read-only, no key. Use for any market brief, depth read, funding question or data pull.
+description: Read public market data through scripts/market_data.py. The Hyperliquid feed posts only to the allowlisted info URL. A local file feed can supply BTC and ETH quotes. No key and no base URL override. Use for any market brief, depth read, funding question or data pull.
 license: MIT
 metadata:
   version: "1.2.2"
@@ -11,19 +11,10 @@ metadata:
 
 # Hyperliquid market data
 
-All reads are `POST /info` with a JSON body; no key, no signing. Market data is usually read from **mainnet** even when the desk trades on testnet, because testnet prices and books are thin; say which network a figure came from. Every figure the desk reports carries source (request type), network and UTC time.
+All reads go through `scripts/market_data.py`. The built-in Hyperliquid feed posts only to `https://api.hyperliquid.xyz/info`. It takes no origin argument. `config/paper.json` may select `price_source: file` for a local BTC/ETH quote file; the public info feed remains the fallback. Say which source and UTC time a figure came from.
 
 ```bash
-BASE=https://api.hyperliquid.xyz            # or https://api.hyperliquid-testnet.xyz
-hl() { curl -sS -m 15 -X POST "$BASE/info" -H 'Content-Type: application/json' -d "$1"; }
-```
-
-Python header (SDK):
-
-```python
-from hyperliquid.info import Info
-from hyperliquid.utils import constants
-info = Info(constants.MAINNET_API_URL, skip_ws=True)     # TESTNET_API_URL for testnet
+python3 -c 'import json,sys; sys.path.insert(0,"scripts"); import market_data; print(json.dumps({"url": market_data.HYPERLIQUID_INFO_URL}))'
 ```
 
 ## Read-only snapshot contract
@@ -34,10 +25,10 @@ Run `python3 scripts/opening_bell.py --schema` or `python3 scripts/desk_doctor.p
 python3 scripts/opening_bell.py --coin ETH --json
 python3 scripts/opening_bell.py --coin kPEPE --json
 python3 scripts/opening_bell.py --coin xyz:TSLA --json
-python3 scripts/opening_bell.py --dex xyz --coin TSLA --testnet --json
+python3 scripts/opening_bell.py --dex xyz --coin TSLA --json
 ```
 
-A HIP-3 snapshot requests `metaAndAssetCtxs` with the explicit DEX and `l2Book` with the canonical prefixed coin from that universe. It retains the metadata's spelling and reports `coin`, `dex`, precision and leverage metadata; unknown, ambiguous or delisted markets fail before the book request. Metadata fields absent from the response are `null`, never invented. `--testnet` selects the official testnet origin; an explicit different `--base-url` is labelled `custom` and included in the source. Read-only discovery does not enable HIP-3 execution or transfer collateral; the desk's opt-in and ticket rules still apply.
+A HIP-3 snapshot requests `metaAndAssetCtxs` with the explicit DEX and `l2Book` with the canonical prefixed coin from that universe, both on the allowlisted info URL. It retains the metadata's spelling and reports `coin`, `dex`, precision and leverage metadata; unknown, ambiguous or delisted markets fail before the book request. Metadata fields absent from the response are `null`, never invented. There is no alternate origin. Read-only discovery does not place an order or move collateral.
 
 ## Prices
 

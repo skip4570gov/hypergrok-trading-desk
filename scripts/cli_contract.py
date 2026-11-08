@@ -1,13 +1,16 @@
-"""Shared read-only command diagnostics and explicit network selection."""
+"""Shared read-only command diagnostics.
+
+Market-data reads use the public Hyperliquid info origin and no other.
+There is no ``--base-url`` and no testnet switch.
+"""
 
 import argparse
 import json
 import math
 import re
-from urllib.parse import urlsplit
 
-MAINNET = "https://api.hyperliquid.xyz"
-TESTNET = "https://api.hyperliquid-testnet.xyz"
+from market_data import HYPERLIQUID_ORIGIN
+
 SCHEMA_VERSION = 1
 
 
@@ -29,9 +32,6 @@ class ReadOnlyParser(argparse.ArgumentParser):
 
 
 def add_network_arguments(parser):
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument("--base-url", help="explicit public API origin; custom origins are labelled custom")
-    group.add_argument("--testnet", action="store_true", help="use the Hyperliquid testnet public API")
     parser.add_argument("--timeout", type=float, default=15.0, help="finite positive request timeout in seconds")
     parser.add_argument("--schema", action="store_true", help="describe the JSON output and exit without network access")
 
@@ -39,19 +39,9 @@ def add_network_arguments(parser):
 def network_settings(args, parser):
     if not math.isfinite(args.timeout) or args.timeout <= 0:
         parser.error("timeout must be finite and positive")
-    base = (args.base_url or (TESTNET if args.testnet else MAINNET)).rstrip("/")
-    try:
-        url = urlsplit(base)
-        valid = (url.scheme in ("https", "http") and bool(url.hostname)
-                 and url.username is None and url.password is None
-                 and not url.path and not url.query and not url.fragment)
-        url.port  # Validate an explicitly supplied port.
-    except ValueError:
-        valid = False
-    if not valid:
-        parser.error("base-url must be an HTTP(S) origin without credentials, path, query or fragment")
-    network = "mainnet" if base == MAINNET else "testnet" if base == TESTNET else "custom"
-    return base, network
+    if getattr(args, "testnet", False) or getattr(args, "base_url", None) not in (None, HYPERLIQUID_ORIGIN):
+        parser.error("base-url and testnet are not available; reads use the public info endpoint only")
+    return HYPERLIQUID_ORIGIN, "public-info"
 
 
 def market_selection(parser, coin, dex):

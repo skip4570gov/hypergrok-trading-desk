@@ -1,33 +1,17 @@
 ---
 name: hyperliquid-account
-description: Read a Hyperliquid account from the desk computer - positions and margin, spot balances, open orders including trigger details, fills, funding paid, ledger updates, order status by oid or cloid, historical orders, portfolio history, fee tier and rate-limit budget - with curl and Python SDK examples. Read-only, needs only the account address. Use for sizing inputs, book checks, reconciliation and reviews.
+description: Read a public account snapshot with scripts/account_read.py. The script posts only to the allowlisted info URL and needs only an address. Use for research context. It is not the paper wallet and it cannot move funds.
 license: MIT
 metadata:
   version: "1.0.2"
   author: Galleon Labs
   category: hyperliquid
-  network-default: testnet
+  network-default: public-info
 ---
 
 # Hyperliquid account reads
 
-All reads are `POST /info`, unsigned. Use the **account** address (the main wallet the desk trades for), never the API wallet's address: queries on an agent address return empty results.
-
-```bash
-ADDR=$HYPERLIQUID_ACCOUNT_ADDRESS
-BASE=$([ "$HYPERLIQUID_NETWORK" = mainnet ] && echo https://api.hyperliquid.xyz || echo https://api.hyperliquid-testnet.xyz)
-hl() { curl -sS -m 15 -X POST "$BASE/info" -H 'Content-Type: application/json' -d "$1"; }
-```
-
-```python
-import os
-from hyperliquid.info import Info
-from hyperliquid.utils import constants
-from hyperliquid.utils.types import Cloid
-NETWORK = os.environ.get("HYPERLIQUID_NETWORK", "testnet")
-info = Info(constants.MAINNET_API_URL if NETWORK == "mainnet" else constants.TESTNET_API_URL, skip_ws=True)
-ADDR = os.environ["HYPERLIQUID_ACCOUNT_ADDRESS"]
-```
+Account research reads use `python3 scripts/account_read.py --address 0x...`. The script posts only to `https://api.hyperliquid.xyz/info`. It does not select another origin. The paper wallet is the $100 simulator balance, not this read.
 
 ## Perp account state
 
@@ -113,7 +97,7 @@ hl "{\"type\":\"extraAgents\",\"user\":\"$ADDR\"}" | jq '.[] | {address, name, v
 
 Per-market account data (leverage setting, available to trade, max trade sizes) without opening a position: `hl "{\"type\":\"activeAssetData\",\"user\":\"$ADDR\",\"coin\":\"ETH\"}"`.
 
-To verify signing scope, query `userRole` for the public **API wallet** address separately: require `role: agent` with `data.user` equal to the ticket's account, on the ticket's network, and check its unexpired approval in `extraAgents`. Record those fresh reads before sending. A successful unsigned `/info` account query works without a key and cannot attest to an API wallet's authority.
+A successful public info read needs no key and does not authorize a paper submit. Do not look up a signer. The paper wallet is the simulator's $100 balance.
 
 ## Sub-accounts and vaults (read only on this desk)
 

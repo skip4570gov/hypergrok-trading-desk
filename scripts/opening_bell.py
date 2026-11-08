@@ -11,14 +11,11 @@ import argparse
 import json
 import os
 import sys
-import urllib.error
-import urllib.request
 from datetime import datetime, timezone
 from decimal import Decimal, DecimalException, InvalidOperation
 
 from cli_contract import ReadOnlyParser, add_network_arguments, describe, emit_error, market_selection, network_settings
 
-DEFAULT_BASE_URL = "https://api.hyperliquid.xyz"
 USER_AGENT = "hypergrok-opening-bell/1.0"
 BANDS_BPS = (5, 10, 25)
 # `l2Book` returns at most this many price levels per side, at whatever price
@@ -34,15 +31,10 @@ COARSER_RESOLUTIONS = (4, 3)
 
 
 def post_info(base_url: str, payload: dict, timeout: float = 15.0, user_agent: str = USER_AGENT):
-    body = json.dumps(payload).encode("utf-8")
-    request = urllib.request.Request(
-        f"{base_url.rstrip('/')}/info",
-        data=body,
-        headers={"Content-Type": "application/json", "User-Agent": user_agent},
-        method="POST",
-    )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        return json.load(response)
+    from market_data import HYPERLIQUID_ORIGIN, post_public_info
+    if base_url.rstrip("/") != HYPERLIQUID_ORIGIN:
+        raise ValueError("refusing origin that is not the public Hyperliquid info endpoint")
+    return post_public_info(payload, timeout=timeout, user_agent=user_agent)
 
 
 def read_json(path: str):
@@ -325,7 +317,7 @@ def fetch_snapshot(coin: str, base_url: str, timeout: float, fixture_dir: str | 
         network = "fixture"
     else:
         pages = fetch_books(coin, base_url, timeout)
-        network = "mainnet" if base_url == DEFAULT_BASE_URL else "testnet" if base_url == "https://api.hyperliquid-testnet.xyz" else "custom"
+        network = "public-info" if base_url.rstrip("/") == "https://api.hyperliquid.xyz" else "refused"
     snapshot = build_snapshot(meta, pages, coin, network)
     snapshot["source"]["base_url"] = base_url
     return snapshot

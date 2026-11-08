@@ -24,8 +24,8 @@ class ExchangeWriteGateTest(unittest.TestCase):
         self.assertIsNotNone(decision, event["tool_input"])
         output = decision["hookSpecificOutput"]
         self.assertEqual(output["hookEventName"], "PreToolUse")
-        self.assertEqual(output["permissionDecision"], "ask")
-        self.assertIn("ticket", output["permissionDecisionReason"])
+        self.assertEqual(output["permissionDecision"], "deny")
+        self.assertIn("blocked", output["permissionDecisionReason"])
         return output["permissionDecisionReason"]
 
     def test_python_sdk_writes_ask(self):
@@ -106,7 +106,7 @@ class ExchangeWriteGateTest(unittest.TestCase):
 
     def test_hook_process_contract(self):
         ask = subprocess.run([sys.executable, GATE], input=json.dumps(bash("python3 -c 'exchange.order(c, True, 1, 2, t)'")), capture_output=True, text=True, check=True)
-        self.assertEqual(json.loads(ask.stdout)["hookSpecificOutput"]["permissionDecision"], "ask")
+        self.assertEqual(json.loads(ask.stdout)["hookSpecificOutput"]["permissionDecision"], "deny")
         quiet = subprocess.run([sys.executable, GATE], input=json.dumps(bash("ls")), capture_output=True, text=True, check=True)
         self.assertEqual(quiet.stdout, "")
         garbage = subprocess.run([sys.executable, GATE], input="not json", capture_output=True, text=True, check=True)

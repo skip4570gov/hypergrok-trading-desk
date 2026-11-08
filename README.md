@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(max-width: 600px)" srcset="assets/hero-mobile.svg">
-    <img src="assets/hero.svg" width="800" alt="HyperGrok, a Hyperliquid trading desk for Grok Bot. Your trading desk, fully staffed. A ticket moves along the trading floor from the Desk Lead and analysts to the Risk Manager, waits for your approval, then the Execution Trader sends it once to Hyperliquid and the Trade Reviewer records it.">
+    <img src="assets/hero.svg" width="800" alt="HyperGrok paper desk. A ticket moves from the Desk Lead and analysts to the Risk Manager, waits for your approval, then the local simulator records it and the Trade Reviewer reviews the journal.">
   </picture>
 </p>
 
@@ -14,12 +14,12 @@
 
 <p align="center">Works in <a href="#start">Grok Bot</a> · <a href="docs/hyperliquid-claude-code.md">Claude Code</a> · <a href="docs/hyperliquid-cursor.md">Cursor</a> · <a href="docs/hyperliquid-codex.md">Codex</a> · <a href="docs/hyperliquid-gemini-cli.md">Gemini CLI</a> · <a href="docs/hyperliquid-grok-build.md">Grok Build</a></p>
 
-HyperGrok gives your AI agents a shared process for Hyperliquid research, risk, execution and review. It includes seven role profiles, seventeen skills and read-only Python tools. Start with public market data, then set up the desk in Grok Bot or [your preferred agent tool](#also-runs-in-grok-build-cursor-claude-code-codex-and-gemini-cli). Trading requires your own API wallet, verified approval controls and an exact ticket you approve.
+HyperGrok gives your AI agents a shared process for Hyperliquid research, risk, and review. This `paper-only` branch has six role profiles, seventeen skills, public info reads, and a local simulator. It cannot place a live order. Start with public market data, then set up the desk in Grok Bot or [your preferred agent tool](#also-runs-in-grok-build-cursor-claude-code-codex-and-gemini-cli).
 
 ## Try it now, no keys
 
 ```bash
-git clone --depth 1 --branch v1.7.1 https://github.com/galleonlabs/hypergrok-trading-desk.git
+git clone --depth 1 --branch paper-only https://github.com/galleonlabs/hypergrok-trading-desk.git
 cd hypergrok-trading-desk
 python3 scripts/opening_bell.py --coin ETH
 ```
@@ -36,7 +36,7 @@ Recorded from the command above on 25 October 2026 at 13:09 UTC. The figures are
 
 For the seven-Bot desk with a shared Trading Floor, open Grok Bot and paste:
 
-> Set up the HyperGrok trading desk from https://github.com/galleonlabs/hypergrok-trading-desk/blob/v1.7.1/skills/hypergrok-bootstrap/SKILL.md. Follow the bootstrap skill, use https://github.com/galleonlabs/hypergrok-trading-desk/blob/v1.7.1/SETUP.md for the complete runbook, and finish with its evidence receipt.
+> Set up the HyperGrok trading desk from https://github.com/galleonlabs/hypergrok-trading-desk/blob/paper-only/skills/hypergrok-bootstrap/SKILL.md. Follow the bootstrap skill, use https://github.com/galleonlabs/hypergrok-trading-desk/blob/paper-only/SETUP.md for the complete runbook, and finish with its evidence receipt.
 
 Or add the [public HyperGrok Desk Lead template](https://x.ai/bot/2GeaOwIsmTEOD_WGzmghC), then send **Start the desk.** Its 1.7.1 bootstrap installs the complete seventeen-skill release. See the [publication and native content checks](docs/GROK_BOT_TEMPLATE.md#publication-verification---2026-11-03).
 
@@ -84,17 +84,16 @@ You supply the ideas. Each role owns a stage and hands its evidence to the next.
 | **Desk Lead** | Your main contact. Runs the floor, keeps every trade moving through the same clean process. |
 | **Market Analyst** | Live Hyperliquid data on demand: price, depth, funding, open interest, candles. Timestamped and sourced. |
 | **Research Analyst** | What is happening and what is scheduled: fundamentals, news, catalysts, onchain and social context. |
-| **Strategist** | Turns your idea into explicit rules, backtests it honestly on Hyperliquid history, paper-trades it on testnet. |
-| **Risk Manager** | Keeps your written limits, sizes every trade from your live account, watches the book, and can say no. |
-| **Execution Trader** | The one Bot with the keys. Sends the ticket you approved, once, and reconciles it from the exchange record. |
-| **Trade Reviewer** | Keeps the desk journal and grades every trade on process and outcome, separately. |
+| **Strategist** | Turns your idea into explicit rules, backtests it honestly on public history, and proposes paper trades. |
+| **Risk Manager** | Sizes every BTC or ETH idea on the $100 paper wallet, can say no, and is the only role that may run the simulator. |
+| **Trade Reviewer** | Keeps the desk journal and grades every paper trade on process and outcome, separately. |
 
-Six sit together on the **Trading Floor** group chat; the Trade Reviewer works by DM. Every trade follows the same path:
+Five sit together on the **Trading Floor** group chat; the Trade Reviewer works by DM. There is no Execution Trader. Every paper trade follows the same path:
 
 <p align="center">
   <picture>
     <source media="(max-width: 600px)" srcset="assets/desk-flow-mobile.svg">
-    <img src="assets/desk-flow.svg" width="800" alt="One trade, seven stages: 1 idea, from you; 2 evidence, from the Market Analyst, Research Analyst and Strategist; 3 risk sign-off, where the Risk Manager sizes the trade and issues the ticket; 4 your approval, by ticket id; 5 one send, by the Execution Trader, the one Bot with the keys; 6 reconciliation, where the Execution Trader confirms it from the exchange record; 7 review, where the Trade Reviewer grades process and outcome separately.">
+    <img src="assets/desk-flow.svg" width="800" alt="Paper trade stages: idea, evidence, risk sign-off, your approval by ticket id, one local simulator submit, journal, and review. No exchange send.">
   </picture>
 </p>
 
@@ -102,26 +101,15 @@ Six sit together on the **Trading Floor** group chat; the Trade Reviewer works b
 
 **"Brief me on ETH."** The Market Analyst pulls mid, mark, funding, open interest, 24h volume and depth at 5/10/25 bps from the exchange, and posts a brief with sources and UTC times.
 
-**"I want to long ETH at 3,000 with a stop at 2,900."** In this illustrative example, the Desk Lead opens `HG-20260816-01`. The Risk Manager reads the account and returns a sized ticket:
-
-```
-TICKET HG-20260816-01 | mainnet
-market ETH-PERP  side buy  size 0.4827 ETH (~$1,448)
-entry limit 3,000 Gtc     stop sell 0.4827 @ 2,900 market (sent with the entry)
-risk $51.00 = 0.5% of equity $10,200 (clearinghouseState 14:11 UTC)  R = 100
-sized on a stressed stop: 100 + 3.00 slippage + 2.65 fees = 105.65 per ETH
-approve with: "approve HG-20260816-01"
-```
-
-You type `approve HG-20260816-01`. After the pre-send checks and native approval gate pass, the Execution Trader sends entry and stop in one grouped order, reconciles the exchange response and reports the order ids. The Trade Reviewer records costs, process and outcome.
+**"I want to long ETH at 3,000 with a trailing stop 100 below and a target at 3,200."** The Desk Lead opens a proposal. The Risk Manager checks the $100 wallet, the trailing stop, reward-to-risk, and the 1% cap, then returns a paper ticket. You type `approve` plus that ticket id. The Risk Manager runs `scripts/paper_sim.py submit` once. The Trade Reviewer records the journal line.
 
 <p align="center">
-  <img src="assets/ticket-hg-20260816-01.png" width="760" alt="Worked example: the Risk Manager posts ticket HG-20260816-01 for 0.4827 ETH, sized on a stressed stop of 105.65 per ETH; the user replies approve HG-20260816-01; the Execution Trader sends entry and stop once as one grouped order and confirms it on the book.">
+  <img src="assets/ticket-hg-20260816-01.png" width="760" alt="Historical ticket artwork from before this branch. The paper desk records the simulator journal instead of an exchange order.">
 </p>
 
-**"Can we test whether funding extremes mean-revert?"** The Strategist writes the rules with you, collects and verifies the agreed history, then reports costs, funding assumptions, holdout results and the trade distribution. Missing history stays visible. Testnet paper trading follows the same ticket process.
+**"Can we test whether funding extremes mean-revert?"** The Strategist writes the rules with you, collects and verifies the agreed history, then reports costs, funding assumptions, holdout results and the trade distribution. Missing history stays visible. A forward test uses the local simulator and the same ticket process.
 
-**"Watch ETH and tell me if funding flips negative."** A routine on the desk computer watches the WebSocket feed and pings you when it happens.
+**"Watch ETH and tell me if funding flips negative."** A routine polls the public info feed and pings you when it happens.
 
 ## What the desk knows
 
@@ -129,7 +117,7 @@ Seventeen skills, in the portable `SKILL.md` format, shared by all your Bots.
 
 **Bootstrap** - pinned release install, Opening Bell, team construction, desk doctor and a receipt that distinguishes what happened from what still needs a manual step.
 
-**Hyperliquid** - setup and API wallets, market data, account state, orders (limit, IOC, take-profit and stop-loss with grouping, client order ids), positions and margin, WebSocket feeds, advanced actions (dead-man's switch, TWAP, spot), and a compact API reference. Copy-pasteable `curl` for reads; the official Python SDK and `@nktkas/hyperliquid` for anything that signs.
+**Hyperliquid** - public info reads, the local paper simulator, and a reference that does not include a signing scheme.
 
 **Desk** - how the team works: operating model, the trade lifecycle and ticket, risk limits and sizing arithmetic, the execution protocol, monitoring and routines, post-trade review, incident playbooks, and the strategy lab.
 
@@ -142,10 +130,33 @@ HyperGrok is for a coordinated Hyperliquid desk in Grok Bot. For a different set
 
 Neither is required to use HyperGrok. Installing instructions does not connect a wallet or authorize a trade.
 
+## Quote file
+
+`scripts/market_data.py` exposes one read-only method, `PriceFeed.quote(symbol)`. `config/paper.json` chooses the source. `price_source: "hyperliquid"` posts only to `https://api.hyperliquid.xyz/info`. `price_source: "file"` reads a local JSON file at `quotes_file`. An outside process writes that file. This repository does not call Robinhood and contains no Robinhood credential, SDK, or order client. If the file cannot supply a fresh BTC or ETH quote, the public info feed is the fallback. Another symbol is rejected and does not fall back.
+
+The file is one object or an array of objects:
+
+```json
+{
+  "symbol": "BTC",
+  "bid": "100000.00",
+  "ask": "100010.00",
+  "mark": "100005.00",
+  "source": "robinhood",
+  "fetched_at": "2026-11-08T00:20:00Z"
+}
+```
+
+`symbol` is `BTC` or `ETH`. `source` is `robinhood`. `bid`, `ask`, and `mark` are positive decimals and `bid` is not above `ask`. `fetched_at` is timezone-aware ISO8601. A quote older than `max_quote_age_seconds` (default 300) is rejected, as is a missing field or a timestamp more than 30 seconds in the future.
+
+## Paper simulator
+
+`scripts/paper_sim.py` is the only order command. The wallet is $100. It accepts BTC and ETH only, requires a trailing stop, requires reward-to-risk of at least 2:1, and rejects risk over 1% of equity including open paper risk. The journal is append-only. See [REVERT.md](REVERT.md) to return to `main` or commit `01c2a46`.
+
 ## Trading controls
 
-- **You approve every trade**, by ticket id, after seeing the exact order. The line you type is evidence; the gate that enforces it sits outside the chat, in a Grok Bot Auto-review **Ask first** rule, because a Bot that can read an approval could also write one.
-- **A trade-only API wallet**, provisioned through Grok Bot's secure secret store, is the only key the desk ever holds. It can trade; it cannot withdraw.
+- **You approve every paper trade**, by ticket id, after seeing the exact order. The simulator still enforces its rules after that approval.
+- **No key is read.** This checkout has no private-key path and no exchange writer.
 - **Sized on a stressed stop.** The desk includes assumed adverse stop fills and taker fees on both legs when sizing. Actual losses can exceed that assumption. [See what a stop costs](docs/STOP_COST.md).
 - **Ceilings you cannot trade through.** Your limits file may only tighten the desk's own caps, never loosen them.
 - **Testnet first.** Every new kind of action is rehearsed with play money before it touches mainnet.

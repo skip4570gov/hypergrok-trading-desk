@@ -6,11 +6,11 @@ In Grok Bot, if your runtime loaded this repository as a plugin, invoke `hypergr
 
 ## 1. Get the repository onto the desk computer
 
-If `/workspace/hypergrok` already contains a Git checkout, preserve it. Its `plugin.json` must name version `1.7.1`, and `git rev-parse HEAD` must equal `git rev-parse 'refs/tags/v1.7.1^{commit}'`. If the tag is unavailable or either comparison fails, report the existing version and commit and stop dependent setup without overwriting, resetting or switching the checkout. An older release passing its own structural check is insufficient. For a matching existing checkout, run only the final `cd`, commit and structural-check line below; otherwise clone:
+If `/workspace/hypergrok` already contains a Git checkout, preserve it. `git rev-parse --abbrev-ref HEAD` must be `paper-only`. If it is `main` or a tag, report the existing commit and stop dependent setup without overwriting, resetting or switching the checkout. For a matching existing checkout, run only the final `cd`, commit and test line below; otherwise clone:
 
 ```bash
 mkdir -p /workspace && cd /workspace
-git clone --depth 1 --branch v1.7.1 https://github.com/galleonlabs/hypergrok-trading-desk.git hypergrok
+git clone --depth 1 --branch paper-only https://github.com/galleonlabs/hypergrok-trading-desk.git hypergrok
 cd /workspace/hypergrok && git rev-parse HEAD && bash scripts/check.sh
 ```
 
@@ -20,7 +20,7 @@ That pin is a release tag, not a moving branch: the desk you build is the desk t
 
 `scripts/check.sh` is the desk's own structural check: it runs offline, touches no keys and no network, and confirms the skills, agents and manifests are intact and internally consistent. If it fails, stop and tell the user; do not build a desk from a tree that does not check out.
 
-Before using any agent profile or System prompt, run `git diff --exit-code refs/tags/v1.7.1 -- agents/` in the checkout. HEAD matching the tag does not prove the working files are unchanged. If the command reports differences or fails, name the affected paths, stop dependent setup and preserve the user's files.
+Before using any agent profile or System prompt, run `git diff --exit-code HEAD -- agents/` in the checkout. A matching branch name does not prove the working files are unchanged. If the command reports differences or fails, name the affected paths, stop dependent setup and preserve the user's files.
 
 Record the commit `git rev-parse HEAD` printed. It goes into `desk.md` in section 8 as `instructions commit`, so the desk can always say which version of these rules it is running and the user can diff it later.
 
@@ -46,7 +46,7 @@ python3 scripts/opening_bell.py --coin ETH
 python3 scripts/desk_doctor.py --desk-root /workspace/trading-desk
 ```
 
-Show the Opening Bell output to the user. It is a timestamped public market snapshot and must say that it is not a trading signal. A `desk.md` warning from the doctor is expected until section 8; a repository or public API failure is not. The API wallet steps come later, when the user asks to trade. Research, briefs and the strategy lab need no key.
+Show the Opening Bell output to the user. It is a timestamped public market snapshot and must say that it is not a trading signal. A `desk.md` warning from the doctor is expected until section 8; a repository or public API failure is not. Research, briefs and the strategy lab need no key. This checkout never adds one.
 
 For a requested historical experiment, the Market Analyst and Strategist follow [Research datasets](docs/RESEARCH_DATASETS.md): explicit UTC bounds, a new saved bundle, coverage checks and offline replay before analysis. Do not fetch a large historical dataset as an automatic setup step. Dataset completeness does not establish an edge or change any approval gate.
 
@@ -60,8 +60,7 @@ For each file in `agents/`, select one verified Bot or create a separate one. Us
 | `agents/market-analyst.md` | Market Analyst | Hyperliquid market data and microstructure |
 | `agents/research-analyst.md` | Research Analyst | Fundamentals, news and catalyst research |
 | `agents/strategist.md` | Strategist | Strategy design and testing partner |
-| `agents/risk-manager.md` | Risk Manager | Risk limits, position sizing and book oversight |
-| `agents/execution-trader.md` | Execution Trader | Order execution on Hyperliquid |
+| `agents/risk-manager.md` | Risk Manager | Paper sizing and the only simulator submit |
 | `agents/trade-reviewer.md` | Trade Reviewer | Desk journal and post-trade review |
 
 For each Bot:
@@ -71,9 +70,9 @@ For each Bot:
 - **Avatar:** the desk mascot at `/workspace/hypergrok/assets/mascot.jpg` (attach it from the computer, or let the user pick their own).
 - Then send the new Bot its full **System prompt** section as its first message, prefixed with: "These are your standing instructions. Confirm you have read them and state your job in one sentence." Ask it to keep the instructions in memory and to re-read its file at `/workspace/hypergrok/agents/<name>.md` whenever it is unsure.
 
-Read back the native Name, Job and Description and compare them exactly with the profile. Before reuse or after creation, verify the complete standing System prompt through supported native readback. If a full persistent instruction field is not exposed, acceptable separate evidence is readback of the exact full System prompt delivered as a standing-instructions message, the Bot's acknowledgement that it follows the pinned agent file, and that local file's hash matching the expected bytes from `git show 'refs/tags/v1.7.1:agents/<name>.md'`. Hashing an arbitrary local file is insufficient. Record this as `delivery-and-pointer`, with the limitation that delivery and the checked target do not establish byte-identical persistent memory. A matching Description, summarized memory or file pointer alone is insufficient.
+Read back the native Name, Job and Description and compare them exactly with the profile. Before reuse or after creation, verify the complete standing System prompt through supported native readback. If a full persistent instruction field is not exposed, acceptable separate evidence is readback of the exact full System prompt delivered as a standing-instructions message, the Bot's acknowledgement that it follows the pinned agent file, and that local file's hash matching the expected bytes from `git show 'HEAD:agents/<name>.md'`. Hashing an arbitrary local file is insufficient. Record this as `delivery-and-pointer`, with the limitation that delivery and the checked target do not establish byte-identical persistent memory. A matching Description, summarized memory or file pointer alone is insufficient.
 
-If an existing seat differs, is missing or lacks both proof methods, create a separate Bot and verify it. Preserve the existing Bots and unrelated desks' profiles, prompts and memories. Record the selected native Bot IDs; names alone do not identify the intended seats. Grok Bot lets existing Bots create focused Bots. If a needed creation step or both supported verification methods are unavailable, give the user the exact profile card and full standing prompt for each affected role as labelled copy-and-paste blocks, and keep readiness pending until verified. The Grok Bot desk uses seven separate Bots, with one designated exchange writer.
+If an existing seat differs, is missing or lacks both proof methods, create a separate Bot and verify it. Preserve the existing Bots and unrelated desks' profiles, prompts and memories. Record the selected native Bot IDs; names alone do not identify the intended seats. Grok Bot lets existing Bots create focused Bots. If a needed creation step or both supported verification methods are unavailable, give the user the exact profile card and full standing prompt for each affected role as labelled copy-and-paste blocks, and keep readiness pending until verified. The Grok Bot desk uses six separate Bots. None of them writes to an exchange.
 
 ## 5. Install the skills
 
@@ -99,50 +98,47 @@ Skills to install (17):
 - Hyperliquid: `hyperliquid-setup`, `hyperliquid-market-data`, `hyperliquid-account`, `hyperliquid-orders`, `hyperliquid-positions`, `hyperliquid-websocket`, `hyperliquid-advanced`, `hyperliquid-api-reference`
 - Desk: `desk-operating-model`, `desk-trade-lifecycle`, `desk-risk-limits`, `desk-execution-protocol`, `desk-monitoring`, `desk-post-trade-review`, `desk-incident-response`, `desk-strategy-lab`
 
-Tell each Bot which skills are its own (listed in its agent file's frontmatter). Any Bot may read any skill; the Execution Trader is the one Bot that acts on the write paths in `hyperliquid-orders`, `hyperliquid-positions` and `hyperliquid-advanced`.
+Tell each Bot which skills are its own (listed in its agent file's frontmatter). Any Bot may read any skill. Only the Risk Manager runs `scripts/paper_sim.py`. `hyperliquid-orders`, `hyperliquid-positions` and `hyperliquid-advanced` do not send an exchange request.
 
 ## 6. Create the Trading Floor
 
-Create one private group chat named **Trading Floor** with the selected native Bot IDs for exactly these six roles: Desk Lead, Market Analyst, Research Analyst, Strategist, Risk Manager, Execution Trader. (Grok Bot group chats hold up to six Bots; the Trade Reviewer works from its own conversation and by direct message.) Reuse a group only when its ID is already selected for this desk and native readback confirms exactly those six member IDs. Preserve prior groups; a matching name alone is insufficient. Record the group ID and membership IDs. If creation or membership readback is unavailable, return the exact manual step and keep group readiness pending. Send the welcome message and later role checks to the recorded Floor ID.
+Create one private group chat named **Trading Floor** with the selected native Bot IDs for exactly these five roles: Desk Lead, Market Analyst, Research Analyst, Strategist, Risk Manager. (The Trade Reviewer works from its own conversation and by direct message.) Reuse a group only when its ID is already selected for this desk and native readback confirms exactly those five member IDs. Preserve prior groups; a matching name alone is insufficient. Record the group ID and membership IDs. If creation or membership readback is unavailable, return the exact manual step and keep group readiness pending. Send the welcome message and later role checks to the recorded Floor ID.
 
 Post this as the first message in the group:
 
-> Welcome to the Trading Floor. Desk Lead routes; Market Analyst and Research Analyst bring evidence; Strategist helps the user test their own ideas; Risk Manager sizes and can refuse; Execution Trader is the one Bot that sends orders, on a ticket the user approved by id. Rules: `/workspace/hypergrok/skills/desk-operating-model/SKILL.md`. Trade Reviewer is a DM away. Today is setup: nothing goes to the exchange.
+> Welcome to the Trading Floor. Desk Lead routes; Market Analyst and Research Analyst bring evidence; Strategist helps the user test their own ideas; Risk Manager sizes and can refuse, and is the only Bot that may run the paper simulator after you approve a ticket by id. Rules: `/workspace/hypergrok/skills/desk-operating-model/SKILL.md`. Trade Reviewer is a DM away. Today is setup: nothing is submitted.
 
 ## 7. Approvals
 
-Ask the user to open **Settings, General, Auto-review** and add an **Ask first** rule for financial actions and for commands that call the Hyperliquid exchange endpoint. Verify that the native control covers SDK calls, scripts and direct HTTP through the supported settings or a non-sending approval preview; do not submit a live order to test it. Record the coverage evidence in `desk.md`. If coverage cannot be established, keep the desk research-only, do not provision an API wallet key, and report the exact missing control. Chat approval and a command-matching hook cannot substitute for this gate.
+Do not provision a key and do not submit a live order to test the desk. A paper order still needs the user's exact ticket id. Record that this checkout has no exchange writer in `desk.md`.
 
-The native rule enforces approval outside Bot-authored messages. The phrase in chat records the exact ticket the user approved; it cannot substitute for that control.
-
-Then ask the user one question: **may the desk place a protective stop for a position that has none, without waiting for approval?** It is reduce-only, so it can only reduce exposure, and the alternative is a naked position waiting on someone to read a message. If yes, record it in `desk.md` under `standing approvals` with the date. If no, record that too, along with how long the desk should chase them before telling them to fix it in the Hyperliquid app themselves.
+There is no standing approval that skips the trailing stop, the 2:1 payoff, or the 1% risk cap. Those checks live in `scripts/paper_sim.py`.
 
 ## 8. Write the desk record
 
 Ask the user two questions, then write `/workspace/trading-desk/desk.md`:
 
-Record only verified Bot, group and member IDs as observed; mark uncreated, manual or unverified roles and any unverified Floor as pending rather than copying the desired seven-Bot/six-member inventory as an observed result.
+Record only verified Bot, group and member IDs as observed; mark uncreated, manual or unverified roles and any unverified Floor as pending rather than copying the desired six-Bot/five-member inventory as an observed result.
 
-1. Engagement level: **research** (no key), **testnet** (play money, recommended to start), or **mainnet**.
-2. If testnet or mainnet: the Hyperliquid account address the desk should read (the main account, not an API wallet address).
+1. Engagement level is **paper**. Do not ask for testnet or mainnet.
+2. Optional: a public address for read-only `scripts/account_read.py`. It is not the paper wallet.
 
 ```markdown
 # Desk record
 
 - created: 2026-08-16 15:00 UTC
 - instructions commit: 0000000        # git rev-parse HEAD from step 1
-- engagement level: testnet
-- network: testnet
-- account: 0x...            # or "none" for a research desk
-- bots: Desk Lead, Market Analyst, Research Analyst, Strategist, Risk Manager, Execution Trader, Trade Reviewer
+- engagement level: paper
+- network: public-info
+- account: none
+- bots: Desk Lead, Market Analyst, Research Analyst, Strategist, Risk Manager, Trade Reviewer
 - bot ids: <role to verified native Bot ID>
-- group chats: Trading Floor (6)
-- trading floor id and member ids: <verified native group and six Bot IDs>
-- risk limits: not yet written  (Risk Manager runs the interview: skills/desk-risk-limits)
-- standing approvals: none          # recommended: protective stops (reduce-only), any network
-- exchange approval gate: unverified # evidence of native coverage required before provisioning a key
-- unprotected position deadline: 15m  # chase this long, then tell the user to fix it in the app
-- status: research-only until the native gate is verified, limits exist and an API wallet is provisioned
+- group chats: Trading Floor (5)
+- trading floor id and member ids: <verified native group and five Bot IDs>
+- risk limits: simulator defaults in skills/desk-risk-limits
+- standing approvals: none
+- exchange writer: none
+- status: paper-only; no key requested
 ```
 
 Then hand the Risk Manager the `desk-risk-limits` interview to write `risk-limits.md` with the user. It is short, and it is where the user decides how the desk trades for them.
@@ -160,8 +156,8 @@ python3 scripts/opening_bell.py --coin BTC
 Then run these and record the results:
 
 1. In the Trading Floor, ask: "@Market Analyst brief us on BTC." Expect a timestamped brief with sources.
-2. Ask: "@Risk Manager assuming equity of 10,000 USD and the current limits, size a hypothetical long BTC with a 1% stop." Expect a PASS or REJECT with the arithmetic and a ticket, and a note that nothing will be sent.
-3. Ask: "@Execution Trader what would you need before sending that ticket?" Expect the pre-send checklist, including native approval coverage, fresh account capacity and retained pending reservations, and a refusal to send without the exact ticket's approval.
+2. Ask: "@Risk Manager size a hypothetical long BTC on the $100 paper wallet." Expect a PASS or REJECT that names the trailing stop, 2:1 payoff, and 1% cap.
+3. Ask: "@Risk Manager what command submits that ticket?" Expect `scripts/paper_sim.py` and a refusal to use any other path.
 4. DM the Trade Reviewer: "Open today's journal and record that the desk was set up." Expect a journal entry.
 5. Ask the Research Analyst for one sourced fact about Hyperliquid itself.
 
@@ -169,16 +165,16 @@ Then run these and record the results:
 
 Finish by giving the user:
 
-- the seven Bot IDs, created/reused/manual-card status, profile comparison and standing-instruction proof method, including any `delivery-and-pointer` limitation
+- the six Bot IDs, created/reused/manual-card status, profile comparison and standing-instruction proof method, including any `delivery-and-pointer` limitation
 - each skill's status, native readback method or unavailable reason, normalized stored body length/hash and comparison result; distinguish pointer evidence
 - the Trading Floor ID and verified member IDs
-- the desk record and its engagement level
-- native exchange approval coverage, or the exact blocker keeping the desk research-only
+- the desk record and its paper engagement level
+- confirmation that no exchange writer exists
 - the desk doctor and Opening Bell results
 - the results of the five verification checks
-- confirmation that setup stayed read-only: no key requested, no order placed
+- confirmation that setup requested no key and placed no live order
 
-Only after the required native and role checks pass, say: "The desk is ready. Ask the Desk Lead for a market brief to see it work. When you want to trade with play money, say 'set up a testnet API wallet' and it will walk you through `hyperliquid-setup` step 4." Otherwise name the failed or pending check and next safe action.
+Only after the required checks pass, say: "The desk is ready. Ask the Desk Lead for a market brief, or ask the Risk Manager to paper-submit a BTC or ETH ticket." Otherwise name the failed or pending check and next safe action.
 
 ## If you are not Grok Bot
 

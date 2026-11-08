@@ -16,6 +16,7 @@ import sys
 
 CANONICAL_NAME = "hypergrok"
 REPOSITORY = "https://github.com/galleonlabs/hypergrok-trading-desk"
+PAPER_BRANCH = "paper-only"
 
 MANIFESTS = [
     "plugin.json",
@@ -152,8 +153,8 @@ def check_pinned_source(rel, prefix, entry, version, errors):
         return
     if source.get("url") != REPOSITORY + ".git":
         errors.append(f"{rel}: {prefix}source.url must be '{REPOSITORY}.git'")
-    if version is not None and source.get("ref") != f"v{version}":
-        errors.append(f"{rel}: {prefix}source.ref must pin v{version}")
+    if source.get("ref") != PAPER_BRANCH:
+        errors.append(f"{rel}: {prefix}source.ref must pin {PAPER_BRANCH}")
 
 
 def check_codex_entry(rel, prefix, entry, errors):
@@ -284,7 +285,7 @@ def check_documented_pin(root, version, errors):
         for target in GROK_INSTALL_RE.findall(text):
             if target == CANONICAL_NAME:
                 continue  # marketplace install uses the validated index ref
-            expected_target = REPOSITORY.removeprefix("https://github.com/") + "@" + expected
+            expected_target = REPOSITORY.removeprefix("https://github.com/") + "@" + PAPER_BRANCH
             if target != expected_target:
                 errors.append(
                     f"{rel}: 'grok plugin install {target}' must use '{expected_target}'"
@@ -296,12 +297,12 @@ def check_documented_pin(root, version, errors):
             if not found:
                 errors.append(
                     f"{rel}: 'git clone' of this repository is not pinned; "
-                    f"it needs --branch {expected}"
+                    f"it needs --branch {PAPER_BRANCH}"
                 )
-            elif found.group(1) != expected:
+            elif found.group(1) != PAPER_BRANCH:
                 errors.append(
                     f"{rel}: 'git clone --branch {found.group(1)}' does not pin "
-                    f"the version the manifests declare (expected {expected})"
+                    f"{PAPER_BRANCH}"
                 )
 
 
@@ -361,7 +362,7 @@ def check_documented_cli_installs(root, codex_marketplace, version, errors):
     ref. A ref that is given must be the release the manifests declare.
     """
     shorthand = REPOSITORY.removeprefix("https://github.com/")
-    expected = f"v{version}" if version is not None else None
+    expected = PAPER_BRANCH
     market = codex_marketplace if isinstance(codex_marketplace, dict) else {}
     install_ids = {
         f"{p.get('name')}@{market.get('name')}"

@@ -3,8 +3,8 @@
 
 The ticket protocol (Risk PASS, approval by ticket id, one bounded send) is the
 desk's control. This hook adds a mechanical second check in Claude Code: a Bash
-command that looks like a signed `/exchange` request gets an "ask" decision, so
-the user confirms it even in an auto-accepting session. Anything else gets no
+command that looks like a signed exchange write gets a "deny" decision.
+The paper-only desk has no order path to approve. Anything else gets no
 opinion and follows the normal permission flow. The hook never approves.
 
 It reads the command text and any script file the command names (resolved from
@@ -90,11 +90,10 @@ def decide(event):
     return {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
-            "permissionDecision": "ask",
+            "permissionDecision": "deny",
             "permissionDecisionReason": (
-                f"HyperGrok: this looks like a Hyperliquid exchange write ({found} {where}). "
-                "Approve only if it is the single send for a ticket with a Risk PASS "
-                "and your approval by that ticket id."
+                f"HyperGrok paper-only: blocked an exchange write ({found} {where}). "
+                "This checkout cannot approve a live order."
             ),
         }
     }

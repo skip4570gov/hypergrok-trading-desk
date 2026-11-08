@@ -18,14 +18,14 @@ These ceilings reject limits files that exceed the desk's bounds. They are maxim
 
 | Ceiling | Value |
 | --- | --- |
-| max risk per trade | 2% of equity |
-| max total open risk | 6% of equity |
-| max leverage on any market | 20x, and never above the exchange or tier max |
-| daily loss stop | -10% of start-of-day equity |
-| exchange-resting stop on every entry | mandatory |
-| standing approval for a mainnet send that can open or increase exposure | never |
+| paper wallet | $100, fixed in `scripts/paper_sim.py` |
+| symbols | BTC and ETH only |
+| max risk per order and total open paper risk | 1% of that equity |
+| reward-to-risk | at least 2:1 |
+| trailing stop | mandatory on every order |
+| live or testnet send | impossible in this checkout |
 
-The one send a standing approval may cover on any network is **reduce-only protection**: placing or resizing a stop for a position that has none. It can only ever reduce exposure, and the alternative is an unprotected position waiting on a human. Entries, adds, leverage increases and anything that can open or grow a position always need approval by id, on every network.
+These numbers are hardcoded in the simulator. A limits file cannot loosen them, and a missing trailing stop is a reject rather than a warning. The Risk Manager submits only through `scripts/paper_sim.py` after the user approves the exact ticket id.
 
 The user's limits file may only be **stricter** than these. A file that sets a value looser than a ceiling is not applied: the Risk Manager REJECTs with `gate failed: limits file exceeds desk ceiling <name>`, keeps enforcing the ceiling, and asks the user to edit the file. The desk never edits the file itself, and no Bot may raise a ceiling.
 
@@ -141,7 +141,7 @@ Timestamp everything. Save a copy under `/workspace/trading-desk/briefs/YYYY-MM-
 ## 4. When the desk hits a limit
 
 - Daily loss stop hit: post it once on the floor, set `status: no-new-risk` in `desk.md`, and REJECT new proposals with that gate until the user resets in writing. Exits and protection are still allowed.
-- Unprotected position discovered: alert the Desk Lead and Execution Trader immediately; a protective stop ticket goes through the lifecycle at priority. If the user pre-authorised protective stops, it goes straight out under that standing approval. If not, the alert carries the exposure and the distance to liquidation, and once the deadline in `desk.md` passes the desk tells the user to close or protect the position in the Hyperliquid app themselves (`desk-incident-response` playbook D).
+- Paper order missing a trailing stop: reject it. The simulator rejects it too. A real exchange position is outside this checkout; tell the user to handle it themselves.
 - Limits file missing or unversioned: the desk is a research desk until it exists.
 
 ## Pitfalls

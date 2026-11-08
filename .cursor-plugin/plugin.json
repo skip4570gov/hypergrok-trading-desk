@@ -1,6 +1,6 @@
 {
   "name": "hypergrok",
-  "description": "Hyperliquid trading desk roles and skills.",
+  "description": "Paper-only Hyperliquid desk: six roles, public info reads, and a local simulator. No exchange writer.",
   "version": "1.7.1",
   "author": {
     "name": "Galleon Labs"

@@ -16,7 +16,7 @@ Load `desk-operating-model` before asking the roles to act.
 ## What loads
 
 + **Seventeen skills**: Hyperliquid setup, market data, account state, orders, positions, WebSocket feeds, advanced actions and a compact API reference, plus the desk skills for the trade lifecycle, risk limits and sizing, execution, monitoring, post-trade review, incidents and the strategy lab.
-+ **Roles as labelled passes.** This plugin's Codex entry installs skills without registering `agents/` as native subagents. Run the seven roles as labelled passes using each role's system prompt. Only the Execution Trader pass writes to the exchange.
++ **Roles as labelled passes.** This plugin's Codex entry installs skills without registering `agents/` as native subagents. Run the six roles as labelled passes using each role's system prompt. No pass writes to an exchange.
 
 The Claude Code exchange-write hook does not load in Codex. The desk's approval by ticket id still applies.
 
@@ -25,7 +25,7 @@ The Claude Code exchange-write hook does not load in Codex. The desk's approval 
 Ask for a market brief, for example "Brief me on ETH". The reads use Hyperliquid's public `/info` endpoint, with no wallet or account. The same read works from a terminal:
 
 ```bash
-git clone --depth 1 --branch v1.7.1 https://github.com/galleonlabs/hypergrok-trading-desk.git
+git clone --depth 1 --branch paper-only https://github.com/galleonlabs/hypergrok-trading-desk.git
 cd hypergrok-trading-desk
 python3 scripts/opening_bell.py --coin ETH
 ```

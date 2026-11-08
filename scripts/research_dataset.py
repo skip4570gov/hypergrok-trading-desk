@@ -121,21 +121,23 @@ def digest(data):
 class PublicReader:
     """Paced public reads with the exact decoded response and request retained."""
     def __init__(self, base_url, timeout):
-        self.base_url, self.timeout = base_url, timeout
+        from market_data import HYPERLIQUID_ORIGIN
+        if str(base_url).rstrip("/") != HYPERLIQUID_ORIGIN:
+            raise ValueError("base-url is not available; reads use the public info endpoint only")
+        self.base_url, self.timeout = HYPERLIQUID_ORIGIN, timeout
         self.records = []
         self.last_request = None
 
     def __call__(self, payload):
+        from market_data import post_public_info
         if self.last_request is not None:
             time.sleep(max(0, 3 - (time.monotonic() - self.last_request)))
         self.last_request = time.monotonic()
         record = {"request": payload}
         self.records.append(record)
-        request = urllib.request.Request(self.base_url + "/info", data=json.dumps(payload).encode(),
-                                         headers={"Content-Type": "application/json", "User-Agent": "hypergrok-research-dataset/1"}, method="POST")
         try:
-            with urllib.request.urlopen(request, timeout=self.timeout) as response:
-                raw = response.read(MAX_RESPONSE_BYTES + 1)
+            result = post_public_info(payload, timeout=self.timeout, user_agent="hypergrok-research-dataset/1")
+            raw = json.dumps(result).encode()
             if len(raw) > MAX_RESPONSE_BYTES:
                 raise ValueError("public response exceeded 10 MB")
             result = json.loads(raw)

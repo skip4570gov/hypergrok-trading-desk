@@ -1,17 +1,17 @@
 ---
 name: hyperliquid-websocket
-description: Subscribe to live Hyperliquid data over WebSocket from the desk computer - mids, order book, trades, candles, best bid/offer, and per-account fills, order updates and events - with raw JSON, Python SDK and TypeScript examples, plus how to run a supervised watch that logs to a file and alerts. Read-only. Use for monitoring, fill notifications and any watch that polling would make expensive.
+description: This paper-only checkout does not open a trading socket or install a client SDK. Poll public info through scripts/market_data.py. Read-only. Use when a watch would otherwise have used a streaming client.
 license: MIT
 metadata:
   version: "1.0.1"
   author: Galleon Labs
   category: hyperliquid
-  network-default: testnet
+  network-default: public-info
 ---
 
 # Hyperliquid WebSocket
 
-Read-only, no key. Endpoints: `wss://api.hyperliquid.xyz/ws` (mainnet), `wss://api.hyperliquid-testnet.xyz/ws` (testnet). Prefer WebSocket over polling for anything continuous: fills, order updates, book and price watches.
+Read-only, no key. This checkout does not ship a socket client. Price and book reads use `scripts/market_data.py` and the allowlisted info URL.
 
 ## Protocol
 
@@ -40,66 +40,9 @@ Limits per IP: up to 10 connections, 30 new connections per minute, 1000 subscri
 
 You can also send `/info` requests over the socket: `{"method":"post","id":1,"request":{"type":"info","payload":{"type":"allMids"}}}` returns `{"channel":"post","data":{"id":1,"response":{...}}}`. Useful inside a watch to avoid mixing REST and WS.
 
-## Python (official SDK)
+## Poll the public info feed
 
-```python
-import os, json, sys, time, signal
-from hyperliquid.info import Info
-from hyperliquid.utils import constants
-
-NETWORK = os.environ.get("HYPERLIQUID_NETWORK", "testnet")
-BASE = constants.MAINNET_API_URL if NETWORK == "mainnet" else constants.TESTNET_API_URL
-ADDR = os.environ.get("HYPERLIQUID_ACCOUNT_ADDRESS")
-LOG = open("/workspace/trading-desk/watch/ws.log", "a")
-
-def on_msg(msg):
-    line = json.dumps({"ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "channel": msg.get("channel"), "data": msg.get("data")})
-    LOG.write(line + "\n"); LOG.flush()
-    if msg.get("channel") == "userFills" and not msg["data"].get("isSnapshot"):
-        for f in msg["data"]["fills"]:
-            print(f"FILL {f['coin']} {f['side']} {f['sz']} @ {f['px']} fee {f['fee']} oid {f['oid']} cloid {f.get('cloid')}", flush=True)
-
-info = Info(BASE)                                   # skip_ws=False starts the socket thread
-info.subscribe({"type": "allMids"}, on_msg)
-info.subscribe({"type": "l2Book", "coin": "ETH"}, on_msg)
-if ADDR:
-    info.subscribe({"type": "userFills", "user": ADDR}, on_msg)
-    info.subscribe({"type": "orderUpdates", "user": ADDR}, on_msg)   # one orderUpdates/userEvents subscription per Info
-
-signal.signal(signal.SIGTERM, lambda *_: (info.disconnect_websocket(), sys.exit(0)))
-while True:
-    time.sleep(60)
-```
-
-The SDK's manager pings for you but does **not** reconnect on drop; run it under a supervisor (see below) and treat a silent log as a dead watch. It also only routes these subscription types to your callback: `allMids`, `l2Book`, `trades`, `candle`, `bbo`, `userEvents`, `userFills`, `orderUpdates`, `userFundings`, `userNonFundingLedgerUpdates`, `activeAssetCtx`, `activeAssetData`. Others in the table (`clearinghouseState`, `openOrders`, `twapStates`, `userTwapSliceFills`, `webData3`, `notification`) are acknowledged by the server but silently dropped by the Python SDK; use the raw socket or the TypeScript client for those. The SDK routes one more type, `webData2`, but do not subscribe to it: the live server rejects that frame on mainnet and testnet with `{"channel":"error"}` and the watch never starts. `webData2` survives only as an `/info` request; the frontend snapshot stream is `webData3`, which SDK 0.24.0 cannot route at all.
-
-Run in the background from the desk computer:
-
-```bash
-mkdir -p /workspace/trading-desk/watch
-nohup python3 /workspace/trading-desk/watch/ws_watch.py >> /workspace/trading-desk/watch/ws_watch.out 2>&1 &
-echo $! > /workspace/trading-desk/watch/ws_watch.pid
-```
-
-Heartbeat check for a routine: `tail -1 /workspace/trading-desk/watch/ws.log` should be recent; if the pid is gone or the log exceeds the watch's staleness bound, mark the watch unavailable, restart it and complete the recovery below. A new PID or subscription acknowledgement does not prove that missed account activity has been recovered.
-
-## TypeScript (`@nktkas/hyperliquid`)
-
-```ts
-import { SubscriptionClient, WebSocketTransport } from "@nktkas/hyperliquid";
-const isTestnet = (process.env.HYPERLIQUID_NETWORK ?? "testnet") !== "mainnet";
-const transport = new WebSocketTransport({ isTestnet });     // auto-reconnect and re-subscribe by default
-const subs = new SubscriptionClient({ transport });
-const user = process.env.HYPERLIQUID_ACCOUNT_ADDRESS as `0x${string}`;
-
-await subs.allMids((d) => console.log("mids", d.mids.ETH));
-await subs.l2Book({ coin: "ETH" }, (d) => console.log("book", d.levels[0][0], d.levels[1][0]));
-await subs.userFills({ user }, (d) => { if (!d.isSnapshot) console.log("fills", d.fills); });
-const s = await subs.orderUpdates({ user }, (u) => console.log("orders", u), { onError: (e) => console.error(e) });
-// await s.unsubscribe(); transport.close();
-```
-
-The callback examples above are live notifications, not a complete account journal. They suppress snapshot alerts to avoid announcing old fills as new, but snapshots still need reconciliation and de-duplication before they can support risk decisions.
+Do not install a client SDK and do not open a socket from this checkout. A watch records the latest `PriceFeed.quote` for BTC or ETH, including source and time, and alerts from that local record. A missed poll is unavailable data, not a flat book.
 
 ## Recover after a gap or restart
 
@@ -113,17 +56,9 @@ Treat account events as prompts to reconcile, not proof of a gap-free history. O
 
 For a public price/book watch, refresh that market's snapshot and reset its condition baseline before reporting an unchanged result. A recovered price feed alone cannot restore account readiness.
 
-## Raw (websocat or any client)
-
-```bash
-websocat wss://api.hyperliquid-testnet.xyz/ws <<'EOF'
-{"method":"subscribe","subscription":{"type":"allMids"}}
-EOF
-```
-
 ## Watch pattern
 
-A watch is a condition plus an alert (`desk-monitoring`). Structure every watch as: subscribe, log everything to a file, evaluate the condition on each message, post the alert once (with value, threshold, source, UTC time), then either exit or keep watching, and never call `/exchange`.
+A watch is a condition plus an alert (`desk-monitoring`). Poll the allowlisted info feed, log the quote, evaluate the condition, and post the alert once with value, threshold, source, and UTC time. Do not send an order.
 
 ## Pitfalls
 

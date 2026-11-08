@@ -1,6 +1,6 @@
 ---
 name: desk-strategy-lab
-description: How the Strategist works with the user to turn their own trading idea into explicit rules, backtest it honestly on Hyperliquid candle and funding history, and paper-trade it on testnet through the desk lifecycle. Method only - the desk ships no strategies and makes no return claims. Use when the user wants to design, test, compare or paper-trade an idea.
+description: How the Strategist works with the user to turn their own trading idea into explicit rules, backtest it honestly on public candle history, and paper-trade it through the local simulator. Method only - the desk ships no strategies and makes no return claims. Use when the user wants to design, test, compare or paper-trade an idea.
 license: MIT
 metadata:
   version: "1.2.0"
@@ -31,7 +31,7 @@ Interview the user until every field is unambiguous. Write `RULES.md`:
 ```markdown
 # funding-fade-v1
 
-- universe: ETH, BTC, SOL perps on Hyperliquid
+- universe: BTC and ETH only
 - data: 4h candles (close), hourly funding from fundingHistory
 - entry: when the average hourly funding over the last 8 hours is above +0.005%/h, sell at the next 4h open
 - exit: when funding <= 0, or after 72h, or stop hit
@@ -106,9 +106,9 @@ No annualised return headline. Distributions and costs are the result.
 
 Write what you checked into the run file.
 
-## 5. Paper trade on testnet
+## 5. Paper trade on the simulator
 
-When the user wants to see it live: the Strategist runs the rules on live data (polling or WebSocket per `hyperliquid-websocket`) and posts each signal as a **proposal** (`HG-...`) with the rules file cited as the idea. The Risk Manager sizes it, the user approves it, the Execution Trader sends it on **testnet**, the Trade Reviewer reviews it. The Strategist never sends orders and never asks another Bot to skip a stage "because the rules said so".
+When the user wants to see it run: the Strategist posts each signal as a **proposal** (`HG-...`) with the rules file cited as the idea. The Risk Manager sizes it, the user approves it, and the Risk Manager submits it to `scripts/paper_sim.py`. The Trade Reviewer reviews the journal. The Strategist never submits orders and never asks another Bot to skip a stage "because the rules said so".
 
 After a set number of paper trades agreed with the user (20 is a common choice), the Trade Reviewer's numbers and the backtest are compared side by side.
 

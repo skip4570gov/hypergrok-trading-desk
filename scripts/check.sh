@@ -69,8 +69,8 @@ for path in agents:
         err(f"{path}: seat must be floor or off-floor")
 
 writers = [p for p in agents if frontmatter(p)[0].get("writes_to_exchange") == "true"]
-if len(writers) != 1:
-    err(f"exactly one agent may write to the exchange; found {len(writers)}: {writers}")
+if writers:
+    err(f"paper-only desk has no exchange writer; found {writers}")
 
 # Every skill and agent is listed in SETUP.md and skills/README.md
 setup = open("SETUP.md", encoding="utf-8").read()

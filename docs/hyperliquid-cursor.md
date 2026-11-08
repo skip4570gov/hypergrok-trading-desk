@@ -7,7 +7,7 @@ HyperGrok turns Cursor into a Hyperliquid trading desk: seven roles and seventee
 Clone the reviewed release:
 
 ```bash
-git clone --depth 1 --branch v1.7.1 https://github.com/galleonlabs/hypergrok-trading-desk.git
+git clone --depth 1 --branch paper-only https://github.com/galleonlabs/hypergrok-trading-desk.git
 ```
 
 Open the `hypergrok-trading-desk` folder in Cursor and enable the plugin; `.cursor-plugin/plugin.json` points it at the skills, roles and rules. The plugin is also listed on [cursor.directory](https://cursor.directory/plugins/hypergrok).
@@ -17,7 +17,7 @@ Load `desk-operating-model` before asking the roles to act.
 ## What loads
 
 + **Seventeen skills**: Hyperliquid setup, market data, account state, orders, positions, WebSocket feeds, advanced actions and a compact API reference, plus the desk skills for the trade lifecycle, risk limits and sizing, execution, monitoring, post-trade review, incidents and the strategy lab.
-+ **Seven roles** from `agents/`: Desk Lead, Market Analyst, Research Analyst, Strategist, Risk Manager, Execution Trader and Trade Reviewer. Only the Execution Trader writes to the exchange.
++ **Six roles** from `agents/`: Desk Lead, Market Analyst, Research Analyst, Strategist, Risk Manager and Trade Reviewer. The Risk Manager may run `scripts/paper_sim.py`. No role writes to an exchange. The Cursor manifest loads no order hook because this checkout has no order to confirm.
 + **The desk rule** from `rules/hypergrok-team.mdc`: analysis is not approval, and a send needs your exact approval phrase with the ticket id.
 
 The Claude Code exchange-write hook does not load in Cursor.

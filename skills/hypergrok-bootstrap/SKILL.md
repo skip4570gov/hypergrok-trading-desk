@@ -1,6 +1,6 @@
 ---
 name: hypergrok-bootstrap
-description: Build and verify a HyperGrok trading desk from the pinned public release. Use for first-run setup, repair, or a readiness check. Starts with a live zero-key Opening Bell, installs the seven role profiles and seventeen shared skills, prepares the Trading Floor, and returns an evidence receipt. Read-only by default; never requests a wallet or places an order.
+description: Build and verify a HyperGrok paper desk from the paper-only branch. Use for first-run setup, repair, or a readiness check. Starts with a public Opening Bell, installs the six role profiles and seventeen shared skills, prepares the Trading Floor, and returns an evidence receipt. Never requests a wallet or places a live order.
 license: MIT
 metadata:
   version: "1.0.13"
@@ -16,28 +16,28 @@ Turn a fresh shared **Desk Lead** into a working HyperGrok desk. Finish with evi
 
 Bootstrap is research-only.
 
-- Do not request, read or store an API wallet, private key, seed phrase or exchange secret.
-- Do not call Hyperliquid `/exchange`, create an order, alter leverage, move funds or change approval settings.
-- Public `POST /info` market reads are allowed. State mainnet, request type and UTC time.
+- Do not request, read or store a private key, seed phrase or exchange secret.
+- Do not send an exchange write, alter leverage, move funds or change approval settings.
+- Public info reads are allowed only through the allowlisted URL in `scripts/market_data.py`. State the source and UTC time.
 - Local writes are limited to `/workspace/hypergrok` and `/workspace/trading-desk`.
-- Creating the seven named Bots and the private Trading Floor group is in scope. Sharing anything publicly is not.
+- Creating the six named Bots and the private Trading Floor group is in scope. Sharing anything publicly is not.
 - If a capability is unavailable, return the exact manual card or step and continue independent supported work. Do not pretend it happened or mark dependent checks complete.
 
 ## 1. Install the reviewed release
 
-If `/workspace/hypergrok` is already a Git checkout, preserve it. Verify that `plugin.json` names version `1.7.1` and that `git rev-parse HEAD` equals `git rev-parse 'refs/tags/v1.7.1^{commit}'`. If the tag is unavailable, the version differs or the commits differ, report the existing version and commit and stop dependent setup. A structural pass from an older release is insufficient; do not overwrite, reset or switch the existing checkout. Otherwise clone the pinned release:
+If `/workspace/hypergrok` is already a Git checkout, preserve it. Verify that `git rev-parse --abbrev-ref HEAD` is `paper-only`. If it is `main`, another branch, or a tag, report the existing commit and stop dependent setup. Do not overwrite, reset or switch the existing checkout onto `main`. Otherwise clone the paper-only branch:
 
 ```bash
 mkdir -p /workspace && cd /workspace
-git clone --depth 1 --branch v1.7.1 https://github.com/galleonlabs/hypergrok-trading-desk.git hypergrok
+git clone --depth 1 --branch paper-only https://github.com/galleonlabs/hypergrok-trading-desk.git hypergrok
 cd /workspace/hypergrok
 git rev-parse HEAD
-bash scripts/check.sh
+python3 scripts/test_paper_only.py
 ```
 
-Run `bash scripts/check.sh` for an existing verified checkout too. Stop if the structural check fails. Record the printed commit for `desk.md`.
+Run `python3 scripts/test_paper_only.py` for an existing verified checkout too. Stop if it fails. Record the printed commit for `desk.md`.
 
-Before using any agent profile or System prompt, run `git diff --exit-code refs/tags/v1.7.1 -- agents/` in the checkout. A matching HEAD can still have changed working files. If the command reports differences or fails, name the affected paths, stop dependent setup and preserve the user's files.
+Before using any agent profile or System prompt, run `git diff --exit-code HEAD -- agents/` in the checkout. A matching branch name can still have changed working files. If the command reports differences or fails, name the affected paths, stop dependent setup and preserve the user's files.
 
 ## 2. Ring the Opening Bell
 
@@ -71,10 +71,9 @@ Select one Bot for each agent file's **Bot profile** and **System prompt**:
 3. Research Analyst
 4. Strategist
 5. Risk Manager
-6. Execution Trader
-7. Trade Reviewer
+6. Trade Reviewer
 
-Read back each selected Bot's native Name, Job and Description and compare them exactly with its profile. Verify its standing instructions before reuse or after creation. Supported evidence is either the complete stored System prompt matching this release, or readback of the exact full System prompt delivered as a standing-instructions message, the Bot's acknowledgement that it follows the pinned agent file, and that local file's hash matching the expected bytes from `git show 'refs/tags/v1.7.1:agents/<name>.md'`. Hashing an arbitrary local file is insufficient. Label the latter `delivery-and-pointer`: it proves delivery and the checked target, not byte-identical persistent memory. A matching Description, summary or path alone is insufficient.
+There is no Execution Trader. Read back each selected Bot's native Name, Job and Description and compare them exactly with its profile. Verify its standing instructions before reuse or after creation. Supported evidence is either the complete stored System prompt matching this checkout, or readback of the exact full System prompt delivered as a standing-instructions message, the Bot's acknowledgement that it follows the pinned agent file, and that local file's hash matching the expected bytes from `git show 'HEAD:agents/<name>.md'`. Hashing an arbitrary local file is insufficient. Label the latter `delivery-and-pointer`: it proves delivery and the checked target, not byte-identical persistent memory. A matching Description, summary or path alone is insufficient.
 
 If an existing seat differs, is missing or cannot be verified, create a separate Bot from the reviewed profile and deliver its full System prompt as directed in `SETUP.md` section 4. Preserve existing Bots; reuse does not authorize replacing an unrelated desk's profiles, prompts or memories. If a needed creation step or both supported verification methods are unavailable, return that role's exact manual card and keep its readiness pending. Record the native Bot ID for every verified seat.
 
@@ -93,31 +92,31 @@ For each of the seventeen `skills/*/SKILL.md` files:
 
 The final receipt must contain exactly seventeen unique skill names and one status for each: `template`, `installed`, `pointer` or `mismatch`.
 
-Create a private group chat named **Trading Floor** with the six selected Bot IDs for Desk Lead, Market Analyst, Research Analyst, Strategist, Risk Manager and Execution Trader. Reuse an existing group only when its ID is already selected for this desk and native readback confirms exactly those member IDs; its name alone is insufficient. Preserve prior groups. Record the Floor ID and member IDs and direct the welcome message and role checks to that group. The Trade Reviewer stays in DM. If group creation or membership readback is unavailable, return the exact manual step and keep group readiness pending.
+Create a private group chat named **Trading Floor** with the five selected Bot IDs for Desk Lead, Market Analyst, Research Analyst, Strategist and Risk Manager. Reuse an existing group only when its ID is already selected for this desk and native readback confirms exactly those member IDs; its name alone is insufficient. Preserve prior groups. Record the Floor ID and member IDs and direct the welcome message and role checks to that group. The Trade Reviewer stays in DM. If group creation or membership readback is unavailable, return the exact manual step and keep group readiness pending.
 
 ## 5. Record the research desk
 
-Unless the user explicitly selects testnet or mainnet, create a research desk:
+Create a paper desk. Do not offer testnet or mainnet.
 
-Record only verified Bot, group and member IDs as observed; mark uncreated, manual or unverified roles and any unverified Floor as pending rather than copying the desired seven-Bot/six-member inventory as an observed result.
+Record only verified Bot, group and member IDs as observed; mark uncreated, manual or unverified roles and any unverified Floor as pending rather than copying the desired six-Bot/five-member inventory as an observed result.
 
 ```markdown
 # Desk record
 
 - created: <UTC time>
 - instructions commit: <commit from step 1>
-- engagement level: research
-- network: mainnet-for-reads
+- engagement level: paper
+- network: public-info
 - account: none
-- bots: Desk Lead, Market Analyst, Research Analyst, Strategist, Risk Manager, Execution Trader, Trade Reviewer
+- bots: Desk Lead, Market Analyst, Research Analyst, Strategist, Risk Manager, Trade Reviewer
 - bot ids: <role to verified native Bot ID>
-- group chats: Trading Floor (6)
-- trading floor id and member ids: <verified native group and six Bot IDs>
-- risk limits: not yet written
+- group chats: Trading Floor (5)
+- trading floor id and member ids: <verified native group and five Bot IDs>
+- risk limits: simulator defaults; $100, BTC and ETH, trailing stop, 2:1, 1%
 - standing approvals: none
-- exchange approval gate: unverified; required before provisioning any API wallet key
+- exchange writer: none
 - unprotected position deadline: not applicable
-- status: research-only; no API wallet provisioned
+- status: paper-only; no key requested
 ```
 
 Write it to `/workspace/trading-desk/desk.md`. Do not provision trading access during bootstrap.

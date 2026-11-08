@@ -18,7 +18,7 @@ NAME = "hypergrok-trading-desk"
 REPOSITORY = "https://github.com/galleonlabs/hypergrok-trading-desk"
 ROOT_FILES = (
     "AGENTS.md", "ATTRIBUTION.md", "CHANGELOG.md", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md", "GEMINI.md",
-    "LICENSE", "README.md", "SECURITY.md", "SETUP.md", "plugin.json", "skills/README.md",
+    "LICENSE", "README.md", "REVERT.md", "SECURITY.md", "SETUP.md", "plugin.json", "skills/README.md",
 )
 MANIFESTS = (
     ".claude-plugin/plugin.json", ".claude-plugin/marketplace.json",
@@ -34,15 +34,16 @@ RESOURCES = (
     "docs/hyperliquid-codex.md", "docs/hyperliquid-cursor.md", "docs/hyperliquid-gemini-cli.md",
     "docs/hyperliquid-grok-build.md", "assets/ticket-hg-20260816-01.png",
     "assets/hero.svg", "assets/hero-mobile.svg", "assets/desk-flow.svg", "assets/desk-flow-mobile.svg",
-    "hooks/exchange-write-gate.json", "hooks/exchange_write_gate.py",
+    "hooks/exchange-write-gate.json", "hooks/exchange_write_gate.py", "config/paper.json",
 )
 SCRIPTS = (
     "account_read.py", "check.sh", "check_grok_template.py", "check_manifests.py",
+    "market_data.py", "paper_sim.py",
     "check_npm_package.py", "check_public_template.py", "cli_contract.py", "cli_journeys.py", "desk_doctor.py",
     "opening_bell.py", "release_bump.py", "research_dataset.py", "stop_cost.py", "test_research_dataset.py", "test_check_grok_template.py", "test_check_manifests.py",
     "test_check_npm_package.py", "test_check_public_template.py",
     "test_desk_doctor.py", "test_exchange_write_gate.py", "test_opening_bell.py", "test_order_rounding.py",
-    "test_release_bump.py",
+    "test_paper_only.py", "test_release_bump.py",
     "test_stop_cost.py",
 )
 SAFE_SCRIPTS = {"test": "bash scripts/check.sh", "prepack": "bash scripts/check.sh"}
@@ -70,8 +71,8 @@ def required_files(root, errors):
     agents = sorted(root.glob("agents/*.md"))
     if len(skills) != 17:
         errors.append(f"package.json: expected 17 skills, found {len(skills)}")
-    if len(agents) != 7:
-        errors.append(f"package.json: expected 7 agents, found {len(agents)}")
+    if len(agents) != 6:
+        errors.append(f"package.json: expected 6 agents, found {len(agents)}")
     paths = set(ROOT_FILES + MANIFESTS + RESOURCES)
     paths.update(f"scripts/{name}" for name in SCRIPTS)
     for skill in skills:

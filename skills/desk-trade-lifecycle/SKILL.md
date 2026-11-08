@@ -1,6 +1,6 @@
 ---
 name: desk-trade-lifecycle
-description: The end-to-end procedure for one trade on the HyperGrok desk - from an idea to a reviewed, journaled result - with the ticket format, who owns each stage, and what "done" looks like. Use whenever the user wants to open, adjust or close a position, or whenever any Bot is about to touch the exchange write path.
+description: The end-to-end procedure for one paper trade - from an idea to a journaled result - with the ticket format and who runs scripts/paper_sim.py. Use whenever the user wants a paper position. There is no exchange write path.
 license: MIT
 metadata:
   version: "1.1.2"
@@ -13,8 +13,8 @@ metadata:
 Every position change on the desk goes through the same seven stages, in order. Skipping one is a defect, not a shortcut. The Desk Lead keeps the lifecycle moving; the owner of each stage does the work.
 
 ```
-idea -> evidence -> risk sign-off -> user approval -> execution -> reconciliation -> review
- DL       MA/RA        RM              user            ET            ET               TR
+idea -> evidence -> risk sign-off -> user approval -> paper submit -> journal -> review
+ DL       MA/RA        RM              user            RM             TR             TR
 ```
 
 ## 0. Open a proposal
@@ -77,13 +77,13 @@ The approval must come from the user's own turn in the conversation. No Bot writ
 
 If the ticket expires before approval, it is void; a fresh Risk sign-off is needed because prices and the book have moved.
 
-## 4. Execution
+## 4. Paper submit
 
-**Owner: Execution Trader.** Before every send, verifies that the native approval gate described in `desk-operating-model` covers the actual SDK, script or direct HTTP write route. If that cannot be verified, the desk remains research-only and does not send on either network. Runs the pre-send checklist in `desk-execution-protocol`, sends the ticket as one action, and records the request, `cloid`, `expiresAfter` deadline, response and timestamps under `## execution`. Anything other than a clean response is handled per `desk-incident-response`.
+**Owner: Risk Manager.** Runs `scripts/paper_sim.py submit` once, as `desk-execution-protocol` describes. Records the JSON under `## execution`. A reject is not retried against any other tool.
 
-## 5. Reconciliation
+## 5. Journal
 
-**Owner: Execution Trader.** Confirms from the exchange record - `orderStatus` by cloid, `openOrders`, `userFills`, `clearinghouseState` - what happened, and writes it under `## reconciliation`. Posts the execution report on the floor and DMs the Trade Reviewer. Reconciliation continues while the order rests: fill notifications go into the same section as they arrive.
+**Owner: Trade Reviewer.** Confirms the append-only journal line and writes it under `## reconciliation`. There is no exchange order id.
 
 ## 6. Review
 
@@ -95,11 +95,11 @@ Moving a stop, adding to a position, reducing, closing, changing leverage: each 
 
 Each adjustment receives fresh evidence and a new Risk Manager PASS, the exact suffixed ticket id for user approval, and its own expiry. Earlier approval or Risk PASS does not carry forward. Closing a position at market needs a ticket stating the reduce-only size read live from the account and the slippage bound. Execute once within expiry, then reconcile the adjustment against the exchange record under the parent proposal.
 
-The only exception is a pre-authorised protective action the user has written into `desk.md` (for example "the Execution Trader may cancel orphaned stops after a position closes without asking"). Even then, the action is journaled.
+There is no standing approval that skips the simulator. A paper adjustment is a new ticket and a new `scripts/paper_sim.py` submit.
 
-## Paper trading and testnet
+## Paper trading
 
-The lifecycle is identical on testnet. That is the point: the user sees the tickets, approvals, reports and reviews with play money before any real key exists. Strategist-generated signals enter at stage 0 as proposals like any other idea.
+This lifecycle is the paper simulator. Strategist-generated signals enter at stage 0 as proposals like any other idea. There is no testnet rehearsal and no live send.
 
 ## Definitions of done
 
@@ -111,8 +111,8 @@ The lifecycle is identical on testnet. That is the point: the user sees the tick
 
 | Symptom | Fix |
 | --- | --- |
-| The user asks the Execution Trader directly to "just buy some" | Execution Trader routes to the Desk Lead; a proposal is opened; the lifecycle runs. It can be quick, but it runs. |
+| The user asks a Bot to "just buy some" | That Bot routes to the Desk Lead; a proposal is opened; the lifecycle runs. It can be quick, but it runs. |
 | Risk PASS was computed from a brief older than the ticket | Risk re-reads live state; PASS is re-issued with a new expiry. |
 | Approval given with "yes" | Desk Lead re-asks for the phrase with the id. |
 | Two Bots each think they own the next step | The proposal file's `status` line names the stage; the stage owner acts. |
-| Ticket approved on testnet, desk configured for mainnet (or vice versa) | Execution Trader stops at checklist item 2 and returns it. |
+| A ticket names a symbol other than BTC or ETH, or omits the trailing stop | Risk Manager rejects it. The simulator would reject it too. |

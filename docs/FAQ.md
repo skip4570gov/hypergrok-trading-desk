@@ -22,7 +22,7 @@ From you. The Strategist turns your idea into rules and tests it on Hyperliquid 
 Yes. The [research dataset tool](RESEARCH_DATASETS.md) saves requests, decoded responses, CSVs and a manifest with file hashes and coverage gaps. `--verify` replays that bundle offline. A missing candle or funding hour prevents complete coverage; absent funding is never assumed to be zero. Integrity and coverage do not prove source authenticity, strategy edge or exact USD funding costs without historical oracle prices.
 
 **Why do the Bots use a "computer"?**
-That is Grok Bot's cloud VM, shared by your Bots. Public reads use `/info`; the Execution Trader uses an SDK there to sign approved orders with the API wallet. The browser reads pages; it does not execute trades.
+That is Grok Bot's cloud VM, shared by your Bots. Public reads use the allowlisted info URL. Paper orders stay in the local simulator. The browser reads pages; it does not execute trades.
 
 **Why six on the floor and one off it?**
 Grok Bot group chats hold six Bots. The Trade Reviewer receives execution reports by DM and reviews them from the journal and exchange records.
@@ -37,7 +37,7 @@ Routines can brief you, watch prices and funding, check the book and alert you. 
 The default public research source is mainnet, even when execution uses testnet. The Python tools accept `--testnet` for an explicit testnet read. Every report names its source network; testnet data never substitutes for mainnet execution checks.
 
 **What if a send times out?**
-The Execution Trader treats the result as unknown and does not resend. It checks by client order id; a missing order is insufficient because the original request may still arrive. It waits until the send's `expiresAfter` deadline has passed, checks again and reports whether execution is confirmed or remains unconfirmed. Any replacement requires fresh approval. Without an expiry, it cannot prove the original is incapable of arriving.
+The paper simulator either appends a journal line or rejects the order. It does not retry against an exchange, because this checkout has no exchange write.
 
 **How do I set Grok Bot's own approvals?**
 Settings, General, Auto-review: add an **Ask first** rule for financial actions and for commands that call the Hyperliquid exchange endpoint. **Ask first** wins over **Allow automatically**.

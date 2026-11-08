@@ -7,7 +7,7 @@ HyperGrok turns Grok Build into a Hyperliquid trading desk: seven roles and seve
 Install the reviewed release:
 
 ```bash
-grok plugin install galleonlabs/hypergrok-trading-desk@v1.7.1 --trust
+grok plugin install galleonlabs/hypergrok-trading-desk@paper-only --trust
 ```
 
 Or register this repository's Grok marketplace, which pins the same release, and install by name:
@@ -24,7 +24,7 @@ Load `desk-operating-model` before asking the roles to act.
 ## What loads
 
 + **Seventeen skills**: Hyperliquid setup, market data, account state, orders, positions, WebSocket feeds, advanced actions and a compact API reference, plus the desk skills for the trade lifecycle, risk limits and sizing, execution, monitoring, post-trade review, incidents and the strategy lab.
-+ **Seven roles** from `agents/`: Desk Lead, Market Analyst, Research Analyst, Strategist, Risk Manager, Execution Trader and Trade Reviewer. Only the Execution Trader writes to the exchange.
++ **Six roles** from `agents/`: Desk Lead, Market Analyst, Research Analyst, Strategist, Risk Manager and Trade Reviewer. No role writes to an exchange.
 
 Grok Build reports the skills and agents directories; loading `rules/` is not verified, and the Claude Code exchange-write hook does not load. The desk's approval by ticket id still applies.
 
@@ -33,7 +33,7 @@ Grok Build reports the skills and agents directories; loading `rules/` is not ve
 Ask for a market brief, for example "Brief me on ETH". The reads use Hyperliquid's public `/info` endpoint, with no wallet or account. The same read works from a terminal:
 
 ```bash
-git clone --depth 1 --branch v1.7.1 https://github.com/galleonlabs/hypergrok-trading-desk.git
+git clone --depth 1 --branch paper-only https://github.com/galleonlabs/hypergrok-trading-desk.git
 cd hypergrok-trading-desk
 python3 scripts/opening_bell.py --coin ETH
 ```
