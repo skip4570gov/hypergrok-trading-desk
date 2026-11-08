@@ -25,12 +25,12 @@ Bootstrap is research-only.
 
 ## 1. Install the reviewed release
 
-If `/workspace/hypergrok` is already a Git checkout, preserve it. Verify that `git rev-parse HEAD` is `__PAPER_COMMIT__`. If it is `main` or any other commit, report it and stop dependent setup. Do not overwrite, reset or switch the checkout onto `main`. Otherwise clone the pinned commit:
+If `/workspace/hypergrok` is already a Git checkout, preserve it. Verify that `git rev-parse HEAD` is `6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c`. If it is `main` or any other commit, report it and stop dependent setup. Do not overwrite, reset or switch the checkout onto `main`. Otherwise clone the pinned commit:
 
 ```bash
 mkdir -p /workspace && cd /workspace
 git clone https://github.com/skip4570gov/hypergrok-trading-desk.git hypergrok
-git -C hypergrok checkout __PAPER_COMMIT__
+git -C hypergrok checkout 6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c
 cd /workspace/hypergrok
 git rev-parse HEAD
 python3 scripts/test_paper_only.py

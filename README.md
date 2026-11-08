@@ -20,7 +20,7 @@ HyperGrok gives your AI agents a shared process for Hyperliquid research, risk, 
 
 ```bash
 git clone https://github.com/skip4570gov/hypergrok-trading-desk.git
-git checkout __PAPER_COMMIT__
+git checkout 6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c
 cd hypergrok-trading-desk
 python3 scripts/opening_bell.py --coin ETH
 ```
@@ -37,7 +37,7 @@ Recorded from the command above on 25 October 2026 at 13:09 UTC. The figures are
 
 For the paper desk, open Grok Bot and paste:
 
-> Set up the HyperGrok trading desk from https://github.com/skip4570gov/hypergrok-trading-desk/blob/__PAPER_COMMIT__/skills/hypergrok-bootstrap/SKILL.md. Follow the bootstrap skill, use https://github.com/skip4570gov/hypergrok-trading-desk/blob/__PAPER_COMMIT__/SETUP.md for the complete runbook, and finish with its evidence receipt.
+> Set up the HyperGrok trading desk from https://github.com/skip4570gov/hypergrok-trading-desk/blob/6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c/skills/hypergrok-bootstrap/SKILL.md. Follow the bootstrap skill, use https://github.com/skip4570gov/hypergrok-trading-desk/blob/6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c/SETUP.md for the complete runbook, and finish with its evidence receipt.
 
 The Desk Lead runs Opening Bell, installs the shared skills, prepares the team and returns a setup receipt. Orders stay in the local simulator. Do not provision a key. See the [full setup runbook](SETUP.md).
 

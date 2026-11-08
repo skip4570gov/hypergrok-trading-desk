@@ -26,7 +26,7 @@ Ask for a market brief, for example "Brief me on ETH". The reads use Hyperliquid
 
 ```bash
 git clone https://github.com/skip4570gov/hypergrok-trading-desk.git
-git checkout __PAPER_COMMIT__
+git checkout 6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c
 cd hypergrok-trading-desk
 python3 scripts/opening_bell.py --coin ETH
 ```

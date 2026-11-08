@@ -11,7 +11,7 @@ If `/workspace/hypergrok` already contains a Git checkout, preserve it. `git rev
 ```bash
 mkdir -p /workspace && cd /workspace
 git clone https://github.com/skip4570gov/hypergrok-trading-desk.git hypergrok
-git -C hypergrok checkout __PAPER_COMMIT__
+git -C hypergrok checkout 6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c
 cd /workspace/hypergrok && git rev-parse HEAD && bash scripts/check.sh
 ```
 

@@ -9,9 +9,9 @@
   "startMessage": "Start the desk.",
   "source": {
     "repository": "https://github.com/skip4570gov/hypergrok-trading-desk",
-    "release": "__PAPER_COMMIT__",
-    "bootstrap": "https://github.com/skip4570gov/hypergrok-trading-desk/blob/__PAPER_COMMIT__/skills/hypergrok-bootstrap/SKILL.md",
-    "runbook": "https://github.com/skip4570gov/hypergrok-trading-desk/blob/__PAPER_COMMIT__/SETUP.md"
+    "release": "6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c",
+    "bootstrap": "https://github.com/skip4570gov/hypergrok-trading-desk/blob/6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c/skills/hypergrok-bootstrap/SKILL.md",
+    "runbook": "https://github.com/skip4570gov/hypergrok-trading-desk/blob/6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c/SETUP.md"
   },
   "templateSkillNames": [
     "hypergrok-bootstrap"

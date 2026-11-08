@@ -8,7 +8,7 @@ Clone the reviewed release:
 
 ```bash
 git clone https://github.com/skip4570gov/hypergrok-trading-desk.git
-git checkout __PAPER_COMMIT__
+git checkout 6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c
 ```
 
 Open the `hypergrok-trading-desk` folder in Cursor and enable the plugin; `.cursor-plugin/plugin.json` points it at the skills, roles and rules. The plugin is also listed on [cursor.directory](https://cursor.directory/plugins/hypergrok).

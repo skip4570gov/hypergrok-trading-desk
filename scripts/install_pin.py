@@ -6,4 +6,4 @@ is not a pin.
 """
 
 REPOSITORY = "https://github.com/skip4570gov/hypergrok-trading-desk"
-COMMIT = "__PAPER_COMMIT__"
+COMMIT = "6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c"

@@ -12,7 +12,7 @@
       "source": {
         "source": "url",
         "url": "https://github.com/skip4570gov/hypergrok-trading-desk.git",
-        "ref": "__PAPER_COMMIT__"
+        "ref": "6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c"
       },
       "homepage": "https://github.com/skip4570gov/hypergrok-trading-desk",
       "keywords": ["hypergrok", "hyperliquid", "trading desk", "grok bot"],
