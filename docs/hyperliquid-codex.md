@@ -25,8 +25,9 @@ The Claude Code exchange-write hook does not load in Codex. The desk's approval 
 Ask for a market brief, for example "Brief me on ETH". The reads use Hyperliquid's public `/info` endpoint, with no wallet or account. The same read works from a terminal:
 
 ```bash
-git clone https://github.com/skip4570gov/hypergrok-trading-desk.git
-git checkout 6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c
+git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git
+cd hypergrok-trading-desk
+python3 scripts/verify_install.py
 cd hypergrok-trading-desk
 python3 scripts/opening_bell.py --coin ETH
 ```

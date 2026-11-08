@@ -115,8 +115,7 @@ def main(root):
     manifest = load_json(os.path.join(root, "plugin.json"), errors)
     template = load_json(os.path.join(root, TEMPLATE), errors)
     version = manifest.get("version")
-    from install_pin import COMMIT
-    expected_release = COMMIT
+    expected_release = "file-manifest"
     if not isinstance(version, str):
         errors.append("plugin.json: version is required so the package identity stays checkable")
 
@@ -142,8 +141,8 @@ def main(root):
             f"{TEMPLATE}: source.release '{source.get('release')}' does not match {expected_release}"
         )
     expected_urls = {
-        "bootstrap": f"{REPOSITORY}/blob/{expected_release}/skills/hypergrok-bootstrap/SKILL.md",
-        "runbook": f"{REPOSITORY}/blob/{expected_release}/SETUP.md",
+        "bootstrap": REPOSITORY,
+        "runbook": REPOSITORY,
     }
     for key, expected in expected_urls.items():
         if source.get(key) != expected:

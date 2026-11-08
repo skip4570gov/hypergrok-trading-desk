@@ -1,9 +1,8 @@
-"""Immutable install pin for this paper-only checkout.
+"""Install identity for the paper-only desk.
 
-Install commands must name this repository and this commit. The value is
-replaced with the commit that contains the paper-only fixes; a branch name
-is not a pin.
+The reviewed ancestor is a commit that already exists. It is not this
+commit's own SHA. Runtime identity is ``install-manifest.json``.
 """
 
 REPOSITORY = "https://github.com/skip4570gov/hypergrok-trading-desk"
-COMMIT = "6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c"
+ANCESTOR = "7bc0fca92265568a9845c5a87b36fea4d0fd9531"

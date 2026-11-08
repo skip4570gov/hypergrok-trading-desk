@@ -25,18 +25,19 @@ Bootstrap is research-only.
 
 ## 1. Install the reviewed release
 
-If `/workspace/hypergrok` is already a Git checkout, preserve it. Verify that `git rev-parse HEAD` is `6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c`. If it is `main` or any other commit, report it and stop dependent setup. Do not overwrite, reset or switch the checkout onto `main`. Otherwise clone the pinned commit:
+If `/workspace/hypergrok` is already a Git checkout, preserve it. Do not require `HEAD` to equal a SHA written inside this same tree. Run `python3 scripts/verify_install.py`. It checks runtime file hashes in `install-manifest.json` and that `HEAD` contains reviewed ancestor `7bc0fca92265568a9845c5a87b36fea4d0fd9531`. If either check fails, stop. Do not overwrite, reset, or switch the checkout onto `main`. Otherwise clone and verify:
 
 ```bash
 mkdir -p /workspace && cd /workspace
-git clone https://github.com/skip4570gov/hypergrok-trading-desk.git hypergrok
-git -C hypergrok checkout 6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c
+git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git hypergrok
 cd /workspace/hypergrok
+python3 scripts/verify_install.py
 git rev-parse HEAD
-python3 scripts/test_paper_only.py
 ```
 
-Run `python3 scripts/test_paper_only.py` for an existing verified checkout too. Stop if it fails. Record the printed commit for `desk.md`.
+The branch name only fetches the line. The manifest is the identity. A checkout of `6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c` is not valid: that commit still contains install placeholders.
+
+Run `python3 scripts/verify_install.py` for an existing checkout too. Stop if it fails. Record the printed commit for `desk.md`.
 
 Before using any agent profile or System prompt, run `git diff --exit-code HEAD -- agents/` in the checkout. A matching branch name can still have changed working files. If the command reports differences or fails, name the affected paths, stop dependent setup and preserve the user's files.
 

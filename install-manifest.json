@@ -1,0 +1,33 @@
+{
+  "files": {
+    "config/paper.json": "f5939b300c9846b9008a79244f035f9660695a7cca012457d3841e7171827ee9",
+    "rules/hypergrok-team.mdc": "e825ee077d6aa4fbce7ac91961d583e4eda280ef8e463c275cd5ccd64dbe2bc3",
+    "scripts/install_pin.py": "8efe83567e4f21d6e73a9abcbb82e0677db304aebcbbf78ee4ddffd7391a8f08",
+    "scripts/market_data.py": "631d55f18fb404cc0bd477592c585f13f167b90be44734836637adcd950cea82",
+    "scripts/paper_sim.py": "8f3133577147d6635a71e9298db0371fe60d936f97bb3d0ad6112dec9308165c",
+    "scripts/verify_install.py": "ab8cb5dbbb183ccb225cda616d1fb447e76e4ad0893ec5e31a48a39a2ea11e21",
+    "agents/desk-lead.md": "7c9c8e94c04f0fd206903e6ddb61f796d0c71534e61896ce4feb6461e5168b53",
+    "agents/market-analyst.md": "83827025a665d0dd9197ceb48401bebf3e1ad11dce51c20a5c7e11d841310205",
+    "agents/research-analyst.md": "1b416ac58436c0feca862091d9b503b14c016b8f6c641e6abb562e165c9b7078",
+    "agents/risk-manager.md": "8641a2d25f494a49f02d9d9d31dfc86863fec6cd6ce8e768ef90dc12e78380a0",
+    "agents/strategist.md": "6ff38cde0eaca9201044a272dc295b4535ebf60c3126c3cfa3e81031533d4f5f",
+    "agents/trade-reviewer.md": "1f961918e0306f4a2285a98c2353d66c49ec0a85216c776014bf64d77d805600",
+    "skills/desk-execution-protocol/SKILL.md": "fec08d52c55b326964d998d78850344e4a10293e87988e505ecf0710c746220a",
+    "skills/desk-incident-response/SKILL.md": "b0fdd30ef0930506e669943e6789a76b4c301e9bb4104b58ac956d435878c94d",
+    "skills/desk-monitoring/SKILL.md": "fb45389c3ecefc5d6eee9e8e682b5426fcc871bfa26872ff29a78b2d3674c0d3",
+    "skills/desk-operating-model/SKILL.md": "2e2310a46eff0e2ee21cb37d5619d421aca59644be30fce49020ab987450356a",
+    "skills/desk-post-trade-review/SKILL.md": "5e8bf93374811743b4881f4717d7159089d8c01a24fd1ab2cc9344ea39c09763",
+    "skills/desk-risk-limits/SKILL.md": "69fc1b890a971539862d43aa43d542cf9fff56b5f271812a4f2701f0387ff3d8",
+    "skills/desk-strategy-lab/SKILL.md": "a86fae4964f9ddeeff7d4c95776fc521c88c0b0271613f6e2587cf497f377a2d",
+    "skills/desk-trade-lifecycle/SKILL.md": "85a62bd97eac323f6c1c3bd46542638099a3d0d0d1d914c065f97f71dd9989c7",
+    "skills/hypergrok-bootstrap/SKILL.md": "cf105b754689481a16ad67d515cc1dba18a7a1f133daddff47a9ec743a0e3f59",
+    "skills/hyperliquid-account/SKILL.md": "bc5377c211407f1ba1161078efe93dd3957384cc6a1a44b94b981ef34ac0a76d",
+    "skills/hyperliquid-advanced/SKILL.md": "de46f10d7ad24cbe9effd24b4d3d10d7b74d92d496e991272fc27f6c9a5005d2",
+    "skills/hyperliquid-api-reference/SKILL.md": "0094f5a1934302a243af33bbf1ddf161448e4c36aa7275c125a7fa37a7a1425e",
+    "skills/hyperliquid-market-data/SKILL.md": "0b42329274e363efff129c0876eb5bf291f938fc2c5a7bf6fa4e1b45d8b68cc0",
+    "skills/hyperliquid-orders/SKILL.md": "a858ddfb36df8184b4d33c1d5203720a1251b418b9ee7ad46cadf168fc1e4653",
+    "skills/hyperliquid-positions/SKILL.md": "a5a42fb9f766b4159b5287cc80f7791e367ad10a983afb65b924423deb432a46",
+    "skills/hyperliquid-setup/SKILL.md": "f5ecef76a7124d598ec9e89c7f18449088751ee2ee8371f85c39bb7d9fd8364f",
+    "skills/hyperliquid-websocket/SKILL.md": "e883933a31dbb7decb28442895459a2fe1fe8ef27a1c953c463f14854d507e3b"
+  }
+}

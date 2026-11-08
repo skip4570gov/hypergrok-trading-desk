@@ -169,13 +169,16 @@ def _on_quote(path: str, book: Book, position: Position, quote: Quote) -> dict:
     if position.side == "buy":
         trailed = max(position.stop, quote.mark - position.distance)
         if quote.mark <= position.stop:
-            return _close_at(path, book, position, position.stop, "stop", quote)
+            # A gap through the stop fills at the mark, not at the stop level.
+            raw = quote.mark if quote.mark < position.stop else position.stop
+            return _close_at(path, book, position, raw, "stop", quote)
         if quote.mark >= position.target:
             return _close_at(path, book, position, position.target, "target", quote)
     else:
         trailed = min(position.stop, quote.mark + position.distance)
         if quote.mark >= position.stop:
-            return _close_at(path, book, position, position.stop, "stop", quote)
+            raw = quote.mark if quote.mark > position.stop else position.stop
+            return _close_at(path, book, position, raw, "stop", quote)
         if quote.mark <= position.target:
             return _close_at(path, book, position, position.target, "target", quote)
     if trailed == position.stop:

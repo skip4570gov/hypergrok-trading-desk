@@ -7,7 +7,9 @@ HyperGrok turns Grok Build into a paper-only desk: six roles and seventeen skill
 Install the reviewed release:
 
 ```bash
-grok plugin install skip4570gov/hypergrok-trading-desk@6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c --trust
+git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git
+cd hypergrok-trading-desk
+python3 scripts/verify_install.py
 ```
 
 Or register this repository's Grok marketplace, which pins the same release, and install by name:
@@ -33,8 +35,9 @@ Grok Build reports the skills and agents directories; loading `rules/` is not ve
 Ask for a market brief, for example "Brief me on ETH". The reads use Hyperliquid's public `/info` endpoint, with no wallet or account. The same read works from a terminal:
 
 ```bash
-git clone https://github.com/skip4570gov/hypergrok-trading-desk.git
-git checkout 6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c
+git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git
+cd hypergrok-trading-desk
+python3 scripts/verify_install.py
 cd hypergrok-trading-desk
 python3 scripts/opening_bell.py --coin ETH
 ```

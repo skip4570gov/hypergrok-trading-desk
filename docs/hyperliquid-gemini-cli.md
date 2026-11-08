@@ -5,10 +5,12 @@ HyperGrok is a Gemini CLI extension for a paper-only desk: seventeen skills and 
 ## Install
 
 ```bash
-gemini extensions install https://github.com/skip4570gov/hypergrok-trading-desk
+git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git
+cd hypergrok-trading-desk
+python3 scripts/verify_install.py
 ```
 
-Gemini CLI installs the latest GitHub release. The extension manifest is `gemini-extension.json`. Manifest validation is covered by the repository checks; a native installation of the current release has not been verified.
+Do not use `gemini extensions install` without this check. That command follows the latest GitHub release and is not this tree. The verifier checks `install-manifest.json` and the reviewed ancestor.
 
 Load `desk-operating-model` before asking the roles to act.
 
@@ -25,9 +27,9 @@ The Claude Code exchange-write hook does not load in Gemini CLI.
 Ask for a market brief, for example "Brief me on ETH". The reads use Hyperliquid's public `/info` endpoint, with no wallet or account. The same read works from a terminal:
 
 ```bash
-git clone https://github.com/skip4570gov/hypergrok-trading-desk.git
-git checkout 6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c
+git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git
 cd hypergrok-trading-desk
+python3 scripts/verify_install.py
 python3 scripts/opening_bell.py --coin ETH
 ```
 

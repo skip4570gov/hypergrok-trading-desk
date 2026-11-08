@@ -9,9 +9,9 @@
   "startMessage": "Start the desk.",
   "source": {
     "repository": "https://github.com/skip4570gov/hypergrok-trading-desk",
-    "release": "6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c",
-    "bootstrap": "https://github.com/skip4570gov/hypergrok-trading-desk/blob/6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c/skills/hypergrok-bootstrap/SKILL.md",
-    "runbook": "https://github.com/skip4570gov/hypergrok-trading-desk/blob/6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c/SETUP.md"
+    "release": "file-manifest",
+    "bootstrap": "https://github.com/skip4570gov/hypergrok-trading-desk",
+    "runbook": "https://github.com/skip4570gov/hypergrok-trading-desk"
   },
   "templateSkillNames": [
     "hypergrok-bootstrap"
@@ -45,7 +45,7 @@
     {
       "name": "desk-risk-limits",
       "path": "skills/desk-risk-limits/SKILL.md",
-      "sha256": "c44ed01072d979cab0b66e19b70035039e983c1ca645cc4f481ea8393f56eca8"
+      "sha256": "69fc1b890a971539862d43aa43d542cf9fff56b5f271812a4f2701f0387ff3d8"
     },
     {
       "name": "desk-strategy-lab",
@@ -55,12 +55,12 @@
     {
       "name": "desk-trade-lifecycle",
       "path": "skills/desk-trade-lifecycle/SKILL.md",
-      "sha256": "3ab247dec2d718ef2b518be24e2d997f49f8d5e430ae4c50dfdb9a9bf8773259"
+      "sha256": "85a62bd97eac323f6c1c3bd46542638099a3d0d0d1d914c065f97f71dd9989c7"
     },
     {
       "name": "hypergrok-bootstrap",
       "path": "skills/hypergrok-bootstrap/SKILL.md",
-      "sha256": "00d8d20a40afdadd1636695cfee1be46ac3e46122ee88332c47762a7664e55da"
+      "sha256": "cf105b754689481a16ad67d515cc1dba18a7a1f133daddff47a9ec743a0e3f59"
     },
     {
       "name": "hyperliquid-account",

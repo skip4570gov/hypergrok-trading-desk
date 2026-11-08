@@ -9,6 +9,7 @@ import inspect
 import io
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -334,6 +335,20 @@ class TestSimulatorRules(unittest.TestCase):
         self.assertEqual(closed["reason"], "close")
         self.assertEqual(closed["quote"]["feed"], "hyperliquid")
 
+    def test_a_gapped_stop_fills_at_the_mark(self):
+        prices = MutableFeed("100", "101", "100.5")
+        opened = submit(
+            self.order(size="0.001", trailing_stop={"distance": "1"}, take_profit="110"),
+            state_dir=self.state, feed=prices,
+        )
+        stop = Decimal(opened["stop"])
+        prices.set("70", "72", "71")
+        stopped = mark(self.state, "BTC", prices)
+        self.assertEqual(stopped["reason"], "stop")
+        self.assertLess(Decimal(stopped["exit"]), stop)
+        trail_loss = Decimal("1") * Decimal("0.001")
+        self.assertLess(Decimal(stopped["pnl"]), -trail_loss)
+
     def test_rejects_missing_stop_poor_payoff_excess_risk_and_other_coins(self):
         before = Path(self.journal).read_bytes()
         bare = self.order()
@@ -400,26 +415,43 @@ class TestSimulatorRules(unittest.TestCase):
         self.assertEqual(Path(self.journal).read_bytes(), bytes(flipped))
 
 
-class TestInstallPin(unittest.TestCase):
-    def test_install_entries_use_this_repo_and_an_immutable_commit(self):
-        from install_pin import COMMIT, REPOSITORY
+class TestInstallIdentity(unittest.TestCase):
+    def test_installed_tree_matches_the_manifest_and_not_its_own_sha(self):
+        from install_pin import ANCESTOR, REPOSITORY
         self.assertEqual(REPOSITORY, "https://github.com/skip4570gov/hypergrok-trading-desk")
-        self.assertRegex(COMMIT, r"^[0-9a-f]{40}$")
-        files = [
-            ROOT / "README.md",
-            ROOT / "SETUP.md",
-            ROOT / "skills/hypergrok-bootstrap/SKILL.md",
-            ROOT / "template/grok-bot.json",
-            ROOT / ".grok-plugin/marketplace.json",
-            ROOT / ".agents/plugins/marketplace.json",
-            ROOT / "docs/hyperliquid-cursor.md",
-        ]
-        for path in files:
-            text = path.read_text(encoding="utf-8")
-            self.assertIn(COMMIT, text, path.name)
-            self.assertNotIn("galleonlabs/hypergrok-trading-desk", text, path.name)
-            self.assertNotIn("x.ai/bot", text, path.name)
-            self.assertNotIn("--branch paper-only", text, path.name)
+        self.assertEqual(ANCESTOR, "7bc0fca92265568a9845c5a87b36fea4d0fd9531")
+        self.assertNotIn("__PAPER_COMMIT__", (ROOT / "scripts/install_pin.py").read_text(encoding="utf-8"))
+        installed = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, installed)
+        manifest = json.loads((ROOT / "install-manifest.json").read_text(encoding="utf-8"))
+        for rel in manifest["files"]:
+            source = ROOT / rel
+            target = Path(installed) / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+        for rel in ("install-manifest.json", "scripts/verify_install.py", "scripts/install_pin.py"):
+            source = ROOT / rel
+            target = Path(installed) / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+        self.assertEqual(subprocess.run(
+            [sys.executable, str(Path(installed) / "scripts/verify_install.py"), "--root", installed],
+            capture_output=True, text=True,
+        ).returncode, 0)
+        paper = Path(installed) / "scripts/paper_sim.py"
+        paper.write_text(paper.read_text(encoding="utf-8") + "\n# tampered\n", encoding="utf-8")
+        failed = subprocess.run(
+            [sys.executable, str(Path(installed) / "scripts/verify_install.py"), "--root", installed],
+            capture_output=True, text=True,
+        )
+        self.assertNotEqual(failed.returncode, 0)
+        self.assertIn("hash mismatch", failed.stdout)
+        here = subprocess.run(
+            [sys.executable, str(SCRIPTS / "verify_install.py")],
+            capture_output=True, text=True, cwd=ROOT,
+        )
+        self.assertEqual(here.returncode, 0, here.stdout + here.stderr)
+        self.assertIn(ANCESTOR, here.stdout)
 
 
 if __name__ == "__main__":

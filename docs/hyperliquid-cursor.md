@@ -7,8 +7,9 @@ HyperGrok turns Cursor into a paper-only desk: six roles and seventeen skills. I
 Clone the reviewed release:
 
 ```bash
-git clone https://github.com/skip4570gov/hypergrok-trading-desk.git
-git checkout 6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c
+git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git
+cd hypergrok-trading-desk
+python3 scripts/verify_install.py
 ```
 
 Open the `hypergrok-trading-desk` folder in Cursor and enable the plugin; `.cursor-plugin/plugin.json` points it at the skills, roles and rules. The plugin is also listed on [cursor.directory](https://cursor.directory/plugins/hypergrok).

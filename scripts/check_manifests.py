@@ -15,7 +15,7 @@ import re
 import sys
 
 CANONICAL_NAME = "hypergrok"
-from install_pin import COMMIT, REPOSITORY
+from install_pin import ANCESTOR, REPOSITORY
 
 MANIFESTS = [
     "plugin.json",
@@ -152,8 +152,8 @@ def check_pinned_source(rel, prefix, entry, version, errors):
         return
     if source.get("url") != REPOSITORY + ".git":
         errors.append(f"{rel}: {prefix}source.url must be '{REPOSITORY}.git'")
-    if source.get("ref") != COMMIT:
-        errors.append(f"{rel}: {prefix}source.ref must pin {COMMIT}")
+    if source.get("ref") != "paper-only":
+        errors.append(f"{rel}: {prefix}source.ref must be paper-only; identity is install-manifest.json")
 
 
 def check_codex_entry(rel, prefix, entry, errors):
@@ -284,7 +284,7 @@ def check_documented_pin(root, version, errors):
         for target in GROK_INSTALL_RE.findall(text):
             if target == CANONICAL_NAME:
                 continue  # marketplace install uses the validated index ref
-            expected_target = REPOSITORY.removeprefix("https://github.com/") + "@" + COMMIT
+            expected_target = REPOSITORY.removeprefix("https://github.com/") + "@paper-only"
             if target != expected_target:
                 errors.append(
                     f"{rel}: 'grok plugin install {target}' must use '{expected_target}'"
@@ -293,10 +293,9 @@ def check_documented_pin(root, version, errors):
             if REPOSITORY not in command:
                 continue  # cloning something else, or prose about `git clone`
             found = CLONE_BRANCH_RE.search(command)
-            if f"checkout {COMMIT}" not in text:
+            if "python3 scripts/verify_install.py" not in text:
                 errors.append(
-                    f"{rel}: 'git clone' of this repository is not pinned; "
-                    f"it needs git checkout {COMMIT}"
+                    f"{rel}: 'git clone' of this repository must run python3 scripts/verify_install.py"
                 )
 
 
@@ -356,7 +355,7 @@ def check_documented_cli_installs(root, codex_marketplace, version, errors):
     ref. A ref that is given must be the release the manifests declare.
     """
     shorthand = REPOSITORY.removeprefix("https://github.com/")
-    expected = COMMIT
+    expected = "paper-only"
     market = codex_marketplace if isinstance(codex_marketplace, dict) else {}
     install_ids = {
         f"{p.get('name')}@{market.get('name')}"

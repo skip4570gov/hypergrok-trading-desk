@@ -10,7 +10,7 @@ For a terminal demo, run the [keyless Opening Bell](../README.md#try-it-now-no-k
 The release version and tag pin, all agent and skill files, the desk folders and record, and a public Hyperliquid `allMids` response. It never reads environment variables, keys or account state, and never calls the exchange write endpoint.
 
 **How does the desk trade?**
-Through a Hyperliquid API (agent) wallet you create in the Hyperliquid app and hand over through Grok Bot's secure secret card. It can place, modify and cancel orders. Withdrawals, transfers and bridging stay in the app with your main wallet.
+Only in the local paper simulator, on a $100 journal, for BTC and ETH. It does not use a Hyperliquid API wallet. Do not create one for this checkout.
 
 **How do I approve a trade?**
 The Risk Manager posts a paper ticket with an id like `HG-20260816-01`. You type `approve HG-20260816-01`. The simulator still checks the quote, trailing stop, payoff and risk. No Bot may type, quote forward or infer your approval. Do not provision a key.

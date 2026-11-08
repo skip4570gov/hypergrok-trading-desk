@@ -7,9 +7,12 @@ HyperGrok turns Claude Code into a paper-only desk: six roles and seventeen skil
 In Claude Code:
 
 ```
-/plugin marketplace add skip4570gov/hypergrok-trading-desk
-/plugin install hypergrok@hypergrok
+git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git
+cd hypergrok-trading-desk
+python3 scripts/verify_install.py
 ```
+
+Do not use an unpinned marketplace add. The verifier checks `install-manifest.json` and the reviewed ancestor. Claude Code's plugin command without that check is not an install of this tree.
 
 Then start with the desk's operating model:
 
@@ -29,9 +32,9 @@ Then start with the desk's operating model:
 Ask the desk for a market brief, for example "Brief me on ETH". The reads use Hyperliquid's public `/info` endpoint, with no wallet or account. The same read works from a terminal:
 
 ```bash
-git clone https://github.com/skip4570gov/hypergrok-trading-desk.git
-git checkout 6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c
+git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git
 cd hypergrok-trading-desk
+python3 scripts/verify_install.py
 python3 scripts/opening_bell.py --coin ETH
 ```
 

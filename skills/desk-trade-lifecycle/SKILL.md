@@ -49,7 +49,7 @@ Done when: the Risk Manager has every input it needs and nothing is older than a
 
 ## 2. Risk sign-off
 
-**Owner: Risk Manager.** Reads `risk-limits.md`, reads live account state, computes size from the user's stop and risk budget, checks every gate, and writes PASS or REJECT with exact ticket fields under `## risk` (procedure and arithmetic in `desk-risk-limits`).
+**Owner: Risk Manager.** Reads `risk-limits.md` and the paper journal, sizes from the $100 starting equity and later journal equity, and writes PASS or REJECT under `## risk`. The procedure is `desk-risk-limits`. BTC and ETH only.
 
 A PASS produces the **ticket**:
 

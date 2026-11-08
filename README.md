@@ -19,8 +19,9 @@ HyperGrok gives your AI agents a shared process for Hyperliquid research, risk, 
 ## Try it now, no keys
 
 ```bash
-git clone https://github.com/skip4570gov/hypergrok-trading-desk.git
-git checkout 6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c
+git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git
+cd hypergrok-trading-desk
+python3 scripts/verify_install.py
 cd hypergrok-trading-desk
 python3 scripts/opening_bell.py --coin ETH
 ```
@@ -37,7 +38,7 @@ Recorded from the command above on 25 October 2026 at 13:09 UTC. The figures are
 
 For the paper desk, open Grok Bot and paste:
 
-> Set up the HyperGrok trading desk from https://github.com/skip4570gov/hypergrok-trading-desk/blob/6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c/skills/hypergrok-bootstrap/SKILL.md. Follow the bootstrap skill, use https://github.com/skip4570gov/hypergrok-trading-desk/blob/6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c/SETUP.md for the complete runbook, and finish with its evidence receipt.
+> Set up the HyperGrok trading desk from the `paper-only` branch of https://github.com/skip4570gov/hypergrok-trading-desk. Follow `skills/hypergrok-bootstrap/SKILL.md`, use `SETUP.md` for the runbook, and finish only if `python3 scripts/verify_install.py` passes.
 
 The Desk Lead runs Opening Bell, installs the shared skills, prepares the team and returns a setup receipt. Orders stay in the local simulator. Do not provision a key. See the [full setup runbook](SETUP.md).
 
@@ -150,7 +151,9 @@ The file is one object or an array of objects:
 
 ## Paper simulator
 
-`scripts/paper_sim.py` is the only order command. The wallet is $100. It accepts BTC and ETH only, requires a trailing stop, requires reward-to-risk of at least 2:1, and rejects risk over 1% of equity including open paper risk. The journal is append-only. See [REVERT.md](REVERT.md) to return to `main` or commit `01c2a46`.
+`scripts/paper_sim.py` is the only order command. The wallet starts at $100 after an explicit reset. It accepts BTC and ETH only, requires a trailing stop, requires reward-to-risk of at least 2:1, and rejects new risk over 1% of journal equity. A stop that gaps through fills at the gapped mark, so a crash can lose more than that 1% trail. The 1% cap is the planned trail at entry, not a guarantee against gaps. The journal is append-only. See [REVERT.md](REVERT.md) to return to `main` or commit `01c2a46`.
+
+Installing this repository does not provide host isolation. The deployment wall must be verified separately. See [SECURITY.md](SECURITY.md).
 
 ## Trading controls
 

@@ -9,7 +9,7 @@
       "source": {
         "source": "url",
         "url": "https://github.com/skip4570gov/hypergrok-trading-desk.git",
-        "ref": "6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c"
+        "ref": "paper-only"
       },
       "policy": {
         "installation": "AVAILABLE",

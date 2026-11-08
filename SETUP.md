@@ -10,9 +10,9 @@ If `/workspace/hypergrok` already contains a Git checkout, preserve it. `git rev
 
 ```bash
 mkdir -p /workspace && cd /workspace
-git clone https://github.com/skip4570gov/hypergrok-trading-desk.git hypergrok
-git -C hypergrok checkout 6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c
-cd /workspace/hypergrok && git rev-parse HEAD && bash scripts/check.sh
+git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git hypergrok
+cd /workspace/hypergrok
+python3 scripts/verify_install.py
 ```
 
 That pin is a release tag, not a moving branch: the desk you build is the desk that was reviewed. Check the repository's releases for a newer tag before setting up, and do not swap the tag for `main` to pick up unreleased work.

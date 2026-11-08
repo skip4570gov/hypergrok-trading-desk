@@ -35,9 +35,10 @@ RESOURCES = (
     "docs/hyperliquid-grok-build.md", "assets/ticket-hg-20260816-01.png",
     "assets/hero.svg", "assets/hero-mobile.svg", "assets/desk-flow.svg", "assets/desk-flow-mobile.svg",
     "hooks/exchange-write-gate.json", "hooks/exchange_write_gate.py", "config/paper.json",
+    "install-manifest.json",
 )
 SCRIPTS = (
-    "account_read.py", "check.sh", "check_grok_template.py", "check_manifests.py", "install_pin.py",
+    "account_read.py", "check.sh", "check_grok_template.py", "check_manifests.py", "install_pin.py", "verify_install.py",
     "market_data.py", "paper_sim.py",
     "check_npm_package.py", "check_public_template.py", "cli_contract.py", "cli_journeys.py", "desk_doctor.py",
     "opening_bell.py", "release_bump.py", "research_dataset.py", "stop_cost.py", "test_research_dataset.py", "test_check_grok_template.py", "test_check_manifests.py",
