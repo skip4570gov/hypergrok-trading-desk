@@ -1,13 +1,14 @@
 # Hyperliquid trading desk for Cursor
 
-HyperGrok turns Cursor into a Hyperliquid trading desk: seven roles and seventeen agent skills for research, risk, execution and review. It is open source (MIT), starts read-only on public market data, and sends an order only for a ticket you approve by id with a trade-only API wallet you provide.
+HyperGrok turns Cursor into a paper-only desk: six roles and seventeen skills. It reads public data and submits only to the local simulator. It does not ask for a key.
 
 ## Install
 
 Clone the reviewed release:
 
 ```bash
-git clone --depth 1 --branch paper-only https://github.com/galleonlabs/hypergrok-trading-desk.git
+git clone https://github.com/skip4570gov/hypergrok-trading-desk.git
+git checkout __PAPER_COMMIT__
 ```
 
 Open the `hypergrok-trading-desk` folder in Cursor and enable the plugin; `.cursor-plugin/plugin.json` points it at the skills, roles and rules. The plugin is also listed on [cursor.directory](https://cursor.directory/plugins/hypergrok).
@@ -34,7 +35,7 @@ It reads Hyperliquid's public `/info` endpoint only: price, funding, open intere
 
 ## When you want to trade
 
-Add a testnet API wallet first and practise with play money; add a mainnet one when you decide to trade real money. The desk only ever asks for a trade-only API wallet key from your own secret store, never a seed phrase or main-wallet key; see [`hyperliquid-setup`](../skills/hyperliquid-setup/SKILL.md). Every trade goes idea, evidence, Risk Manager sign-off, your approval by ticket id, one send, reconciliation, review.
+Do not provision a key. A paper trade goes idea, evidence, Risk Manager sign-off, your approval by ticket id, one `scripts/paper_sim.py` submit, and a journal review.
 
 Perpetual futures can liquidate an account. HyperGrok is documentation and instructions, not financial advice.
 

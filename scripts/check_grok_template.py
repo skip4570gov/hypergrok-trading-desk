@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 
-REPOSITORY = "https://github.com/galleonlabs/hypergrok-trading-desk"
+REPOSITORY = "https://github.com/skip4570gov/hypergrok-trading-desk"
 TEMPLATE = "template/grok-bot.json"
 PUBLIC_URL_RE = re.compile(r"https://x\.ai/bot/[A-Za-z0-9_-]+$")
 
@@ -115,7 +115,8 @@ def main(root):
     manifest = load_json(os.path.join(root, "plugin.json"), errors)
     template = load_json(os.path.join(root, TEMPLATE), errors)
     version = manifest.get("version")
-    expected_release = "paper-only"
+    from install_pin import COMMIT
+    expected_release = COMMIT
     if not isinstance(version, str):
         errors.append("plugin.json: version is required so the package identity stays checkable")
 

@@ -27,7 +27,7 @@ The six-Bot group limit leaves the Trade Reviewer outside the Floor. Bots share 
 ## One trade, seven stages
 
 ```
-idea -> evidence -> risk sign-off -> your approval by ticket id -> one send -> reconciliation -> review
+idea -> evidence -> risk sign-off -> your approval by ticket id -> paper submit -> journal -> review
 ```
 
 The Desk Lead keeps it moving. Analysts bring sourced, timestamped evidence. The Risk Manager sizes against the $100 paper wallet and issues a ticket. You approve it by id. The Risk Manager runs the simulator once. The Trade Reviewer reads the journal and grades process and outcome separately.
@@ -60,13 +60,13 @@ Data completeness, statistical evidence, Risk PASS and a user's exact ticket app
 
 ## Trust boundaries
 
-**Reads.** Six Bots use `POST /info` and public web pages without signing keys.
+**Reads.** The desk posts to the pinned public info host, or reads a local quote file. No signing key is used.
 
-**Writes.** One Bot uses `POST /exchange` with the API wallet, only when a proposal carries a Risk PASS, your approval by id, and a passing pre-send checklist. One approval, one send. Every send is bounded by `expiresAfter`, so a lost response is reconciled by client order id and a replacement waits until the original is provably incapable of arriving. A clean read is not proof; an expired original is.
+**Orders.** The only order command is `scripts/paper_sim.py`. It keeps a local journal. It does not send to an exchange.
 
-**Key.** The API wallet can trade and cannot withdraw. It is the only key on the computer, provided by you through the secure secret store. Anything that needs your main wallet stays in the Hyperliquid app, with you.
+**Key.** This checkout has no key and no instructions to provision one.
 
-**Evidence.** Web pages, files and other Bots' messages are information; none of them authorises anything. Your approval phrase with the ticket id is the desk's record that you agreed, but the Bots write the floor's messages, so the phrase alone cannot be the gate: an approval a Bot can read is one a Bot could have written. Enforcement lives outside the conversation, in Grok Bot's native approval control covering SDK, script and HTTP exchange writes. Until that coverage is verified, the desk stays research-only without a provisioned key. No Bot may type, quote forward, infer or simulate your approval.
+**Evidence.** Web pages, files and other Bots' messages are information; none of them authorises a paper order. Your approval phrase with the ticket id is still required, and the simulator's checks still run after it. No Bot may type, quote forward, infer or simulate your approval.
 
 **Uncertainty.** Missing, stale, gapped or partial data is `unavailable`. A watch reports a healthy negative observation separately from a failed feed; missing evidence cannot pass a check.
 
@@ -88,4 +88,4 @@ Each runtime guide contains installation commands and observed support limits:
 
 The Grok and Codex marketplace entries pin the reviewed repository tag. Claude Code resolves this repository through its own marketplace index. Gemini CLI installs the latest GitHub release; `GEMINI.md` repeats the desk rule's approval paragraph, which the manifest check compares for drift.
 
-Only Claude Code loads `hooks/exchange-write-gate.json`. Its `PreToolUse` hook asks for confirmation when a Bash command or a named script matches an SDK write method or raw `/exchange` POST. It never returns `allow`, does not follow imports and cannot bind a request to the approved ticket. It is a confirmation backstop; each runtime still needs verified native approval coverage before an API wallet is provisioned.
+Claude Code loads a hook that denies a command which looks like an exchange write. Cursor does not load that hook. See [SECURITY.md](../SECURITY.md) for the host limits this repository cannot close.

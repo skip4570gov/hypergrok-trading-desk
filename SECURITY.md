@@ -8,10 +8,14 @@ Operating reminders that live in the skills:
 
 + This checkout reads no private key and stores none.
 + All Bots for one user share a computer, so Bot identity is not a boundary. The simulator's checks are.
-+ In Claude Code, the plugin's [exchange write gate](hooks/exchange_write_gate.py) denies a Bash command, or script it names, that looks like a signed exchange write. It never approves anything. Cursor does not load that hook; this branch removes the write instead of asking Cursor to confirm one.
-+ Resting entries and unknown sends retain risk and margin reservations until terminal reconciliation. A restart, old ticket expiry or cancel acknowledgement cannot free dispatched capacity; a feed reconnect requires account recovery before new risk resumes.
-+ If a send times out or errors after leaving the machine, do not retry. Reconcile the client order id first, and treat a replacement as unsafe until the original send's expiry has passed and a further check is clean - not finding an order is not proof it will never arrive.
-+ Suspected key misuse: the user revokes the API wallet in the Hyperliquid app first, then the desk investigates.
++ In Claude Code, the plugin's [exchange write gate](hooks/exchange_write_gate.py) denies a Bash command, or script it names, that looks like a signed exchange write. It never approves anything.
+
+## Host limits this repository cannot close
+
++ There is no external host wall. A person at a shell can still run their own HTTP client. This checkout does not contain a signer, a key path, or an order client, and it cannot stop a program that was never part of the repo.
++ Cursor loads no hook. The deny hook is a Claude Code file. It does not see Cursor tool calls.
++ This process disables urllib environment proxies and refuses redirects off `api.hyperliquid.xyz`. A host that intercepts traffic outside the process is outside this fix.
++ Deleting the state directory removes history the process cannot restore. Submit then refuses until an explicit `reset`, which writes a reset record. The operating system can still delete files.
 
 Supported versions:
 

@@ -1,8 +1,8 @@
 # Grok Bot template
 
-`template/grok-bot.json` is the release contract for the public **HyperGrok Desk Lead** template. It records the exact public profile, source release, avatar, exported bootstrap skill and complete reviewed release inventory. `templateSkillNames` lists the skills carried by the share; `skills` contains all seventeen files and hashes that setup must install and verify.
+Historical publication notes. This paper-only branch does not install that public share.
 
-**Release state — 2026-11-03:** The [1.7.1 public template](https://x.ai/bot/2GeaOwIsmTEOD_WGzmghC) is published. Its complete exported bootstrap was independently read back in the native UI and matched the reviewed source. The earlier 1.7.0 share keeps installing 1.7.0. Earlier receipts below apply only to their named releases.
+`template/grok-bot.json` records the profile and skill hashes for this checkout. Do not treat an older public share as the install source.
 
 **Prior release — 2026-10-25:** The [1.7.0 public template](https://x.ai/bot/qgVMePFoWotJTUtl3gkdZ) is published. Its complete exported bootstrap was independently read back in the native UI and matched the reviewed source. Source and package checks are recorded separately. Earlier receipts below apply only to their named releases.
 

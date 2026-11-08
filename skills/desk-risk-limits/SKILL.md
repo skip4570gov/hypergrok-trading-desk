@@ -36,24 +36,18 @@ Interview the user, one question at a time, then write `/workspace/trading-desk/
 ```markdown
 # Risk limits v1 - 2026-08-16 - set by user
 
-- network: testnet            # testnet | mainnet
-- account: 0xabc...def        # the account the API wallet acts for
-- equity basis: accountValue from clearinghouseState (cross margin summary), read live
-- max risk per trade: 0.5% of equity      # loss if the stop is hit
-- max total open risk: 2% of equity       # positions plus reserved risk for pending entries
-- max leverage per market: 3x             # never above the exchange max, and never above this
-- max positions: 3
-- allowed markets: BTC, ETH, SOL, HYPE     # perps; spot needs an explicit entry
-- stops: mandatory on every entry, on the exchange, not "mental"
-- daily loss stop: -2% of start-of-day equity -> no new risk until the user resets in writing
-- max slippage tolerance at send: 10 bps  # Execution Trader stops if mid moved further
-- correlated cluster limit: majors (BTC, ETH, SOL) count as one cluster; max 2 positions per cluster
-- standing approvals: none          # recommended: protective stops (reduce-only), any network
-- unprotected position deadline: 15m  # then tell the user to fix it in the Hyperliquid app
+- book: paper simulator journal
+- equity basis: replayed from the journal after the explicit reset
+- symbols: BTC, ETH
+- max risk per trade: 1% of journal equity
+- max total open risk: 1% of journal equity
+- trailing stop: mandatory, and it must move with the mark inside scripts/paper_sim.py
+- take-profit: required, finite, and on the profitable side of the fill
+- reward-to-risk: at least 2:1 after fees and slippage
 - notes:
 ```
 
-Sensible starting points for someone new to perps: 0.25-0.5% per trade, 3x or lower, testnet first. Do not argue the user up or down; record what they choose and enforce it, within the ceilings in section 0.
+Record what the user chooses only when it is stricter than the simulator. Do not add another symbol, a missing target, or a live book.
 
 ## 2. Size a trade
 

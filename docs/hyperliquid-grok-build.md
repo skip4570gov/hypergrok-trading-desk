@@ -1,19 +1,19 @@
 # Hyperliquid trading desk for Grok Build
 
-HyperGrok turns Grok Build into a Hyperliquid trading desk: seven roles and seventeen agent skills for research, risk, execution and review. It is open source (MIT), starts read-only on public market data, and sends an order only for a ticket you approve by id with a trade-only API wallet you provide. For the full seven-Bot desk with a shared Trading Floor, use [Grok Bot](../README.md#start).
+HyperGrok turns Grok Build into a paper-only desk: six roles and seventeen skills. It reads public data and submits only to the local simulator. It does not ask for a key. For the shared Trading Floor, use [Grok Bot](../README.md#start).
 
 ## Install
 
 Install the reviewed release:
 
 ```bash
-grok plugin install galleonlabs/hypergrok-trading-desk@paper-only --trust
+grok plugin install skip4570gov/hypergrok-trading-desk@__PAPER_COMMIT__ --trust
 ```
 
 Or register this repository's Grok marketplace, which pins the same release, and install by name:
 
 ```bash
-grok plugin marketplace add galleonlabs/hypergrok-trading-desk
+grok plugin marketplace add skip4570gov/hypergrok-trading-desk
 grok plugin install hypergrok --trust
 ```
 
@@ -33,14 +33,15 @@ Grok Build reports the skills and agents directories; loading `rules/` is not ve
 Ask for a market brief, for example "Brief me on ETH". The reads use Hyperliquid's public `/info` endpoint, with no wallet or account. The same read works from a terminal:
 
 ```bash
-git clone --depth 1 --branch paper-only https://github.com/galleonlabs/hypergrok-trading-desk.git
+git clone https://github.com/skip4570gov/hypergrok-trading-desk.git
+git checkout __PAPER_COMMIT__
 cd hypergrok-trading-desk
 python3 scripts/opening_bell.py --coin ETH
 ```
 
 ## When you want to trade
 
-Add a testnet API wallet first and practise with play money; add a mainnet one when you decide to trade real money. The desk only ever asks for a trade-only API wallet key from your own secret store, never a seed phrase or main-wallet key; see [`hyperliquid-setup`](../skills/hyperliquid-setup/SKILL.md). Every trade goes idea, evidence, Risk Manager sign-off, your approval by ticket id, one send, reconciliation, review.
+Do not provision a key. A paper trade goes idea, evidence, Risk Manager sign-off, your approval by ticket id, one `scripts/paper_sim.py` submit, and a journal review.
 
 Perpetual futures can liquidate an account. HyperGrok is documentation and instructions, not financial advice.
 

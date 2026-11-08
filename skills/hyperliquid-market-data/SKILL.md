@@ -74,7 +74,7 @@ Up to 20 levels per side; each level is `{px, sz, n}` (`n` = number of orders). 
 
 **Twenty levels is a page, not the book.** On a liquid perp those levels stop a few bps from the mid - around 8 bps on ETH and under 3 bps on BTC at normal spreads - so a 25 bps band summed from the default response is whatever the page happened to contain, not the depth within 25 bps. Read the reach before quoting a band: when the side came back with 20 levels and the furthest one is nearer than the band, the number is a floor. To reach further, re-request with `nSigFigs: 4`, which buckets prices coarsely enough to push 20 levels out to roughly 20-25 bps on a major perp (measured live: 82 bps ETH, 25 BTC, 24 HYPE, 20 SOL), and drop to `nSigFigs: 3` when even that stops short. Read each band off the finest page that reaches it - the coarse page moves the band edges by up to one bucket, and its top of book is not the real one - and say which page a figure came from. `scripts/opening_bell.py` is that ladder in code.
 
-Depth within a band, the way the Risk Manager and Execution Trader want it:
+Depth within a band, the way the Risk Manager wants it before a paper submit:
 
 ```bash
 hl '{"type":"l2Book","coin":"ETH"}' | jq '

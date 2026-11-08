@@ -1,11 +1,11 @@
 # Hyperliquid trading desk for Gemini CLI
 
-HyperGrok is a Gemini CLI extension for Hyperliquid: seventeen agent skills for research, risk, execution and review, with seven roles run as labelled passes. It is open source (MIT), starts read-only on public market data, and sends an order only for a ticket you approve by id with a trade-only API wallet you provide.
+HyperGrok is a Gemini CLI extension for a paper-only desk: seventeen skills and six labelled passes. It reads public data and submits only to the local simulator. It does not ask for a key.
 
 ## Install
 
 ```bash
-gemini extensions install https://github.com/galleonlabs/hypergrok-trading-desk
+gemini extensions install https://github.com/skip4570gov/hypergrok-trading-desk
 ```
 
 Gemini CLI installs the latest GitHub release. The extension manifest is `gemini-extension.json`. Manifest validation is covered by the repository checks; a native installation of the current release has not been verified.
@@ -25,14 +25,15 @@ The Claude Code exchange-write hook does not load in Gemini CLI.
 Ask for a market brief, for example "Brief me on ETH". The reads use Hyperliquid's public `/info` endpoint, with no wallet or account. The same read works from a terminal:
 
 ```bash
-git clone --depth 1 --branch paper-only https://github.com/galleonlabs/hypergrok-trading-desk.git
+git clone https://github.com/skip4570gov/hypergrok-trading-desk.git
+git checkout __PAPER_COMMIT__
 cd hypergrok-trading-desk
 python3 scripts/opening_bell.py --coin ETH
 ```
 
 ## When you want to trade
 
-Add a testnet API wallet first and practise with play money; add a mainnet one when you decide to trade real money. The desk only ever asks for a trade-only API wallet key from your own secret store, never a seed phrase or main-wallet key; see [`hyperliquid-setup`](../skills/hyperliquid-setup/SKILL.md). Every trade goes idea, evidence, Risk Manager sign-off, your approval by ticket id, one send, reconciliation, review.
+Do not provision a key. A paper trade goes idea, evidence, Risk Manager sign-off, your approval by ticket id, one `scripts/paper_sim.py` submit, and a journal review.
 
 Perpetual futures can liquidate an account. HyperGrok is documentation and instructions, not financial advice.
 

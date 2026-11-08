@@ -1,7 +1,6 @@
 {
   "schemaVersion": 2,
-  "status": "published",
-  "publicShareUrl": "https://x.ai/bot/2GeaOwIsmTEOD_WGzmghC",
+  "status": "ready-to-publish",
   "name": "HyperGrok Desk Lead",
   "title": "Six-role paper Hyperliquid desk",
   "description": "Builds a six-role paper desk from the paper-only branch. Research-only public reads and a local simulator: no wallet, no exchange order.",
@@ -9,10 +8,10 @@
   "avatar": "assets/mascot.jpg",
   "startMessage": "Start the desk.",
   "source": {
-    "repository": "https://github.com/galleonlabs/hypergrok-trading-desk",
-    "release": "paper-only",
-    "bootstrap": "https://github.com/galleonlabs/hypergrok-trading-desk/blob/paper-only/skills/hypergrok-bootstrap/SKILL.md",
-    "runbook": "https://github.com/galleonlabs/hypergrok-trading-desk/blob/paper-only/SETUP.md"
+    "repository": "https://github.com/skip4570gov/hypergrok-trading-desk",
+    "release": "__PAPER_COMMIT__",
+    "bootstrap": "https://github.com/skip4570gov/hypergrok-trading-desk/blob/__PAPER_COMMIT__/skills/hypergrok-bootstrap/SKILL.md",
+    "runbook": "https://github.com/skip4570gov/hypergrok-trading-desk/blob/__PAPER_COMMIT__/SETUP.md"
   },
   "templateSkillNames": [
     "hypergrok-bootstrap"
@@ -26,17 +25,17 @@
     {
       "name": "desk-incident-response",
       "path": "skills/desk-incident-response/SKILL.md",
-      "sha256": "0079827303544632b2fff3a6dfc33a6bb1189cf202c8dfb6d8a449f67400ece7"
+      "sha256": "b0fdd30ef0930506e669943e6789a76b4c301e9bb4104b58ac956d435878c94d"
     },
     {
       "name": "desk-monitoring",
       "path": "skills/desk-monitoring/SKILL.md",
-      "sha256": "7ed83e608c38f9a31c3b2521a9445ee5af5143f972e73f0d0f1dc54b3ffbc75b"
+      "sha256": "fb45389c3ecefc5d6eee9e8e682b5426fcc871bfa26872ff29a78b2d3674c0d3"
     },
     {
       "name": "desk-operating-model",
       "path": "skills/desk-operating-model/SKILL.md",
-      "sha256": "0554e4f912ce901f5138121971ffc483af071f2dc2949f5b5abae8ea25617ca4"
+      "sha256": "2e2310a46eff0e2ee21cb37d5619d421aca59644be30fce49020ab987450356a"
     },
     {
       "name": "desk-post-trade-review",
@@ -46,7 +45,7 @@
     {
       "name": "desk-risk-limits",
       "path": "skills/desk-risk-limits/SKILL.md",
-      "sha256": "4e7cbc7edfa98f83a6085e381dd527f6edc7a0661b3236dfb8029efbfdaedc2f"
+      "sha256": "c44ed01072d979cab0b66e19b70035039e983c1ca645cc4f481ea8393f56eca8"
     },
     {
       "name": "desk-strategy-lab",
@@ -56,12 +55,12 @@
     {
       "name": "desk-trade-lifecycle",
       "path": "skills/desk-trade-lifecycle/SKILL.md",
-      "sha256": "82e55c419dead3d12b50cb5b1169be679b41e52dda76b27fd00422d22f789deb"
+      "sha256": "3ab247dec2d718ef2b518be24e2d997f49f8d5e430ae4c50dfdb9a9bf8773259"
     },
     {
       "name": "hypergrok-bootstrap",
       "path": "skills/hypergrok-bootstrap/SKILL.md",
-      "sha256": "aacc913848823f74ea0757a6a2d75140e323f3ee0cd74c7b6452d9c619e679b8"
+      "sha256": "00d8d20a40afdadd1636695cfee1be46ac3e46122ee88332c47762a7664e55da"
     },
     {
       "name": "hyperliquid-account",
@@ -81,12 +80,12 @@
     {
       "name": "hyperliquid-market-data",
       "path": "skills/hyperliquid-market-data/SKILL.md",
-      "sha256": "9ae59339955d0d1cd20fe418fb8477c6adce299fde88e2e3f23fb0e04421e39b"
+      "sha256": "0b42329274e363efff129c0876eb5bf291f938fc2c5a7bf6fa4e1b45d8b68cc0"
     },
     {
       "name": "hyperliquid-orders",
       "path": "skills/hyperliquid-orders/SKILL.md",
-      "sha256": "fbb73c884796d8b2f39b7838bd4cae7c46a16fdbecb6787d9beff25aa49e93e6"
+      "sha256": "a858ddfb36df8184b4d33c1d5203720a1251b418b9ee7ad46cadf168fc1e4653"
     },
     {
       "name": "hyperliquid-positions",

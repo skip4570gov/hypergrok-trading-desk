@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/galleonlabs/hypergrok-trading-desk/releases"><img src="https://img.shields.io/github/v/release/galleonlabs/hypergrok-trading-desk?style=flat-square&labelColor=071815&color=1d4a43&label=release" alt="Latest release"></a>
+  <a href="https://github.com/skip4570gov/hypergrok-trading-desk/releases"><img src="https://img.shields.io/github/v/release/skip4570gov/hypergrok-trading-desk?style=flat-square&labelColor=071815&color=1d4a43&label=release" alt="Latest release"></a>
   <a href="https://www.npmjs.com/package/hypergrok-trading-desk"><img src="https://img.shields.io/npm/v/hypergrok-trading-desk?style=flat-square&labelColor=071815&color=1d4a43&label=npm" alt="npm version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-1d4a43?style=flat-square&labelColor=071815" alt="MIT license"></a>
   <a href="https://www.hypurr.co/ecosystem-projects/hypergrok"><img src="https://img.shields.io/badge/HypurrCollective-ecosystem%20map-1d4a43?style=flat-square&labelColor=071815" alt="Listed on the HypurrCollective Hyperliquid Ecosystem Map"></a>
@@ -19,7 +19,8 @@ HyperGrok gives your AI agents a shared process for Hyperliquid research, risk, 
 ## Try it now, no keys
 
 ```bash
-git clone --depth 1 --branch paper-only https://github.com/galleonlabs/hypergrok-trading-desk.git
+git clone https://github.com/skip4570gov/hypergrok-trading-desk.git
+git checkout __PAPER_COMMIT__
 cd hypergrok-trading-desk
 python3 scripts/opening_bell.py --coin ETH
 ```
@@ -34,13 +35,11 @@ Recorded from the command above on 25 October 2026 at 13:09 UTC. The figures are
 
 ## Start
 
-For the seven-Bot desk with a shared Trading Floor, open Grok Bot and paste:
+For the paper desk, open Grok Bot and paste:
 
-> Set up the HyperGrok trading desk from https://github.com/galleonlabs/hypergrok-trading-desk/blob/paper-only/skills/hypergrok-bootstrap/SKILL.md. Follow the bootstrap skill, use https://github.com/galleonlabs/hypergrok-trading-desk/blob/paper-only/SETUP.md for the complete runbook, and finish with its evidence receipt.
+> Set up the HyperGrok trading desk from https://github.com/skip4570gov/hypergrok-trading-desk/blob/__PAPER_COMMIT__/skills/hypergrok-bootstrap/SKILL.md. Follow the bootstrap skill, use https://github.com/skip4570gov/hypergrok-trading-desk/blob/__PAPER_COMMIT__/SETUP.md for the complete runbook, and finish with its evidence receipt.
 
-Or add the [public HyperGrok Desk Lead template](https://x.ai/bot/2GeaOwIsmTEOD_WGzmghC), then send **Start the desk.** Its 1.7.1 bootstrap installs the complete seventeen-skill release. See the [publication and native content checks](docs/GROK_BOT_TEMPLATE.md#publication-verification---2026-11-03).
-
-The Desk Lead runs Opening Bell, installs the shared skills, prepares the team and returns a setup receipt. The desk starts in research mode. Add a testnet API wallet when you want to practise with play money; mainnet uses the same ticket process after its approval controls are verified. See the [full setup runbook](SETUP.md) for each step.
+The Desk Lead runs Opening Bell, installs the shared skills, prepares the team and returns a setup receipt. Orders stay in the local simulator. Do not provision a key. See the [full setup runbook](SETUP.md).
 
 <details>
 <summary><strong>Opening Bell and desk doctor for scripts</strong></summary>
@@ -55,7 +54,7 @@ python3 scripts/opening_bell.py --coin xyz:TSLA --json
 python3 scripts/desk_doctor.py --offline --json
 ```
 
-`--testnet` explicitly selects testnet. A custom API origin is labelled `custom`. HIP-3 discovery stays read-only; execution remains opt-in under the desk's normal ticket rules.
+Scripts do not accept another origin. HIP-3 discovery stays a public read. Orders stay in the simulator.
 
 </details>
 
@@ -159,7 +158,7 @@ The file is one object or an array of objects:
 - **No key is read.** This checkout has no private-key path and no exchange writer.
 - **Sized on a stressed stop.** The desk includes assumed adverse stop fills and taker fees on both legs when sizing. Actual losses can exceed that assumption. [See what a stop costs](docs/STOP_COST.md).
 - **Ceilings you cannot trade through.** Your limits file may only tighten the desk's own caps, never loosen them.
-- **Testnet first.** Every new kind of action is rehearsed with play money before it touches mainnet.
+- **Paper only.** The simulator is the order path. Do not provision a key.
 - **One writer.** Six Bots read; one Bot sends, once per approval, and reconciles by client order id.
 - **Separate process and outcome.** The Trade Reviewer records both in a journal you can read.
 
@@ -177,12 +176,12 @@ Choose the guide for your runtime. Each uses the same skills and ticket process;
 | Codex | [Install from the Codex marketplace](docs/hyperliquid-codex.md) | Skills, with the seven roles run as labelled passes |
 | Gemini CLI | [Install the extension](docs/hyperliquid-gemini-cli.md) | Skills and `GEMINI.md`, with roles run as labelled passes |
 
-The Claude Code hook asks for confirmation when a Bash command or a named script looks like an exchange write. It cannot bind a request to a ticket or inspect every imported path. Every runtime still needs verified native approval coverage before an API wallet is provisioned. The guides distinguish manifest support from observed native installation.
+The Claude Code hook denies a command that looks like an exchange write. Cursor does not load that hook. This checkout has no order for a hook to approve. See [SECURITY.md](SECURITY.md).
 
 The same pack installs as a skill:
 
 ```
-npm exec --package=skills@1.5.23 -- skills add galleonlabs/hypergrok-trading-desk
+npm exec --package=skills@1.5.23 -- skills add skip4570gov/hypergrok-trading-desk
 ```
 
 The complete resources also install from npm:
@@ -194,7 +193,7 @@ python3 node_modules/hypergrok-trading-desk/scripts/desk_doctor.py --offline
 
 The package contains the instructions, role profiles, plugin manifests and read-only Python tools. It has no JavaScript entry point, runtime dependencies or install hooks; installation does not start a desk or connect a wallet.
 
-Live listings: [HypurrCollective ecosystem map](https://www.hypurr.co/ecosystem-projects/hypergrok) · [skills.sh](https://www.skills.sh/galleonlabs/hypergrok-trading-desk) · [cursor.directory](https://cursor.directory/plugins/hypergrok) · [botdirectory.ai](https://botdirectory.ai/bots/hypergrok-trading-desk)
+Live listings: [HypurrCollective ecosystem map](https://www.hypurr.co/ecosystem-projects/hypergrok) · [skills.sh](https://www.skills.sh/skip4570gov/hypergrok-trading-desk) · [cursor.directory](https://cursor.directory/plugins/hypergrok) · [botdirectory.ai](https://botdirectory.ai/bots/hypergrok-trading-desk)
 
 After installation, load `desk-operating-model` using the command or context mechanism in your runtime guide.
 
@@ -224,15 +223,15 @@ assets/      the mascot, logo, README graphics and their generator
 
 ## Get help and keep up
 
-- **Updates:** use GitHub's **Watch → Custom → Releases** to follow [new releases](https://github.com/galleonlabs/hypergrok-trading-desk/releases).
-- **Setup help:** check the [FAQ](docs/FAQ.md), then ask in [Discussions](https://github.com/galleonlabs/hypergrok-trading-desk/discussions). Share your runtime, release and failing command; keep keys and private account details out.
-- **Bugs:** [open an issue](https://github.com/galleonlabs/hypergrok-trading-desk/issues/new/choose) with a reproduction and sanitized output. Follow the [community guidelines](CODE_OF_CONDUCT.md).
+- **Updates:** use GitHub's **Watch → Custom → Releases** to follow [new releases](https://github.com/skip4570gov/hypergrok-trading-desk/releases).
+- **Setup help:** check the [FAQ](docs/FAQ.md), then ask in [Discussions](https://github.com/skip4570gov/hypergrok-trading-desk/discussions). Share your runtime, release and failing command; keep keys and private account details out.
+- **Bugs:** [open an issue](https://github.com/skip4570gov/hypergrok-trading-desk/issues/new/choose) with a reproduction and sanitized output. Follow the [community guidelines](CODE_OF_CONDUCT.md).
 - **Contribute:** see [Contributing](CONTRIBUTING.md), the [fork review](docs/FORK_REVIEW.md) and [security policy](SECURITY.md). Share reproducible fixes and source-backed documentation improvements.
 
 ## License and credit
 
 [MIT licensed](LICENSE), with the copyright and permission notice retained when reusing copies or substantial portions. Created by [Andrew Wilkinson](https://andrewwilkinson.io) and [Galleon Labs](https://github.com/galleonlabs).
 
-See [reuse and attribution](ATTRIBUTION.md) for a ready-to-copy credit line. If HyperGrok Trading Desk helps your work, [a star on the original repository](https://github.com/galleonlabs/hypergrok-trading-desk) is appreciated and entirely optional.
+See [reuse and attribution](ATTRIBUTION.md) for a ready-to-copy credit line. If HyperGrok Trading Desk helps your work, [a star on the original repository](https://github.com/skip4570gov/hypergrok-trading-desk) is appreciated and entirely optional.
 
 HyperGrok has no token and will not launch one. [Read the FAQ](docs/FAQ.md#token).

@@ -13,12 +13,15 @@ metadata:
 This skill does not sign, cancel, or send an exchange request. The only order command is the local simulator:
 
 ```bash
+python3 scripts/paper_sim.py reset --state /workspace/trading-desk/paper
 python3 scripts/paper_sim.py submit \
   --config config/paper.json \
-  --journal /workspace/trading-desk/journal/paper.jsonl \
+  --state /workspace/trading-desk/paper \
   --symbol BTC --side buy --entry 100000 --size 0.00001 \
   --take-profit 100200 --trail-distance 100
 ```
+
+`reset` is required when the journal is missing. It writes a reset record. Deleting the journal does not restore a wallet by itself. `mark` moves the trailing stop and can fill the stop or target. `close` exits at the quote. Fees and slippage are applied, and equity is replayed from the journal.
 
 The simulator rejects any other symbol, any order without `trailing_stop.distance`, any reward-to-risk under 2:1, and any order whose risk, including already accepted paper risk, is over 1% of the fixed $100 equity. It ignores a caller-supplied equity or force flag because those arguments do not exist. Accepted and rejected attempts that pass the journal check are not rewritten: the journal is append-only and hash-chained.
 

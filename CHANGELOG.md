@@ -1,5 +1,9 @@
 # Changelog
 
+Historical record of the desk before the paper-only line. It is not an operating guide. Do not provision a key or send an order from these notes.
+
+
+
 ## Unreleased
 
 + Add `scripts/account_read.py`, a keyless read of one account across the main perp DEX, every HIP-3 DEX listed by `perpDexs` (such as `xyz`) and spot, because a plain `clearinghouseState` read omits HIP-3 positions and margin. It reports positions and per-DEX equity, converts non-USDC collateral and spot tokens at their USDC pair, and sums total equity only in the standard account mode; shared-collateral modes report the parts with no total. The address comes from `--address` or `HYPERGROK_ACCOUNT`. It shares the read-only `--schema`, `--json` and error contract, and two loopback journeys cover a HIP-3 short, a USDH-collateral DEX, an empty DEX and a unified account. Documented in `docs/ACCOUNT_READ.md`.

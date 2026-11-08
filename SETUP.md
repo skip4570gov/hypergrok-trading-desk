@@ -10,7 +10,8 @@ If `/workspace/hypergrok` already contains a Git checkout, preserve it. `git rev
 
 ```bash
 mkdir -p /workspace && cd /workspace
-git clone --depth 1 --branch paper-only https://github.com/galleonlabs/hypergrok-trading-desk.git hypergrok
+git clone https://github.com/skip4570gov/hypergrok-trading-desk.git hypergrok
+git -C hypergrok checkout __PAPER_COMMIT__
 cd /workspace/hypergrok && git rev-parse HEAD && bash scripts/check.sh
 ```
 
@@ -186,4 +187,4 @@ Use the guide for your runtime:
 - [Codex](docs/hyperliquid-codex.md): skills, with role prompts run as labelled passes.
 - [Gemini CLI](docs/hyperliquid-gemini-cli.md): skills and `GEMINI.md`, with role prompts run as labelled passes.
 
-Grok Bot's cloud paths, native Bot creation and Trading Floor steps do not describe these runtimes. Use their supported workspace and role mechanisms, and report what actually loaded. Preserve the desk's evidence standard, Risk PASS, exact ticket approval, expiry, single writer, single send and reconciliation. Verify native approval coverage for the actual SDK, script and HTTP routes before provisioning a key; a command-matching hook alone is insufficient. If coverage is unavailable, remain in research mode.
+Grok Bot's cloud paths, native Bot creation and Trading Floor steps do not describe these runtimes. Use their supported workspace and role mechanisms, and report what actually loaded. Preserve the paper simulator's checks. Do not provision a key.

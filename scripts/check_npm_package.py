@@ -15,7 +15,7 @@ import sys
 import tarfile
 
 NAME = "hypergrok-trading-desk"
-REPOSITORY = "https://github.com/galleonlabs/hypergrok-trading-desk"
+REPOSITORY = "https://github.com/skip4570gov/hypergrok-trading-desk"
 ROOT_FILES = (
     "AGENTS.md", "ATTRIBUTION.md", "CHANGELOG.md", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md", "GEMINI.md",
     "LICENSE", "README.md", "REVERT.md", "SECURITY.md", "SETUP.md", "plugin.json", "skills/README.md",
@@ -37,7 +37,7 @@ RESOURCES = (
     "hooks/exchange-write-gate.json", "hooks/exchange_write_gate.py", "config/paper.json",
 )
 SCRIPTS = (
-    "account_read.py", "check.sh", "check_grok_template.py", "check_manifests.py",
+    "account_read.py", "check.sh", "check_grok_template.py", "check_manifests.py", "install_pin.py",
     "market_data.py", "paper_sim.py",
     "check_npm_package.py", "check_public_template.py", "cli_contract.py", "cli_journeys.py", "desk_doctor.py",
     "opening_bell.py", "release_bump.py", "research_dataset.py", "stop_cost.py", "test_research_dataset.py", "test_check_grok_template.py", "test_check_manifests.py",

@@ -25,7 +25,7 @@ idea -> evidence -> risk sign-off -> user approval -> paper submit -> journal ->
 # HG-20260816-01
 
 - opened: 2026-08-16 14:02 UTC by user
-- market: ETH-PERP  network: mainnet  account: 0xabc...def
+- market: ETH  book: paper journal
 - idea: long ETH on a retest of 3,000 with invalidation below 2,900 (user's idea)
 - status: evidence
 
@@ -54,17 +54,14 @@ Done when: the Risk Manager has every input it needs and nothing is older than a
 A PASS produces the **ticket**:
 
 ```
-TICKET HG-20260816-01 | mainnet | account 0xabc...def
-market: ETH-PERP (asset 1)      side: buy      size: 0.4827 ETH (~$1,448)
-entry: limit 3,000.0 Gtc        reduce-only: no
-stop: sell 0.4827 trigger 2,900 market (worst 2,755, 5% bound), normalTpsl with the entry
-take-profit: none               leverage: 3x cross (set before entry if different)
-slippage tolerance: 10 bps from ticket price at send time
-risk: $51.00 = 0.5% of equity $10,200.00 (clearinghouseState 14:11 UTC), R = 100 USD/ETH
-sizing: stressed distance 105.65 USD/ETH (stop 100 + slippage 3.00 + fees 2.65)
-risk sign-off: PASS 14:12 UTC, risk-limits.md v3
-expires: 14:42 UTC
+TICKET HG-20260816-01 | paper
+market: ETH   side: buy   size: 0.001
+entry: inside the quote   trailing distance: 1   target: above the fill
+risk: at most 1% of journal equity after fees and slippage
+reward-to-risk: at least 2:1
+risk sign-off: PASS
 approve with: "approve HG-20260816-01"
+submit: scripts/paper_sim.py
 ```
 
 A REJECT names one failed gate and what would have to change. A REJECT ends the lifecycle for that proposal unless the user changes the idea (new evidence, new stop, new size) - then it goes back to stage 1 under the same id with a note.

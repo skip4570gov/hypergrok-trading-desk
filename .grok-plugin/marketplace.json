@@ -11,10 +11,10 @@
       "category": "development",
       "source": {
         "source": "url",
-        "url": "https://github.com/galleonlabs/hypergrok-trading-desk.git",
-        "ref": "paper-only"
+        "url": "https://github.com/skip4570gov/hypergrok-trading-desk.git",
+        "ref": "__PAPER_COMMIT__"
       },
-      "homepage": "https://github.com/galleonlabs/hypergrok-trading-desk",
+      "homepage": "https://github.com/skip4570gov/hypergrok-trading-desk",
       "keywords": ["hypergrok", "hyperliquid", "trading desk", "grok bot"],
       "version": "1.7.1",
       "author": {

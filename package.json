@@ -9,11 +9,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/galleonlabs/hypergrok-trading-desk.git"
+    "url": "git+https://github.com/skip4570gov/hypergrok-trading-desk.git"
   },
-  "homepage": "https://github.com/galleonlabs/hypergrok-trading-desk#readme",
+  "homepage": "https://github.com/skip4570gov/hypergrok-trading-desk#readme",
   "bugs": {
-    "url": "https://github.com/galleonlabs/hypergrok-trading-desk/issues"
+    "url": "https://github.com/skip4570gov/hypergrok-trading-desk/issues"
   },
   "keywords": [
     "grok-bot",
@@ -82,6 +82,7 @@
     "scripts/cli_contract.py",
     "scripts/cli_journeys.py",
     "scripts/desk_doctor.py",
+    "scripts/install_pin.py",
     "scripts/market_data.py",
     "scripts/paper_sim.py",
     "scripts/opening_bell.py",

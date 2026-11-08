@@ -6,8 +6,8 @@
     "name": "Galleon Labs",
     "url": "https://galleonlabs.io"
   },
-  "homepage": "https://github.com/galleonlabs/hypergrok-trading-desk",
-  "repository": "https://github.com/galleonlabs/hypergrok-trading-desk",
+  "homepage": "https://github.com/skip4570gov/hypergrok-trading-desk",
+  "repository": "https://github.com/skip4570gov/hypergrok-trading-desk",
   "license": "MIT",
   "keywords": ["hyperliquid", "trading-desk", "agents", "grok-bot", "agent-skills"],
   "hooks": "./hooks/exchange-write-gate.json"

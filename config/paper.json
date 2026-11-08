@@ -2,5 +2,5 @@
   "price_source": "hyperliquid",
   "quotes_file": "quotes.json",
   "max_quote_age_seconds": 300,
-  "fallback": "hyperliquid"
+  "fallback": "none"
 }

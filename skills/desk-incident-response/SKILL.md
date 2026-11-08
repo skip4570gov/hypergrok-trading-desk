@@ -1,6 +1,6 @@
 ---
 name: desk-incident-response
-description: What the desk does when something goes wrong on Hyperliquid - unknown send results, unexpected fills or positions, unprotected positions, stuck or orphaned orders, API outages, rate limiting, and suspected API wallet compromise. Contain first, reconcile from the exchange record, act only through approved tickets, then review. Use the moment anything does not match the ticket.
+description: What the paper desk does when the journal, a quote, or a public read goes wrong. Contain first, replay the journal, and do not invent an exchange send. Use the moment anything does not match the ticket.
 license: MIT
 metadata:
   version: "1.1.2"
@@ -17,10 +17,10 @@ An incident is any moment when the exchange record and the desk's expectation di
 Any Bot can declare an incident. Post on the floor:
 
 ```
-INCIDENT INC-20260817-01 | 11:40 UTC | HG-20260817-02 | send timeout, result unknown | owner: Execution Trader
+INCIDENT INC-20260817-01 | 11:40 UTC | HG-20260817-02 | paper journal mismatch | owner: Risk Manager
 ```
 
-The Desk Lead confirms an owner (usually the Execution Trader for order/position incidents, the Risk Manager for exposure incidents, the Desk Lead for access incidents). New proposals pause until the incident is contained.
+The Desk Lead confirms an owner (the Risk Manager for a paper position, the Desk Lead for access). New proposals pause until the incident is contained. There is no exchange send to recover.
 
 ## Playbooks
 
@@ -65,11 +65,11 @@ The Desk Lead confirms an owner (usually the Execution Trader for order/position
 - Blind with open positions: the user is told plainly that stops resting **on the exchange** still work while the desk cannot see; that is why stops are mandatory.
 - Connectivity returning is only the start of recovery. Follow `hyperliquid-websocket`'s gap/restart procedure: restore account and detailed order snapshots, recover overlapping fills, reconcile reservations and protection, then let Risk recheck capacity before new risk resumes. A successful public price read or a restarted process cannot lift the account pause. Protection and exits still use verified live state and the normal approval gates.
 
-### G. Suspected API wallet compromise or misuse
+### G. A secret appeared on the computer
 
 Signs: orders or fills the desk did not send, leverage changes nobody approved, unfamiliar `cloid`s.
 
-1. The user revokes the API wallet immediately in the Hyperliquid app (the API page, `/API`) - the desk cannot do this for them and must not delay them.
+1. Stop. This checkout has no key to use or replace. The user removes the secret from the computer.
 2. This checkout has no key to revoke and no send to confirm.
 3. Read the paper journal. Do not create or store a replacement key.
 4. Rotate: new key through the secure secret card only; nothing pasted in chat; journal the rotation time.

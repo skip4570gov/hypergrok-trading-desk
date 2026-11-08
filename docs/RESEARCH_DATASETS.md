@@ -29,7 +29,7 @@ The tool resolves perp names through exchange metadata and retains canonical spe
 
 Unlike a live execution snapshot, historical research may include a market flagged as delisted in current metadata. That flag travels with the bundle; it is not permission to trade it. Current metadata is not a historical universe or listing calendar, so it cannot by itself remove survivorship bias or prove availability before a market launched.
 
-Mainnet is the default. `--testnet` selects the official testnet API; a different explicit `--base-url` is identified as `custom`. Carry the recorded origin, network, DEX and canonical coin into the research report. A custom origin's response and matching hashes do not establish that Hyperliquid supplied it.
+Reads use the pinned public info host. Scripts do not accept another origin. Carry the feed identity, DEX and canonical coin into the research report.
 
 ## What the bundle contains
 

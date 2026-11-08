@@ -79,6 +79,6 @@ python3 scripts/account_read.py --schema
 python3 scripts/account_read.py --json
 ```
 
-`--schema` describes the JSON without touching the network. `--json` returns decimal strings in the same versioned contract as the other read-only tools: exit 0 for a result, 1 when a read fails (`source_unavailable`) and 2 for invalid arguments, including a missing or malformed address. `--testnet` reads the testnet account, which is a different account from mainnet's at the same address.
+`--schema` describes the JSON without touching the network. `--json` returns decimal strings. Exit 0 is a result, 1 is a failed read, and 2 is a bad argument. The script uses the pinned public info host and does not accept another origin.
 
 The read is a fact source for sizing and reconciliation, not authority to act. The desk's Risk PASS, the user's exact ticket approval and the single writer still govern every exchange action, and this script never sends one.

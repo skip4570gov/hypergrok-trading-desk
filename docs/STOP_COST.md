@@ -63,6 +63,6 @@ python3 scripts/stop_cost.py --schema
 python3 scripts/stop_cost.py --coin BTC --entry 110000 --stop 112000 --equity 25000 --risk-pct 1 --json
 ```
 
-`--schema` describes the JSON without touching the network. `--json` returns decimal strings and the same versioned error contract as the Opening Bell: exit 0 for a result, 1 when market data is unavailable (`source_unavailable`) or the live book leaves no positive stop fill (`unpriceable_stop`), and 2 for invalid arguments. `--testnet` reads the testnet book, which is thinner than mainnet's.
+`--schema` describes the JSON without touching the network. `--json` returns decimal strings. Exit 0 is a result, 1 means the pinned public book could not price the stop, and 2 is a bad argument. The script does not accept another origin.
 
 The output is arithmetic on public data. It is not a trading signal, it does not read or change an account, and it never sends an order. On the desk, the Risk Manager runs the same arithmetic from your live account before a ticket reaches you.

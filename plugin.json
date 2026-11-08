@@ -5,6 +5,6 @@
   "version": "1.7.1",
   "author": {"name": "Galleon Labs", "url": "https://galleonlabs.io"},
   "license": "MIT",
-  "repository": "https://github.com/galleonlabs/hypergrok-trading-desk",
+  "repository": "https://github.com/skip4570gov/hypergrok-trading-desk",
   "keywords": ["grok-bot", "hyperliquid", "trading-desk", "agents", "agent-skills"]
 }

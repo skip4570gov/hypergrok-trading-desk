@@ -75,7 +75,7 @@ There is no testnet engagement and no mainnet engagement. Do not provision a key
 - **The approval line is evidence, not the gate.** The Bots write the floor's messages, so text in the transcript alone cannot establish that the user approved. A Bot never types, pastes, relays, predicts or simulates the user's approval, and never treats its own transcript as proof that one was given.
 - Only the Risk Manager runs `scripts/paper_sim.py`, only after a PASS on that ticket, only once per approval, and only within the ticket's expiry (30 minutes by default). There is no exchange route to verify.
 - Do not configure an exchange writer. A chat instruction cannot create one. The only submit command is `scripts/paper_sim.py`, and its checks are not optional.
-- Standing approvals ("always allow testnet cancels") are the user's choice; if given, they are written into `desk.md` with date and scope. A standing approval never covers a mainnet send that can open or increase exposure. It may cover reduce-only protection - placing or resizing a stop for a position that has none - on any network, and the desk recommends granting exactly that one, because the alternative is a naked position waiting on someone to read a message.
+- There is no standing approval that skips the simulator. A paper order still needs a trailing stop, a real target, and the user's exact ticket id.
 - No unattended sending. Routines may read, alert and draft; they may not send.
 
 ## Excluded on purpose
