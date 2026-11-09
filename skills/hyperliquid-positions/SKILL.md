@@ -14,4 +14,4 @@ There is no leverage, margin mode, or reduce-only close in this checkout. The pa
 
 Open risk is the sum of accepted `risk_usd` values. It starts from a $100 wallet and cannot grow by deposit. A new order is rejected when the added risk would put open risk over $1.
 
-Public account reads, when the user supplies an address, use `scripts/account_read.py` against the allowlisted info endpoint. Those reads do not prove a paper fill and they cannot move funds.
+There is no exchange account read. The journal is the only position record.

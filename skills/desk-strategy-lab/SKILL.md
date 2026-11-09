@@ -15,13 +15,13 @@ The lab exists so the user can find out whether their idea holds up before riski
 ## Workspace
 
 ```
-/workspace/trading-desk/strategies/<name>/
+$HYPERGROK_STATE/strategies/<name>/
   RULES.md          the rules, in words, agreed with the user before any code
   data.md           bundle paths, manifest hashes, requests, coverage and verification
   backtest.py       readable, single-file backtest
   runs/YYYY-MM-DD-HHMM.md   one file per run: parameters, results, caveats
   POSTMORTEM.md     if the idea is abandoned: why, in one paragraph
-/workspace/trading-desk/data/<unique-name>/   immutable research bundle: manifest, sources and CSVs
+$HYPERGROK_STATE/data/<unique-name>/   immutable research bundle: manifest, sources and CSVs
 ```
 
 ## 1. Rules first
@@ -63,9 +63,7 @@ Anything the source does not supply is missing, not implied. If the source canno
 
 ## 2. Data
 
-Use `scripts/research_dataset.py` from the pinned checkout, following `hyperliquid-market-data` and [Research datasets](../../docs/RESEARCH_DATASETS.md). Freeze an aligned UTC `[start,end)` range and interval before fetching; pass `--with-funding` whenever the experiment needs funding. The tool stores requests and decoded source responses, observed candles and funding, file hashes and coverage gaps. It never creates missing observations. A valid request within 5,000 candle slots can still reach outside exchange retention or precede listing; current metadata is not a historical universe.
-
-Before analysis, run `python3 scripts/research_dataset.py --verify <bundle> --json` offline. In `data.md`, record the bundle path, manifest SHA-256, canonical coin/DEX, origin/network, range, collection times, `result.status`, coverage and verification result. Cite the same bundle and manifest hash in each run. Only `complete` coverage with successful verification supports the experiment's claimed period. Consistently replayed incomplete data remains incomplete.
+This checkout does not collect exchange history. A backtest uses only files the user already placed under `$HYPERGROK_STATE/data`. Record that path in `data.md`. If the files do not cover the agreed period, stop the experiment. Do not shorten it, fill a gap, or fetch the missing rows with another client. See [Research datasets](../../docs/RESEARCH_DATASETS.md).
 
 If the required history is incomplete or unavailable, report the missing ranges and stop that experiment. Do not silently shorten it, forward-fill candles, invent zero funding or drop a failed market. A narrower test needs an explicit revised rule and new bundle before viewing results; keep the original evidence. A `complete` dataset is not a strategy PASS, Risk PASS or proof of an unbiased universe.
 

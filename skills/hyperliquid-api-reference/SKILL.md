@@ -12,8 +12,8 @@ metadata:
 
 The only market-data request this checkout implements is a POST to `https://api.hyperliquid.xyz/info`. `scripts/market_data.py` refuses every other URL. Scripts do not accept `--base-url` or `--testnet`.
 
-`PriceFeed.quote(symbol)` returns bid, ask, mark, source, and time for BTC or ETH. `HyperliquidInfoFeed` implements it from the public book. `FileQuoteFeed` implements it from a local JSON file. `build_feed` selects one from config and falls back to the public info feed only when the file cannot supply a fresh BTC or ETH quote.
+`PriceFeed.quote(symbol)` returns bid, ask, mark, source, and time for BTC or ETH. `HyperliquidInfoFeed` implements it with one `l2Book` post. `FileQuoteFeed` implements it from a local JSON file. `build_feed` selects one from config and falls back to the public info feed only when config sets `fallback` to `hyperliquid`.
 
-Info request types still used by the read scripts include `allMids`, `l2Book`, `meta`, `metaAndAssetCtxs`, and `candleSnapshot`. They are reads. This file does not list a signing scheme or a write action.
+This file does not list a signing scheme, a write action, or any other info request. Do not send one.
 
 Quote file fields are `symbol`, `bid`, `ask`, `mark`, `source` (`robinhood`), and `fetched_at` (timezone-aware ISO8601). See the README for the schema and the stale-quote rule.

@@ -293,7 +293,7 @@ def check_documented_pin(root, version, errors):
             if REPOSITORY not in command:
                 continue  # cloning something else, or prose about `git clone`
             found = CLONE_BRANCH_RE.search(command)
-            if "python3 scripts/verify_install.py" not in text:
+            if "scripts/verify_install.py" not in text:
                 errors.append(
                     f"{rel}: 'git clone' of this repository must run python3 scripts/verify_install.py"
                 )
@@ -316,6 +316,8 @@ def check_documented_install(root, marketplace, skill_names, errors):
         if isinstance(p, dict)
     }
     for rel in markdown_files(root):
+        if rel == "CHANGELOG.md":
+            continue  # historical install commands name the repository as it was then
         with open(os.path.join(root, rel), encoding="utf-8") as fh:
             text = fh.read()
         for arg in MARKETPLACE_ADD_RE.findall(text):

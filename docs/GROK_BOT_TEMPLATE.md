@@ -10,7 +10,7 @@ The public template carries one `hypergrok-bootstrap` skill. **Add to Grok Bot**
 
 Grok’s current share helper exports geometric avatars only; it does not carry a custom JPEG from the publishing Bot. The public template therefore uses Grok’s default icon. The release mascot remains available for installed Bots where supported.
 
-The template deliberately carries no plugins, memories or routines. The Opening Bell and bootstrap use public Hyperliquid data and the repository checkout, so a new user should not see a connector prompt, inherit an author's context or activate unattended work during installation.
+The template deliberately carries no plugins, memories or routines. Bootstrap uses the repository checkout and the local simulator, so a new user should not see a connector prompt, inherit an author's context or activate unattended work during installation.
 
 ## Author the template
 
@@ -31,7 +31,7 @@ Do not add conversation history, private files, account details, plugins, memori
 Run the repository gate before publishing:
 
 ```bash
-bash scripts/check.sh
+python3 scripts/verify_install.py && python3 scripts/test_paper_only.py
 ```
 
 ## Publish and record the link
@@ -65,12 +65,12 @@ Add the template as a new Bot, then send exactly:
 
 The Desk Lead follows `hypergrok-bootstrap`. A passing result has:
 
-1. the release tag and commit from the manifest
-2. a live, timestamped Opening Bell from public Hyperliquid `/info`
-3. seven named Bots or exact manual cards for any unavailable creation capability
+1. the commit from `git rev-parse HEAD` and a passing `python3 scripts/verify_install.py`
+2. a passing `python3 scripts/test_paper_only.py` and a simulator `reset` in `$HYPERGROK_STATE`
+3. six named Bots or exact manual cards for any unavailable creation capability
 4. exactly seventeen unique skills, each reported as `template`, `installed` or `pointer`, with no `mismatch`
-5. a private Trading Floor with the six floor Bots, or an exact manual step if group creation is unavailable
-6. a passing desk doctor and all five role checks
+5. a private Trading Floor with the five floor Bots, or an exact manual step if group creation is unavailable
+6. all five role checks
 7. actual native name/description/body readback for every skill, with only documented boundary normalization; verified role standing-instruction evidence; recorded Bot, Floor and membership IDs
 8. this sentence: **Setup stayed read-only: no key requested and no order created or sent.**
 

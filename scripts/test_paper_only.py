@@ -182,15 +182,14 @@ class TestLiveOrdersImpossible(unittest.TestCase):
             market_data._post_allowlisted(HYPERLIQUID_INFO_URL, {"type": "allMids"}, 1, "test", opener=redirecting)
         self.assertEqual(calls, [HYPERLIQUID_INFO_URL])
 
-    def test_read_scripts_reject_base_url_and_testnet(self):
-        for script in ("opening_bell.py", "account_read.py", "desk_doctor.py", "stop_cost.py", "research_dataset.py"):
-            for flag in ("--base-url", "https://example.com"), ("--testnet",):
-                result = subprocess.run(
-                    [sys.executable, str(SCRIPTS / script), *flag, "--json"],
-                    capture_output=True, text=True, cwd=ROOT,
-                )
-                self.assertEqual(result.returncode, 2, (script, flag, result.stderr, result.stdout))
-                self.assertIn("unrecognized arguments", result.stderr + result.stdout)
+    def test_legacy_modules_are_absent(self):
+        removed = (
+            "opening_bell.py", "account_read.py", "desk_doctor.py", "stop_cost.py",
+            "research_dataset.py", "cli_contract.py", "cli_journeys.py",
+            "test_opening_bell.py", "test_desk_doctor.py", "test_research_dataset.py", "test_stop_cost.py",
+        )
+        for name in removed:
+            self.assertFalse((SCRIPTS / name).exists(), name)
 
 
 class TestFileQuotes(unittest.TestCase):
@@ -452,6 +451,73 @@ class TestInstallIdentity(unittest.TestCase):
         )
         self.assertEqual(here.returncode, 0, here.stdout + here.stderr)
         self.assertIn(ANCESTOR, here.stdout)
+
+
+class TestSupportedFlow(unittest.TestCase):
+    def test_instructions_do_not_invoke_removed_modules(self):
+        needles = (
+            "opening_bell.py", "desk_doctor.py", "research_dataset.py", "account_read.py",
+            "stop_cost.py", "cli_journeys.py", "cli_contract.py", "bash scripts/check.sh",
+        )
+        skipped = {"CHANGELOG.md", "PROVENANCE.md", "FORK_REVIEW.md"}
+        paths = list((ROOT / "skills").rglob("*.md"))
+        paths += list((ROOT / "agents").glob("*.md"))
+        paths += [ROOT / name for name in (
+            "SETUP.md", "README.md", "AGENTS.md", "GEMINI.md", "CONTRIBUTING.md", "SECURITY.md",
+            "package.json", "scripts/check.sh", ".github/workflows/ci.yml",
+        )]
+        paths += [path for path in (ROOT / "docs").glob("*.md") if path.name not in skipped]
+        hits = []
+        for path in paths:
+            text = path.read_text(encoding="utf-8")
+            for needle in needles:
+                if needle in text:
+                    hits.append(f"{path.relative_to(ROOT)}: {needle}")
+        self.assertEqual(hits, [])
+
+    def test_documented_file_quote_flow_uses_a_temp_state(self):
+        with tempfile.TemporaryDirectory() as state:
+            quote_path = Path(state) / "quotes.json"
+            feed_path = Path(state) / "feed.json"
+            quote = {
+                "symbol": "BTC", "bid": "100000", "ask": "100010", "mark": "100005",
+                "source": "robinhood", "fetched_at": datetime.now(timezone.utc).isoformat(),
+            }
+            quote_path.write_text(json.dumps([quote]), encoding="utf-8")
+            feed_path.write_text(json.dumps({
+                "price_source": "file",
+                "quotes_file": str(quote_path),
+                "max_quote_age_seconds": 300,
+                "fallback": "none",
+            }), encoding="utf-8")
+            env = os.environ.copy()
+            env["HYPERGROK_RUNTIME"] = str(ROOT)
+            env["HYPERGROK_STATE"] = state
+            sim = str(SCRIPTS / "paper_sim.py")
+
+            def run(*args):
+                return subprocess.run(
+                    [sys.executable, sim, *args],
+                    capture_output=True, text=True, cwd=state, env=env, check=False,
+                )
+
+            opened = run("reset", "--state", state)
+            self.assertEqual(opened.returncode, 0, opened.stdout + opened.stderr)
+            self.assertIn('"type": "reset"', opened.stdout)
+            submitted = run(
+                "submit", "--config", str(feed_path), "--state", state,
+                "--symbol", "BTC", "--side", "buy", "--entry", "100005", "--size", "0.00004",
+                "--take-profit", "100800", "--trail-distance", "60",
+            )
+            self.assertEqual(submitted.returncode, 0, submitted.stdout + submitted.stderr)
+            body = json.loads(submitted.stdout)
+            self.assertTrue(body["accepted"])
+            self.assertEqual(body["event"]["quote"]["feed"], "file")
+            self.assertEqual(body["event"]["quote"]["source"], "robinhood")
+            marked = run("mark", "--config", str(feed_path), "--state", state, "--symbol", "BTC")
+            self.assertEqual(marked.returncode, 0, marked.stdout + marked.stderr)
+            self.assertEqual(json.loads(marked.stdout)["event"]["type"], "unchanged")
+            self.assertFalse((ROOT / "journal.jsonl").exists())
 
 
 if __name__ == "__main__":

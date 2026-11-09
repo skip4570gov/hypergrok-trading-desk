@@ -19,7 +19,7 @@ idea -> evidence -> risk sign-off -> user approval -> paper submit -> journal ->
 
 ## 0. Open a proposal
 
-**Owner: Desk Lead.** As soon as a trade idea appears (from the user, the Strategist, or a routine), assign an id `HG-YYYYMMDD-NN` (NN increments per day) and create `/workspace/trading-desk/proposals/<id>.md`:
+**Owner: Desk Lead.** As soon as a trade idea appears (from the user, the Strategist, or a routine), assign an id `HG-YYYYMMDD-NN` (NN increments per day) and create `$HYPERGROK_STATE/proposals/<id>.md`:
 
 ```markdown
 # HG-20260816-01

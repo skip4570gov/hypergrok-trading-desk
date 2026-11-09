@@ -29,10 +29,13 @@ The Claude Code exchange-write hook does not load in Cursor.
 From the checkout, in Cursor's terminal:
 
 ```bash
-python3 scripts/opening_bell.py --coin ETH
+export HYPERGROK_RUNTIME="$PWD"
+export HYPERGROK_STATE="$(mktemp -d)"
+python3 "$HYPERGROK_RUNTIME/scripts/verify_install.py" --root "$HYPERGROK_RUNTIME"
+python3 "$HYPERGROK_RUNTIME/scripts/paper_sim.py" reset --state "$HYPERGROK_STATE"
 ```
 
-It reads Hyperliquid's public `/info` endpoint only: price, funding, open interest, spread and depth, with no wallet or account. Ask the agent for a market brief next, for example "Brief me on ETH".
+On the reviewed wall, set the runtime to `/opt/hypergrok-wall/runtime` and the state directory to `/home/hypergrok/state`. If either variable is unset, stop. Do not use `/workspace`. Ask the agent for a market brief next, for example "Brief me on ETH".
 
 ## When you want to trade
 

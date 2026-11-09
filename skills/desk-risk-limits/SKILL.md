@@ -31,7 +31,7 @@ The user's limits file may only be **stricter** than these. A file that sets a v
 
 ## 1. Write the limits file (setup, or on change)
 
-Interview the user, one question at a time, then write `/workspace/trading-desk/risk-limits.md`. Version it (`v1`, `v2`...) and date every change. Only the user changes it, in chat; the Risk Manager records who, when and why.
+Interview the user, one question at a time, then write `$HYPERGROK_STATE/risk-limits.md`. Version it (`v1`, `v2`...) and date every change. Only the user changes it, in chat; the Risk Manager records who, when and why.
 
 ```markdown
 # Risk limits v1 - 2026-08-16 - set by user
@@ -79,7 +79,7 @@ Replay the paper journal. That is the book.
 - a position whose journal event has no trailing stop: reject new risk and treat it as an incident
 - day change in journal equity
 
-Timestamp the quote and the journal hash you read. Save a copy under `/workspace/trading-desk/briefs/YYYY-MM-DD-book.md` when the user asks for a written check. Do not read an exchange account.
+Timestamp the quote and the journal hash you read. Save a copy under `$HYPERGROK_STATE/briefs/YYYY-MM-DD-book.md` when the user asks for a written check. Do not read an exchange account.
 
 ## 4. When the desk hits a limit
 

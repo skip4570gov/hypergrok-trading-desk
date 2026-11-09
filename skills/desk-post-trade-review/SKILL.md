@@ -14,7 +14,7 @@ The journal is the desk's memory; the review is how the desk learns. Both come f
 
 ## 1. Journal
 
-`/workspace/trading-desk/journal/YYYY-MM-DD.md`, one file per active day, appended in time order. Entry types:
+`$HYPERGROK_STATE/journal/YYYY-MM-DD.md`, one file per active day, appended in time order. Entry types:
 
 ```
 14:02 UTC  HG-20260816-01 opened   ETH-PERP long idea (user); status evidence
@@ -63,7 +63,7 @@ No recommendations about what to trade. If the user asks, hand strategy question
 
 ## 4. Incident review
 
-For each `INC-YYYYMMDD-NN`: timeline (journal + exchange record), what the desk did, what the controls did, exposure during the incident, root cause where knowable, one corrective action with an owner and a date. Blameless in tone, exact in fact. Written to `/workspace/trading-desk/journal/incidents/<id>.md` and linked from the daily journal.
+For each `INC-YYYYMMDD-NN`: timeline (journal + exchange record), what the desk did, what the controls did, exposure during the incident, root cause where knowable, one corrective action with an owner and a date. Blameless in tone, exact in fact. Written to `$HYPERGROK_STATE/journal/incidents/<id>.md` and linked from the daily journal.
 
 ## Pitfalls
 

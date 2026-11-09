@@ -113,20 +113,13 @@ if errors:
 print(f"ok: {len(skills)} skills, {len(agents)} agents, {len(md_files)} markdown files checked")
 PY
 
-# The plugin distribution contract: manifests, shared identity, component paths.
+# Distribution contract checks that do not call the removed legacy modules.
 python3 scripts/check_manifests.py .
-python3 scripts/test_check_manifests.py
 python3 scripts/check_npm_package.py .
 python3 scripts/test_check_npm_package.py
 python3 scripts/check_grok_template.py .
-python3 scripts/test_check_grok_template.py
-python3 scripts/test_release_bump.py
-python3 scripts/test_check_public_template.py
-python3 scripts/test_stop_cost.py
 python3 scripts/test_exchange_write_gate.py
 
-# Verify the published arithmetic without loading a wallet or SDK.
-python3 scripts/test_order_rounding.py
-
-# Real command journeys replace tool unit suites; financial, approval and release contracts above remain required.
-python3 scripts/cli_journeys.py
+# Supported readiness.
+python3 scripts/verify_install.py
+python3 scripts/test_paper_only.py

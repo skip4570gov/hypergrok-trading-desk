@@ -6,7 +6,7 @@ Seventeen skills in the portable `SKILL.md` format (`name` and `description` fro
 
 | Skill | What it teaches | Primary users |
 | --- | --- | --- |
-| [hypergrok-bootstrap](hypergrok-bootstrap/SKILL.md) | Pinned install, zero-key Opening Bell, team creation, desk doctor and evidence receipt | Desk Lead |
+| [hypergrok-bootstrap](hypergrok-bootstrap/SKILL.md) | Verifier, paper tests, simulator reset, team creation and evidence receipt | Desk Lead |
 
 ## Hyperliquid skills (how to work with the exchange)
 

@@ -30,42 +30,42 @@
     {
       "name": "desk-monitoring",
       "path": "skills/desk-monitoring/SKILL.md",
-      "sha256": "1aa69067aa0eab5ba2e72f60181dc2e13fb0ed963e68c53b92988a18de89113d"
+      "sha256": "c5fa6a8f3b6edd79bb005544fcb74c5deae36635aed99953c18734e163ac7cb4"
     },
     {
       "name": "desk-operating-model",
       "path": "skills/desk-operating-model/SKILL.md",
-      "sha256": "2f858b0ce38cda4e9906a50d3743f27d8f6a30fc9c59453dc8ba90b8fb840c61"
+      "sha256": "2da3e9e8a1b6c766220afbb1a295703c8c186042306321c89bbb9d5e29f1add2"
     },
     {
       "name": "desk-post-trade-review",
       "path": "skills/desk-post-trade-review/SKILL.md",
-      "sha256": "1aaab1f17251439562b018ccd190bd4a0fd819b9a24c32b38d81857aa4fa7b73"
+      "sha256": "c83a0a7d7b4ae4cf35ca45488755e2f35f1d1d0d0ad500fb3ef1f74ec6c5eadc"
     },
     {
       "name": "desk-risk-limits",
       "path": "skills/desk-risk-limits/SKILL.md",
-      "sha256": "4af860a8db8a6fad9be8c01991e9956e23c4ee09be112e7a0abcdaaf94ac6e40"
+      "sha256": "5612662598546140ac3739f3721dc507967b3b5dc73b4a10c495035e59acc9b4"
     },
     {
       "name": "desk-strategy-lab",
       "path": "skills/desk-strategy-lab/SKILL.md",
-      "sha256": "84382854d064121095b1256245f92309ddece2d069ad4f62a890fd9acb01dd5a"
+      "sha256": "7317d6503892dbb3053bc9e7c56100b8d13996a340f0c0ed97b8c1f298b38339"
     },
     {
       "name": "desk-trade-lifecycle",
       "path": "skills/desk-trade-lifecycle/SKILL.md",
-      "sha256": "1e19d41f445f283b41b02d4e8c35fd991422d7bcd38b677e2e995abf94fb2711"
+      "sha256": "aac6f01f503ed5ff4a8ab2d3a62a245bbe1452164b376b5c4d86363cd36fa036"
     },
     {
       "name": "hypergrok-bootstrap",
       "path": "skills/hypergrok-bootstrap/SKILL.md",
-      "sha256": "cf105b754689481a16ad67d515cc1dba18a7a1f133daddff47a9ec743a0e3f59"
+      "sha256": "0c6b59ecac7167f1fd5e12d5360d01180667a3faa7d76707b188884aa7d3a5b8"
     },
     {
       "name": "hyperliquid-account",
       "path": "skills/hyperliquid-account/SKILL.md",
-      "sha256": "4aa0d94084d84fd149d94c0afa97bc063a7c0fffbc6fa400eb942066fa98d30b"
+      "sha256": "472c4d694e8e79496274107104a61540e99dbb0d333abb967b485c9a77a0e5e4"
     },
     {
       "name": "hyperliquid-advanced",
@@ -75,32 +75,32 @@
     {
       "name": "hyperliquid-api-reference",
       "path": "skills/hyperliquid-api-reference/SKILL.md",
-      "sha256": "0094f5a1934302a243af33bbf1ddf161448e4c36aa7275c125a7fa37a7a1425e"
+      "sha256": "3793c165254bc56f009c2a76f197a59ffc8fc378722ac01e02a618a282f29378"
     },
     {
       "name": "hyperliquid-market-data",
       "path": "skills/hyperliquid-market-data/SKILL.md",
-      "sha256": "ffcfd5058fa6f3e4ed0582a04b3c7964eb99f660e5d7351afbc1a4ce674abc4d"
+      "sha256": "ead66e4705f40120bba6cac200238273b515155daa78f4fe1526efc2ebe4243c"
     },
     {
       "name": "hyperliquid-orders",
       "path": "skills/hyperliquid-orders/SKILL.md",
-      "sha256": "a858ddfb36df8184b4d33c1d5203720a1251b418b9ee7ad46cadf168fc1e4653"
+      "sha256": "5bfe61b61ce7e1fbea101366fccafad3fb25bf9ef694058f910a5d1493101e5e"
     },
     {
       "name": "hyperliquid-positions",
       "path": "skills/hyperliquid-positions/SKILL.md",
-      "sha256": "a5a42fb9f766b4159b5287cc80f7791e367ad10a983afb65b924423deb432a46"
+      "sha256": "e2453b16e26f7c58e5b108e2a8bcf7455b97f1e64e6ea79a2398fa926a23c820"
     },
     {
       "name": "hyperliquid-setup",
       "path": "skills/hyperliquid-setup/SKILL.md",
-      "sha256": "f5ecef76a7124d598ec9e89c7f18449088751ee2ee8371f85c39bb7d9fd8364f"
+      "sha256": "6f2d7a3b6f3b48615d9b4f04709c392c5d59854a60ed877d8e1dd851c6c7eb54"
     },
     {
       "name": "hyperliquid-websocket",
       "path": "skills/hyperliquid-websocket/SKILL.md",
-      "sha256": "f051523d90de293ef5dc447b52f2c8c3ffd8bc5d261c2fc5518afe2154df414e"
+      "sha256": "ddfe7f962f663526f81931f3e7bf8ad78c748260c0d50b91565194bc9f47d019"
     }
   ],
   "plugins": [],

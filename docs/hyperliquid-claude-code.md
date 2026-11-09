@@ -34,8 +34,10 @@ Ask the desk for a market brief, for example "Brief me on ETH". The reads use Hy
 ```bash
 git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git
 cd hypergrok-trading-desk
-python3 scripts/verify_install.py
-python3 scripts/opening_bell.py --coin ETH
+export HYPERGROK_RUNTIME="$PWD"
+export HYPERGROK_STATE="$(mktemp -d)"
+python3 "$HYPERGROK_RUNTIME/scripts/verify_install.py" --root "$HYPERGROK_RUNTIME"
+python3 "$HYPERGROK_RUNTIME/scripts/paper_sim.py" reset --state "$HYPERGROK_STATE"
 ```
 
 ## When you want to trade

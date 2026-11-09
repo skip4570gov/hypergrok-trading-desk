@@ -1,27 +1,27 @@
 # Set up the HyperGrok trading desk
 
-You are a Grok Bot building the user's Hyperliquid trading desk from this repository. Follow this file top to bottom. When you finish, the user has seven specialist Bots (six on a **Trading Floor** group chat, one reviewer by DM), seventeen shared skills, a prepared desk computer and a written desk record. Setup is read-only: no keys, no orders.
+You are a Grok Bot building the user's Hyperliquid trading desk from this repository. Follow this file top to bottom. When you finish, the user has six specialist Bots (five on a **Trading Floor** group chat, one reviewer by DM), seventeen shared skills, a prepared desk computer and a written desk record. Setup is read-only: no keys, no orders.
 
-In Grok Bot, if your runtime loaded this repository as a plugin, invoke `hypergrok-bootstrap`: it performs this runbook, rings a live zero-key Opening Bell first, and returns the same receipt. This file remains the complete manual path and source of truth.
+In Grok Bot, if your runtime loaded this repository as a plugin, invoke `hypergrok-bootstrap`: it performs this runbook and returns the same receipt. This file remains the complete manual path and source of truth.
 
 ## 1. Get the repository onto the desk computer
 
-If `/workspace/hypergrok` already contains a Git checkout, preserve it. `git rev-parse --abbrev-ref HEAD` must be `paper-only`. If it is `main` or a tag, report the existing commit and stop dependent setup without overwriting, resetting or switching the checkout. For a matching existing checkout, run only the final `cd`, commit and test line below; otherwise clone:
+`HYPERGROK_RUNTIME` is the read-only checkout. On the reviewed wall it is `/opt/hypergrok-wall/runtime`. `HYPERGROK_STATE` is the writable desk directory. On the reviewed wall it is `/home/hypergrok/state`. If either variable is unset, stop. Do not use `/workspace`. That directory is hidden inside the wall, and this runbook does not create it. Do not clone into the wall runtime; it is already populated and read-only.
+
+If `$HYPERGROK_RUNTIME` already contains a Git checkout, preserve it. `git -C "$HYPERGROK_RUNTIME" rev-parse --abbrev-ref HEAD` must be `paper-only`. If it is `main` or a tag, report the existing commit and stop dependent setup without overwriting, resetting or switching the checkout.
 
 ```bash
-mkdir -p /workspace && cd /workspace
-git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git hypergrok
-cd /workspace/hypergrok
-python3 scripts/verify_install.py
+: "${HYPERGROK_RUNTIME:?set HYPERGROK_RUNTIME to the read-only checkout}"
+: "${HYPERGROK_STATE:?set HYPERGROK_STATE to the writable state directory}"
+test -d "$HYPERGROK_STATE" && test -w "$HYPERGROK_STATE"
+python3 "$HYPERGROK_RUNTIME/scripts/verify_install.py" --root "$HYPERGROK_RUNTIME"
+python3 "$HYPERGROK_RUNTIME/scripts/test_paper_only.py"
+git -C "$HYPERGROK_RUNTIME" rev-parse HEAD
 ```
 
-That pin is a release tag, not a moving branch: the desk you build is the desk that was reviewed. Check the repository's releases for a newer tag before setting up, and do not swap the tag for `main` to pick up unreleased work.
+Judge the step by those two Python commands. If either fails, stop. Do not build a desk from a tree that does not verify. The verifier checks `install-manifest.json` and, when `.git` is present, that `HEAD` contains reviewed ancestor `7bc0fca92265568a9845c5a87b36fea4d0fd9531`.
 
-`git clone` prints `warning: refs/tags/... is not a commit!` when it shallow-clones an annotated tag. That warning is expected and harmless: the clone still resolves to the tagged commit, which is why the command prints it. Judge the step by `scripts/check.sh`, not by that line.
-
-`scripts/check.sh` is the desk's own structural check: it runs offline, touches no keys and no network, and confirms the skills, agents and manifests are intact and internally consistent. If it fails, stop and tell the user; do not build a desk from a tree that does not check out.
-
-Before using any agent profile or System prompt, run `git diff --exit-code HEAD -- agents/` in the checkout. A matching branch name does not prove the working files are unchanged. If the command reports differences or fails, name the affected paths, stop dependent setup and preserve the user's files.
+Before using any agent profile or System prompt, run `git -C "$HYPERGROK_RUNTIME" diff --exit-code HEAD -- agents/`. A matching branch name does not prove the working files are unchanged. If the command reports differences or fails, name the affected paths, stop dependent setup and preserve the user's files.
 
 Record the commit `git rev-parse HEAD` printed. It goes into `desk.md` in section 8 as `instructions commit`, so the desk can always say which version of these rules it is running and the user can diff it later.
 
@@ -33,23 +33,22 @@ Read these before creating anything:
 
 1. `docs/ARCHITECTURE.md` - how the team fits together.
 2. `skills/hypergrok-bootstrap/SKILL.md` and `skills/desk-operating-model/SKILL.md` - setup and the rules every Bot follows.
-3. All seven files in `agents/` - each has a **Bot profile** (Name, Job, Description) and a full **System prompt**.
+3. All six files in `agents/` - each has a **Bot profile** (Name, Job, Description) and a full **System prompt**.
 4. `skills/README.md` - the index of skills and which Bot uses which.
 
 ## 3. Prepare the desk computer (read-only)
 
-Follow `skills/hyperliquid-setup/SKILL.md` sections 1-3 only: install the Python SDK, confirm both Hyperliquid networks answer a public read, and create the working folders:
+Follow `skills/hyperliquid-setup/SKILL.md`. Create working folders only under the writable state directory, then start the paper journal:
 
 ```bash
-mkdir -p /workspace/trading-desk/{proposals,briefs,research,strategies,data,journal/incidents,watch}
-cd /workspace/hypergrok
-python3 scripts/opening_bell.py --coin ETH
-python3 scripts/desk_doctor.py --desk-root /workspace/trading-desk
+: "${HYPERGROK_RUNTIME:?}"
+: "${HYPERGROK_STATE:?}"
+test -d "$HYPERGROK_STATE" && test -w "$HYPERGROK_STATE"
+mkdir -p "$HYPERGROK_STATE"/{proposals,briefs,research,strategies,data,journal/incidents,watch}
+python3 "$HYPERGROK_RUNTIME/scripts/paper_sim.py" reset --state "$HYPERGROK_STATE"
 ```
 
-Show the Opening Bell output to the user. It is a timestamped public market snapshot and must say that it is not a trading signal. A `desk.md` warning from the doctor is expected until section 8; a repository or public API failure is not. Research, briefs and the strategy lab need no key. This checkout never adds one.
-
-For a requested historical experiment, the Market Analyst and Strategist follow [Research datasets](docs/RESEARCH_DATASETS.md): explicit UTC bounds, a new saved bundle, coverage checks and offline replay before analysis. Do not fetch a large historical dataset as an automatic setup step. Dataset completeness does not establish an edge or change any approval gate.
+`reset` writes a reset record and refuses when the journal already exists. Do not delete a journal to start over. This checkout does not collect exchange history during setup. See [Research datasets](docs/RESEARCH_DATASETS.md).
 
 ## 4. Create the Bots
 
@@ -68,8 +67,8 @@ For each Bot:
 
 - **Name** and **Job** from the profile card.
 - **Description** (the Bot's enduring rules) from the profile card, verbatim.
-- **Avatar:** the desk mascot at `/workspace/hypergrok/assets/mascot.jpg` (attach it from the computer, or let the user pick their own).
-- Then send the new Bot its full **System prompt** section as its first message, prefixed with: "These are your standing instructions. Confirm you have read them and state your job in one sentence." Ask it to keep the instructions in memory and to re-read its file at `/workspace/hypergrok/agents/<name>.md` whenever it is unsure.
+- **Avatar:** the desk mascot at `$HYPERGROK_RUNTIME/assets/mascot.jpg` (attach it from the computer, or let the user pick their own).
+- Then send the new Bot its full **System prompt** section as its first message, prefixed with: "These are your standing instructions. Confirm you have read them and state your job in one sentence." Ask it to keep the instructions in memory and to re-read its file at `$HYPERGROK_RUNTIME/agents/<name>.md` whenever it is unsure.
 
 Read back the native Name, Job and Description and compare them exactly with the profile. Before reuse or after creation, verify the complete standing System prompt through supported native readback. If a full persistent instruction field is not exposed, acceptable separate evidence is readback of the exact full System prompt delivered as a standing-instructions message, the Bot's acknowledgement that it follows the pinned agent file, and that local file's hash matching the expected bytes from `git show 'HEAD:agents/<name>.md'`. Hashing an arbitrary local file is insufficient. Record this as `delivery-and-pointer`, with the limitation that delivery and the checked target do not establish byte-identical persistent memory. A matching Description, summarized memory or file pointer alone is insufficient.
 
@@ -85,7 +84,7 @@ Record exactly one status for each skill:
 
 1. `template`: an already-present shared skill independently read back and matched, then enabled for the selected Desk Lead. This does not claim all seventeen skills were exported by the public share.
 2. `installed`: a missing skill saved with exact source name, description and normalized body, then independently read back and matched.
-3. `pointer`: if the app cannot save the body, save the source name and description with "When this skill is used, read `/workspace/hypergrok/skills/<name>/SKILL.md` and follow it." Verify the complete stored pointer text and target's full-file hash.
+3. `pointer`: if the app cannot save the body, save the source name and description with "When this skill is used, read `$HYPERGROK_RUNTIME/skills/<name>/SKILL.md` and follow it." Verify the complete stored pointer text and target's full-file hash.
 4. `mismatch`: native content differs or cannot be read back completely. Name the reason and fail native readiness. Do not overwrite shared content used by unrelated desks without user authority.
 
 The receipt must list exactly seventeen unique names, one status and native readback evidence or an unavailable reason for each. A name, local file or staged argument alone is insufficient.
@@ -107,7 +106,7 @@ Create one private group chat named **Trading Floor** with the selected native B
 
 Post this as the first message in the group:
 
-> Welcome to the Trading Floor. Desk Lead routes; Market Analyst and Research Analyst bring evidence; Strategist helps the user test their own ideas; Risk Manager sizes and can refuse, and is the only Bot that may run the paper simulator after you approve a ticket by id. Rules: `/workspace/hypergrok/skills/desk-operating-model/SKILL.md`. Trade Reviewer is a DM away. Today is setup: nothing is submitted.
+> Welcome to the Trading Floor. Desk Lead routes; Market Analyst and Research Analyst bring evidence; Strategist helps the user test their own ideas; Risk Manager sizes and can refuse, and is the only Bot that may run the paper simulator after you approve a ticket by id. Rules: `$HYPERGROK_RUNTIME/skills/desk-operating-model/SKILL.md`. Trade Reviewer is a DM away. Today is setup: nothing is submitted.
 
 ## 7. Approvals
 
@@ -117,12 +116,12 @@ There is no standing approval that skips the trailing stop, the 2:1 payoff, or t
 
 ## 8. Write the desk record
 
-Ask the user two questions, then write `/workspace/trading-desk/desk.md`:
+Ask the user two questions, then write `$HYPERGROK_STATE/desk.md`:
 
 Record only verified Bot, group and member IDs as observed; mark uncreated, manual or unverified roles and any unverified Floor as pending rather than copying the desired six-Bot/five-member inventory as an observed result.
 
 1. Engagement level is **paper**. Do not ask for testnet or mainnet.
-2. Optional: a public address for read-only `scripts/account_read.py`. It is not the paper wallet.
+2. There is no exchange account. The paper wallet is the simulator journal.
 
 ```markdown
 # Desk record
@@ -149,9 +148,10 @@ Then hand the Risk Manager the `desk-risk-limits` interview to write `risk-limit
 Run the desk-wide checks first:
 
 ```bash
-cd /workspace/hypergrok
-python3 scripts/desk_doctor.py --desk-root /workspace/trading-desk
-python3 scripts/opening_bell.py --coin BTC
+: "${HYPERGROK_RUNTIME:?}"
+: "${HYPERGROK_STATE:?}"
+python3 "$HYPERGROK_RUNTIME/scripts/verify_install.py" --root "$HYPERGROK_RUNTIME"
+python3 "$HYPERGROK_RUNTIME/scripts/test_paper_only.py"
 ```
 
 Then run these and record the results:
@@ -171,7 +171,7 @@ Finish by giving the user:
 - the Trading Floor ID and verified member IDs
 - the desk record and its paper engagement level
 - confirmation that no exchange writer exists
-- the desk doctor and Opening Bell results
+- the verifier result and the paper-test result
 - the results of the five verification checks
 - confirmation that setup requested no key and placed no live order
 

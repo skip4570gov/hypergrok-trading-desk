@@ -81,10 +81,9 @@ class ExchangeWriteGateTest(unittest.TestCase):
 
     def test_reads_and_research_pass_through(self):
         for command in (
-            "python3 scripts/opening_bell.py --json",
-            "python3 scripts/desk_doctor.py --offline",
-            "python3 scripts/research_dataset.py --verify data/eth-1h --json",
-            "bash scripts/check.sh",
+            "python3 scripts/paper_sim.py reset --state /home/hypergrok/state",
+            "python3 scripts/verify_install.py",
+            "python3 scripts/market_data.py",
             'curl -s https://api.hyperliquid.xyz/info -H "Content-Type: application/json" -d \'{"type":"allMids"}\'',
             "python3 -c 'info.user_state(ADDR); info.open_orders(ADDR)'",
             "grep -rn 'exchange endpoint' skills/",

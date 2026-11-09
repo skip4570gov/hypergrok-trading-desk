@@ -18,62 +18,66 @@ HyperGrok gives your AI agents a shared process for Hyperliquid research, risk, 
 
 ## Try it now, no keys
 
+Set the runtime to this checkout and the state directory to a writable folder. On the reviewed wall those are `/opt/hypergrok-wall/runtime` and `/home/hypergrok/state`. If either variable is unset, stop. Do not use `/workspace`.
+
 ```bash
 git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git
 cd hypergrok-trading-desk
-python3 scripts/verify_install.py
-cd hypergrok-trading-desk
-python3 scripts/opening_bell.py --coin ETH
+export HYPERGROK_RUNTIME="$PWD"
+export HYPERGROK_STATE="$(mktemp -d)"
+python3 "$HYPERGROK_RUNTIME/scripts/verify_install.py" --root "$HYPERGROK_RUNTIME"
+python3 "$HYPERGROK_RUNTIME/scripts/test_paper_only.py"
+python3 - << 'PY'
+import json, os
+from datetime import datetime, timezone
+state = os.environ["HYPERGROK_STATE"]
+quote = {
+    "symbol": "BTC",
+    "bid": "100000",
+    "ask": "100010",
+    "mark": "100005",
+    "source": "robinhood",
+    "fetched_at": datetime.now(timezone.utc).isoformat(),
+}
+with open(os.path.join(state, "quotes.json"), "w", encoding="utf-8") as handle:
+    json.dump([quote], handle)
+with open(os.path.join(state, "feed.json"), "w", encoding="utf-8") as handle:
+    json.dump({
+        "price_source": "file",
+        "quotes_file": os.path.join(state, "quotes.json"),
+        "max_quote_age_seconds": 300,
+        "fallback": "none",
+    }, handle)
+PY
+python3 "$HYPERGROK_RUNTIME/scripts/paper_sim.py" reset --state "$HYPERGROK_STATE"
+python3 "$HYPERGROK_RUNTIME/scripts/paper_sim.py" submit \
+  --config "$HYPERGROK_STATE/feed.json" \
+  --state "$HYPERGROK_STATE" \
+  --symbol BTC --side buy --entry 100005 --size 0.00004 \
+  --take-profit 100800 --trail-distance 60
+python3 "$HYPERGROK_RUNTIME/scripts/paper_sim.py" mark \
+  --config "$HYPERGROK_STATE/feed.json" \
+  --state "$HYPERGROK_STATE" \
+  --symbol BTC
 ```
 
-A live ETH snapshot from Hyperliquid's public `/info` endpoint: price, funding, open interest, spread and depth. It needs no wallet, account or key, and runs on Python 3's standard library.
+That sequence checks the manifest, runs the simulator tests, and records one BTC paper order from a local Robinhood quote file. It does not read a key and it does not post an order. The shipped `config/paper.json` still selects the public info feed; this example uses a temporary file feed so the entry is inside a known bid and ask.
 
 <p align="center">
-  <img src="assets/opening-bell.gif" width="800" alt="Recorded output of python3 scripts/opening_bell.py --coin ETH showing a sourced market snapshot with prices, funding and book depth.">
+  <img src="assets/opening-bell.gif" width="800" alt="Historical recording of a public market snapshot. The current checkout uses the local simulator instead of that command.">
 </p>
 
-Recorded from the command above on 25 October 2026 at 13:09 UTC. The figures are a historical snapshot; run it yourself for current data.
+The image is a historical snapshot from 25 October 2026 at 13:09 UTC. It is not the current setup command.
 
 ## Start
 
 For the paper desk, open Grok Bot and paste:
 
-> Set up the HyperGrok trading desk from the `paper-only` branch of https://github.com/skip4570gov/hypergrok-trading-desk. Follow `skills/hypergrok-bootstrap/SKILL.md`, use `SETUP.md` for the runbook, and finish only if `python3 scripts/verify_install.py` passes.
+> Set up the HyperGrok trading desk from the `paper-only` branch of https://github.com/skip4570gov/hypergrok-trading-desk. Follow `skills/hypergrok-bootstrap/SKILL.md`, use `SETUP.md` for the runbook, and finish only if `python3 scripts/verify_install.py` and `python3 scripts/test_paper_only.py` pass.
 
-The Desk Lead runs Opening Bell, installs the shared skills, prepares the team and returns a setup receipt. Orders stay in the local simulator. Do not provision a key. See the [full setup runbook](SETUP.md).
+The Desk Lead verifies the checkout, installs the shared skills, prepares the team and returns a setup receipt. Orders stay in the local simulator. Do not provision a key. See the [full setup runbook](SETUP.md).
 
-<details>
-<summary><strong>Opening Bell and desk doctor for scripts</strong></summary>
-
-Opening Bell reports source and UTC time, mid/mark/oracle prices, 24-hour change and volume, hourly funding, open interest, spread and depth at 5/10/25 bps. It requests coarser book pages when twenty levels cannot cover a band, identifies each figure's source page and marks unreached depth as a floor. `scripts/desk_doctor.py` checks the release, roles, skill hashes, desk folders and public connectivity. Both use only Python's standard library.
-
-For automation, inspect the offline `--schema`, then use `--json`. Failed reads, partial depth and doctor warnings remain explicit. Snapshots accept canonical mixed-case names and HIP-3 markets:
-
-```bash
-python3 scripts/opening_bell.py --schema
-python3 scripts/opening_bell.py --coin xyz:TSLA --json
-python3 scripts/desk_doctor.py --offline --json
-```
-
-Scripts do not accept another origin. HIP-3 discovery stays a public read. Orders stay in the simulator.
-
-</details>
-
-<details>
-<summary><strong>Collect history you can check</strong></summary>
-
-Before a backtest, collect the exact period into a research bundle:
-
-```bash
-python3 scripts/research_dataset.py --coin ETH --interval 4h \
-  --start 2026-09-01T00:00:00Z --end 2026-10-01T00:00:00Z \
-  --with-funding --output ../hypergrok-data/eth-september --json
-python3 scripts/research_dataset.py --verify ../hypergrok-data/eth-september --json
-```
-
-The bundle keeps requests, captured responses, observed CSV rows and a hashed manifest. Closed UTC windows, explicit missing ranges and bounded funding pagination distinguish `complete`, `incomplete` and `unavailable` history. Offline verification replays the saved responses; it checks consistency, not source authenticity or strategy quality. The tool needs no key and never fills a gap with synthetic data. See [Research datasets](docs/RESEARCH_DATASETS.md) for the supported intervals, market selection, exit codes and analyst handoff.
-
-</details>
+This checkout does not collect exchange candle history. A backtest uses only files already under `$HYPERGROK_STATE/data`. See [Research datasets](docs/RESEARCH_DATASETS.md).
 
 ## Meet the desk
 
@@ -107,7 +111,7 @@ Five sit together on the **Trading Floor** group chat; the Trade Reviewer works 
   <img src="assets/ticket-hg-20260816-01.png" width="760" alt="Historical ticket artwork from before this branch. The paper desk records the simulator journal instead of an exchange order.">
 </p>
 
-**"Can we test whether funding extremes mean-revert?"** The Strategist writes the rules with you, collects and verifies the agreed history, then reports costs, funding assumptions, holdout results and the trade distribution. Missing history stays visible. A forward test uses the local simulator and the same ticket process.
+**"Can we test whether funding extremes mean-revert?"** The Strategist writes the rules with you from files you already placed in the state directory. This checkout does not collect that history. A forward test uses the local simulator and the same ticket process.
 
 **"Watch ETH and tell me if funding flips negative."** A routine polls the public info feed and pings you when it happens.
 
@@ -115,7 +119,7 @@ Five sit together on the **Trading Floor** group chat; the Trade Reviewer works 
 
 Seventeen skills, in the portable `SKILL.md` format, shared by all your Bots.
 
-**Bootstrap** - pinned release install, Opening Bell, team construction, desk doctor and a receipt that distinguishes what happened from what still needs a manual step.
+**Bootstrap** - verifier, paper tests, simulator reset, team construction and a receipt that distinguishes what happened from what still needs a manual step.
 
 **Hyperliquid** - public info reads, the local paper simulator, and a reference that does not include a signing scheme.
 
@@ -173,10 +177,10 @@ Choose the guide for your runtime. Each uses the same skills and ticket process;
 
 | Runtime | Setup | Roles and controls |
 | --- | --- | --- |
-| Claude Code | [Install from the plugin marketplace](docs/hyperliquid-claude-code.md) | Seven subagents and an exchange-write confirmation hook; load the operating model explicitly |
-| Cursor | [Open the pinned checkout and enable the plugin](docs/hyperliquid-cursor.md) | Seven role profiles and desk rules; no Claude Code hook |
+| Claude Code | [Install from the plugin marketplace](docs/hyperliquid-claude-code.md) | Six subagents and an exchange-write confirmation hook; load the operating model explicitly |
+| Cursor | [Open the pinned checkout and enable the plugin](docs/hyperliquid-cursor.md) | Six role profiles and desk rules; no Claude Code hook |
 | Grok Build | [Install the pinned release](docs/hyperliquid-grok-build.md) | Skills and agent directories; rule loading is unverified |
-| Codex | [Install from the Codex marketplace](docs/hyperliquid-codex.md) | Skills, with the seven roles run as labelled passes |
+| Codex | [Install from the Codex marketplace](docs/hyperliquid-codex.md) | Skills, with the six roles run as labelled passes |
 | Gemini CLI | [Install the extension](docs/hyperliquid-gemini-cli.md) | Skills and `GEMINI.md`, with roles run as labelled passes |
 
 The Claude Code hook denies a command that looks like an exchange write. Cursor does not load that hook. This checkout has no order for a hook to approve. See [SECURITY.md](SECURITY.md).
@@ -191,7 +195,7 @@ The complete resources also install from npm:
 
 ```bash
 npm install --save-exact --ignore-scripts hypergrok-trading-desk@1.7.1
-python3 node_modules/hypergrok-trading-desk/scripts/desk_doctor.py --offline
+python3 node_modules/hypergrok-trading-desk/scripts/verify_install.py --root node_modules/hypergrok-trading-desk
 ```
 
 The package contains the instructions, role profiles, plugin manifests and read-only Python tools. It has no JavaScript entry point, runtime dependencies or install hooks; installation does not start a desk or connect a wallet.
@@ -204,11 +208,11 @@ After installation, load `desk-operating-model` using the command or context mec
 
 ```
 SETUP.md     what your Grok Bot follows to build the desk
-agents/      seven roles: Bot profile card + full system prompt
+agents/      six roles: Bot profile card + full system prompt
 skills/      seventeen skills (bootstrap, hyperliquid-*, desk-*)
 template/    exact public Grok Bot profile and skill hashes
-scripts/     zero-key market, history, stop-cost and every-DEX account reads, offline verification, release checks
-docs/        how it works, FAQ, install pages, stop cost, account read, provenance
+scripts/     market_data.py, paper_sim.py, verify_install.py, and the paper tests
+docs/        how it works, FAQ, install pages, provenance
 assets/      the mascot, logo, README graphics and their generator
 ```
 
@@ -216,9 +220,9 @@ assets/      the mascot, logo, README graphics and their generator
 | --- | --- |
 | [How the desk works](docs/ARCHITECTURE.md) | roles, files, trust boundaries |
 | [FAQ](docs/FAQ.md) | approvals, the paper journal, customising the team |
-| [Research datasets](docs/RESEARCH_DATASETS.md) | collect, verify and hand off historical evidence |
-| [Stop cost](docs/STOP_COST.md) | what a triggered stop costs, from the live book |
-| [Account read](docs/ACCOUNT_READ.md) | positions and equity across the main DEX, every HIP-3 DEX and spot |
+| [Research datasets](docs/RESEARCH_DATASETS.md) | this checkout does not collect exchange history |
+| [Stop cost](docs/STOP_COST.md) | the simulator prices its own paper stop |
+| [Account read](docs/ACCOUNT_READ.md) | the paper wallet is the simulator journal |
 | [Skills index](skills/README.md) | every skill and who uses it |
 | [Grok Bot template](docs/GROK_BOT_TEMPLATE.md) | public profile, publish contract and clean-install evaluation |
 | [Provenance](docs/PROVENANCE.md) | sources and licences |

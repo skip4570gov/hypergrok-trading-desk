@@ -16,11 +16,11 @@ Trading Floor (group chat, 5 Bots)                 DM
    |     +-------------------- Research Analyst ---> browser, public data
    +-------------------------- Market Analyst -----> public info (markets)
 
-computer:  /workspace/hypergrok (this repo)   /workspace/trading-desk (the desk's files)
+computer:  $HYPERGROK_RUNTIME (this repo, read-only)   $HYPERGROK_STATE (writable files)
 secret:    none. This branch does not read a private key.
 ```
 
-The shared Desk Lead starts on the read plane. `hypergrok-bootstrap` installs the `paper-only` branch, runs `scripts/opening_bell.py` against the allowlisted public info URL, prepares the desk, creates the team when the product allows it, and finishes with `scripts/desk_doctor.py`. None of those paths reads a key or sends an order.
+The shared Desk Lead starts from the reviewed checkout. `hypergrok-bootstrap` checks `scripts/verify_install.py` and `scripts/test_paper_only.py`, prepares `$HYPERGROK_STATE`, and resets the local simulator. None of those paths reads a key or sends an order. On the reviewed wall the runtime is `/opt/hypergrok-wall/runtime` and the state directory is `/home/hypergrok/state`. If either variable is unset, stop.
 
 The six-Bot group limit leaves the Trade Reviewer outside the Floor. Bots share the computer and skills, so role separation is a working convention rather than credential isolation. Native approval controls and the secret store provide separate controls; setup verifies their availability.
 
@@ -36,7 +36,7 @@ Adjusting, adding, reducing and closing are trades too: same path, new ticket un
 
 ## Where things live
 
-Working files live under `/workspace/trading-desk/`; chat supplies context, while these records retain the lifecycle evidence.
+Working files live under `$HYPERGROK_STATE`; chat supplies context, while these records retain the lifecycle evidence. The simulator journal is in that same directory.
 
 | File | What it is |
 | --- | --- |
@@ -48,15 +48,9 @@ Working files live under `/workspace/trading-desk/`; chat supplies context, whil
 
 ## Research evidence
 
-`scripts/research_dataset.py` runs on the read plane. It resolves a perp from public metadata, requests a bounded closed UTC candle window and optionally pages hourly funding. Each new `data/<name>/` bundle stores captured request/response records, normalized observed CSVs and a manifest with source identity, file hashes, coverage gaps and `complete`, `incomplete` or `unavailable` status. Existing bundles are never overwritten.
+Quotes come from `scripts/market_data.py`. The paper book is the journal written by `scripts/paper_sim.py`. This checkout does not collect candle history, price a stop from an exchange book, or read an exchange account. See [Research datasets](RESEARCH_DATASETS.md), [Stop cost](STOP_COST.md), and [Account read](ACCOUNT_READ.md).
 
-The Market Analyst hands the complete bundle to the Strategist, who runs offline `--verify` before analysis. Verification replays responses and checks files and claimed coverage; it cannot authenticate an exchange response or prove historical universe membership. A missing hour stays missing. Run records cite the bundle and manifest hash so changed data cannot silently replace a prior experiment. See [Research datasets](RESEARCH_DATASETS.md) for the contract and limitations.
-
-`scripts/stop_cost.py` runs on the read plane too. It reads public market metadata and the L2 book and applies the `desk-risk-limits` sizing arithmetic to a plan and equity the user types, so it prices a stop without an account read.
-
-`scripts/account_read.py` is the read plane's account view. Given an address, it lists every perp DEX with `perpDexs`, reads `clearinghouseState` for each, including HIP-3 DEXs such as `xyz`, and reads spot balances. It sums total equity only in the standard account mode, where balances are separate, and leaves the total null for shared-collateral modes. It needs no key and cannot sign. See [Account read](ACCOUNT_READ.md).
-
-Data completeness, statistical evidence, Risk PASS and a user's exact ticket approval are separate decisions. The dataset tool does not supply historical oracle prices, reconstruct intrabar fills, read an account or touch an exchange write path.
+A missing file stays missing. Statistical evidence, Risk PASS, and a user's exact ticket approval are separate decisions.
 
 ## Trust boundaries
 

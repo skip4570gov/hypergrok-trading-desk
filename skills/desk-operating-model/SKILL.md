@@ -38,8 +38,8 @@ There is no Execution Trader and no exchange writer. **Trading Floor** is one gr
 All Bots share one cloud computer, one browser and one filesystem. Bot names are not a security boundary; the desk's rules are.
 
 ```
-/workspace/hypergrok/                 this repository (read-only reference: agents, skills, docs)
-/workspace/trading-desk/              the desk's working files
+$HYPERGROK_RUNTIME/                 this repository (read-only reference: agents, skills, docs)
+$HYPERGROK_STATE/              the desk's working files and the simulator journal
   desk.md                             desk record: network, account, engagement level, bots, chats, standing instructions
   risk-limits.md                      owned by the Risk Manager; changed only by the user, in writing
   proposals/HG-YYYYMMDD-NN.md         one file per trade idea, appended through its lifecycle
@@ -49,6 +49,8 @@ All Bots share one cloud computer, one browser and one filesystem. Bot names are
   data/                               downloaded candles, funding history
   journal/YYYY-MM-DD.md               desk journal, owned by the Trade Reviewer
 ```
+
+Set both variables before any command. `HYPERGROK_RUNTIME` is the read-only checkout. On the reviewed wall it is `/opt/hypergrok-wall/runtime`. `HYPERGROK_STATE` is the writable directory. On the reviewed wall it is `/home/hypergrok/state`. If either is unset, stop. Do not create `/workspace` and do not choose another directory when state is missing. The simulator `--state` value is `$HYPERGROK_STATE`.
 
 This checkout reads no private key and no API-wallet file. `hyperliquid-setup` does not provision one.
 

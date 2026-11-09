@@ -13,13 +13,17 @@ metadata:
 This skill does not sign, cancel, or send an exchange request. The only order command is the local simulator:
 
 ```bash
-python3 scripts/paper_sim.py reset --state /workspace/trading-desk/paper
-python3 scripts/paper_sim.py submit \
-  --config config/paper.json \
-  --state /workspace/trading-desk/paper \
-  --symbol BTC --side buy --entry 100000 --size 0.00001 \
-  --take-profit 100200 --trail-distance 100
+: "${HYPERGROK_RUNTIME:?}"
+: "${HYPERGROK_STATE:?}"
+python3 "$HYPERGROK_RUNTIME/scripts/paper_sim.py" reset --state "$HYPERGROK_STATE"
+python3 "$HYPERGROK_RUNTIME/scripts/paper_sim.py" submit \
+  --config "$HYPERGROK_RUNTIME/config/paper.json" \
+  --state "$HYPERGROK_STATE" \
+  --symbol BTC --side buy --entry <inside the quote bid/ask> --size <size> \
+  --take-profit <target> --trail-distance <distance>
 ```
+
+The entry has to sit inside the quote bid and ask from the configured feed. The shipped config uses the public info feed. The file-quote procedure in the README is the offline path and the one the paper tests run. On the reviewed wall, runtime is `/opt/hypergrok-wall/runtime` and state is `/home/hypergrok/state`.
 
 `reset` is required when the journal is missing. It writes a reset record. Deleting the journal does not restore a wallet by itself. `mark` moves the trailing stop and can fill the stop or target. `close` exits at the quote. Fees and slippage are applied, and equity is replayed from the journal.
 

@@ -1,6 +1,6 @@
 ---
 name: hypergrok-bootstrap
-description: Build and verify a HyperGrok paper desk from the paper-only branch. Use for first-run setup, repair, or a readiness check. Starts with a public Opening Bell, installs the six role profiles and seventeen shared skills, prepares the Trading Floor, and returns an evidence receipt. Never requests a wallet or places a live order.
+description: Build and verify a HyperGrok paper desk from the paper-only branch. Use for first-run setup, repair, or a readiness check. Verifies the install manifest, runs the paper tests, resets the local simulator, installs the six role profiles and seventeen shared skills, and returns an evidence receipt. Never requests a wallet or places a live order.
 license: MIT
 metadata:
   version: "1.0.13"
@@ -19,48 +19,50 @@ Bootstrap is research-only.
 - Do not request, read or store a private key, seed phrase or exchange secret.
 - Do not send an exchange write, alter leverage, move funds or change approval settings.
 - Public info reads are allowed only through the allowlisted URL in `scripts/market_data.py`. State the source and UTC time.
-- Local writes are limited to `/workspace/hypergrok` and `/workspace/trading-desk`.
+- Local writes are limited to `$HYPERGROK_STATE`. `$HYPERGROK_RUNTIME` is read-only. If either variable is unset, stop. Do not fall back to `/workspace`.
 - Creating the six named Bots and the private Trading Floor group is in scope. Sharing anything publicly is not.
 - If a capability is unavailable, return the exact manual card or step and continue independent supported work. Do not pretend it happened or mark dependent checks complete.
 
 ## 1. Install the reviewed release
 
-If `/workspace/hypergrok` is already a Git checkout, preserve it. Do not require `HEAD` to equal a SHA written inside this same tree. Run `python3 scripts/verify_install.py`. It checks runtime file hashes in `install-manifest.json` and that `HEAD` contains reviewed ancestor `7bc0fca92265568a9845c5a87b36fea4d0fd9531`. If either check fails, stop. Do not overwrite, reset, or switch the checkout onto `main`. Otherwise clone and verify:
+`HYPERGROK_RUNTIME` is the read-only checkout. On the reviewed wall that path is `/opt/hypergrok-wall/runtime`. `HYPERGROK_STATE` is the writable desk directory. On the reviewed wall that path is `/home/hypergrok/state`. If either variable is unset, stop. Do not create `/workspace` and do not clone into the wall runtime.
 
 ```bash
-mkdir -p /workspace && cd /workspace
-git clone --branch paper-only https://github.com/skip4570gov/hypergrok-trading-desk.git hypergrok
-cd /workspace/hypergrok
-python3 scripts/verify_install.py
-git rev-parse HEAD
+: "${HYPERGROK_RUNTIME:?set HYPERGROK_RUNTIME to the read-only checkout}"
+: "${HYPERGROK_STATE:?set HYPERGROK_STATE to the writable state directory}"
+test -d "$HYPERGROK_STATE" && test -w "$HYPERGROK_STATE"
+python3 "$HYPERGROK_RUNTIME/scripts/verify_install.py" --root "$HYPERGROK_RUNTIME"
+git -C "$HYPERGROK_RUNTIME" rev-parse HEAD
 ```
 
-The branch name only fetches the line. The manifest is the identity. A checkout of `6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c` is not valid: that commit still contains install placeholders.
+The verifier checks runtime file hashes in `install-manifest.json` and, when `.git` is present, that `HEAD` contains reviewed ancestor `7bc0fca92265568a9845c5a87b36fea4d0fd9531`. If it fails, stop. Do not overwrite, reset, or switch the checkout onto `main`. A checkout of `6ebafa835d1466df646dd1c7d5c5a8aaaaf0ee2c` is not valid: that commit still contains install placeholders.
 
-Run `python3 scripts/verify_install.py` for an existing checkout too. Stop if it fails. Record the printed commit for `desk.md`.
+Record the printed commit for `desk.md`.
 
 Before using any agent profile or System prompt, run `git diff --exit-code HEAD -- agents/` in the checkout. A matching branch name can still have changed working files. If the command reports differences or fails, name the affected paths, stop dependent setup and preserve the user's files.
 
-## 2. Ring the Opening Bell
+## 2. Verify the checkout and the simulator
 
-Show useful output before asking the user configuration questions:
+Readiness is the verifier and the paper tests. A failure stops setup.
 
 ```bash
-cd /workspace/hypergrok
-python3 scripts/opening_bell.py --coin ETH
+: "${HYPERGROK_RUNTIME:?}"
+: "${HYPERGROK_STATE:?}"
+python3 "$HYPERGROK_RUNTIME/scripts/verify_install.py" --root "$HYPERGROK_RUNTIME"
+python3 "$HYPERGROK_RUNTIME/scripts/test_paper_only.py"
 ```
-
-Return the output verbatim. It is a public market snapshot, not a signal. If it is unavailable, say so and continue offline; do not substitute stale or invented figures.
 
 ## 3. Prepare the desk
 
-```bash
-mkdir -p /workspace/trading-desk/{proposals,briefs,research,strategies,data,journal/incidents,watch}
-cd /workspace/hypergrok
-python3 scripts/desk_doctor.py --desk-root /workspace/trading-desk
-```
+Create folders only inside the writable state directory, then start the paper journal. `reset` refuses when a journal already exists. Do not delete one to force a new wallet.
 
-A warning for the not-yet-written desk record is expected at this stage. A failed repository or public API check is not.
+```bash
+: "${HYPERGROK_RUNTIME:?}"
+: "${HYPERGROK_STATE:?}"
+test -d "$HYPERGROK_STATE" && test -w "$HYPERGROK_STATE"
+mkdir -p "$HYPERGROK_STATE"/{proposals,briefs,research,strategies,data,journal/incidents,watch}
+python3 "$HYPERGROK_RUNTIME/scripts/paper_sim.py" reset --state "$HYPERGROK_STATE"
+```
 
 ## 4. Build the team
 
@@ -89,7 +91,7 @@ For each of the seventeen `skills/*/SKILL.md` files:
 
 1. If an existing shared skill passes complete native readback against the release, enable it for the selected Desk Lead and record `template`.
 2. If it is missing, save the exact source name, description and normalized body. Read the saved skill back and record `installed` only when they match.
-3. If the product cannot save that body, save the source name and description with a pointer instructing it to read `/workspace/hypergrok/skills/<name>/SKILL.md`. Verify the complete stored pointer text and the target's full-file hash, then record `pointer`.
+3. If the product cannot save that body, save the source name and description with a pointer instructing it to read `$HYPERGROK_RUNTIME/skills/<name>/SKILL.md`. Verify the complete stored pointer text and the target's full-file hash, then record `pointer`.
 4. If native content differs or cannot be read back completely, record `mismatch` with the reason and fail native readiness. Do not overwrite shared content used by unrelated desks without user authority. Never claim a skill is current from its name, a local file or a staged argument alone.
 
 The final receipt must contain exactly seventeen unique skill names and one status for each: `template`, `installed`, `pointer` or `mismatch`.
@@ -121,26 +123,26 @@ Record only verified Bot, group and member IDs as observed; mark uncreated, manu
 - status: paper-only; no key requested
 ```
 
-Write it to `/workspace/trading-desk/desk.md`. Do not provision trading access during bootstrap.
+Write it to `$HYPERGROK_STATE/desk.md`. Do not provision trading access during bootstrap.
 
 ## 6. Verify and return the receipt
 
 Run:
 
 ```bash
-cd /workspace/hypergrok
-python3 scripts/desk_doctor.py --desk-root /workspace/trading-desk
-python3 scripts/opening_bell.py --coin BTC
+: "${HYPERGROK_RUNTIME:?}"
+: "${HYPERGROK_STATE:?}"
+python3 "$HYPERGROK_RUNTIME/scripts/verify_install.py" --root "$HYPERGROK_RUNTIME"
+python3 "$HYPERGROK_RUNTIME/scripts/test_paper_only.py"
 ```
 
 Then perform the five role checks in `SETUP.md` section 9. Return:
 
-- release tag and installed commit
-- Opening Bell source, network and UTC time
+- installed commit from `git -C "$HYPERGROK_RUNTIME" rev-parse HEAD`
+- verifier result and paper-test result
 - each Bot: ID, created/reused/manual card, profile comparison and standing-instruction proof method; state any `delivery-and-pointer` limitation
 - each skill: status, native readback method or unavailable reason, normalized stored body length/hash and comparison result; identify pointer evidence separately
 - Trading Floor ID and verified member IDs
-- desk doctor results, including warnings
 - five role-check results
 - exact local paths for `desk.md` and the repository
 - this sentence: **Setup stayed read-only: no key requested and no order created or sent.**

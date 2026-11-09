@@ -14,7 +14,7 @@ Monitoring is read-only. A watch may fetch, compute, save and alert. It may neve
 
 ## Grok Bot routines
 
-Each Bot can own routines (schedules or event triggers). Ask the owning Bot to create one with: schedule and time zone, input source, expected result, approval boundary. Keep routines few and specific; the app keeps only recent run records, so a routine that produces something durable should also write to `/workspace/trading-desk`.
+Each Bot can own routines (schedules or event triggers). Ask the owning Bot to create one with: schedule and time zone, input source, expected result, approval boundary. Keep routines few and specific; the app keeps only recent run records, so a routine that produces something durable should also write to `$HYPERGROK_STATE`.
 
 Recommended starting set (the user picks; none is on by default):
 
@@ -44,7 +44,7 @@ Lead the brief with a plain conclusion about the current book and any required a
 
 ## When to post
 
-A requested update or scheduled report always receives an answer, even when the state is unchanged. For other background checks, save the source, network, UTC check time, accepted and observed data age, result and relevant position or proposal ids under `/workspace/trading-desk`. Stay quiet only when the check succeeded with fresh, complete data and found no actionable change.
+A requested update or scheduled report always receives an answer, even when the state is unchanged. For other background checks, save the source, network, UTC check time, accepted and observed data age, result and relevant position or proposal ids under `$HYPERGROK_STATE`. Stay quiet only when the check succeeded with fresh, complete data and found no actionable change.
 
 Post changed conditions, failures, stale reads, missing data and gaps with their consequence and next owner or required action. Successful request completion alone is not an all-clear; apply the freshness and completeness checks below before suppressing a message. A quiet run still leaves timestamped evidence and a heartbeat for inspection.
 
@@ -74,7 +74,7 @@ Give every watch a staleness bound (a small multiple of its interval) and check 
 
 ## Hygiene
 
-- Every watch script logs to `/workspace/trading-desk/watch/<name>.log` with UTC timestamps.
+- Every watch script logs to `$HYPERGROK_STATE/watch/<name>.log` with UTC timestamps.
 - A watch that fails silently is worse than none: routines that own a watch check its heartbeat.
 - Do not run more than a few watches at once; each is a process on the shared computer.
 - When the desk goes flat and the user is done for the day, stop the watches that only make sense with positions.
