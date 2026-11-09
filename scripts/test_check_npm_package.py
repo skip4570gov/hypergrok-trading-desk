@@ -69,7 +69,7 @@ class PackageContractTests(unittest.TestCase):
         self.fails("public npm registry")
 
     def test_install_hook(self):
-        self.edit(lambda data: data["scripts"].update(postinstall="python3 scripts/desk_doctor.py"))
+        self.edit(lambda data: data["scripts"].update(postinstall="python3 scripts/not-a-tool.py"))
         self.fails("install lifecycle hooks are forbidden")
 
     def test_changed_prepack(self):
@@ -81,7 +81,7 @@ class PackageContractTests(unittest.TestCase):
         self.fails("'dependencies'")
 
     def test_executable_entrypoint(self):
-        self.edit(lambda data: data.update(bin={"hypergrok": "scripts/desk_doctor.py"}))
+        self.edit(lambda data: data.update(bin={"hypergrok": "scripts/not-a-tool.py"}))
         self.fails("'bin'")
 
     def test_missing_skill_notice(self):
@@ -93,8 +93,8 @@ class PackageContractTests(unittest.TestCase):
         self.fails(".grok-plugin/marketplace.json")
 
     def test_missing_test(self):
-        self.edit(lambda data: data["files"].remove("scripts/test_desk_doctor.py"))
-        self.fails("scripts/test_desk_doctor.py")
+        self.edit(lambda data: data["files"].remove("scripts/test_paper_only.py"))
+        self.fails("scripts/test_paper_only.py")
 
     def test_broad_allowlist(self):
         self.edit(lambda data: data["files"].append("skills/**"))

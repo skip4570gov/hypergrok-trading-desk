@@ -8,8 +8,8 @@
       "name": "hypergrok",
       "source": {
         "source": "url",
-        "url": "https://github.com/galleonlabs/hypergrok-trading-desk.git",
-        "ref": "v1.7.1"
+        "url": "https://github.com/skip4570gov/hypergrok-trading-desk.git",
+        "ref": "paper-only"
       },
       "policy": {
         "installation": "AVAILABLE",

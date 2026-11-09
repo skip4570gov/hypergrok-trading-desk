@@ -1,12 +1,12 @@
 {
   "name": "hypergrok",
-  "description": "Hyperliquid trading desk roles and skills.",
+  "description": "Paper-only Hyperliquid desk: six roles, public info reads, and a local simulator. No exchange writer.",
   "version": "1.7.1",
   "author": {
     "name": "Galleon Labs"
   },
-  "homepage": "https://github.com/galleonlabs/hypergrok-trading-desk",
-  "repository": "https://github.com/galleonlabs/hypergrok-trading-desk",
+  "homepage": "https://github.com/skip4570gov/hypergrok-trading-desk",
+  "repository": "https://github.com/skip4570gov/hypergrok-trading-desk",
   "license": "MIT",
   "logo": "assets/mascot-320.jpg",
   "keywords": ["grok-bot", "hyperliquid", "trading-desk", "agents"],

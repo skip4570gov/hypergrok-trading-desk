@@ -12,13 +12,13 @@
     {
       "name": "hypergrok",
       "source": "./",
-      "description": "Turn your agent into a 7-role Hyperliquid trading desk: research, risk, execution and review.",
+      "description": "Turn your agent into a 6-role paper-only Hyperliquid desk: research, risk, and review.",
       "version": "1.7.1",
       "author": {
         "name": "Galleon Labs"
       },
-      "homepage": "https://github.com/galleonlabs/hypergrok-trading-desk",
-      "repository": "https://github.com/galleonlabs/hypergrok-trading-desk",
+      "homepage": "https://github.com/skip4570gov/hypergrok-trading-desk",
+      "repository": "https://github.com/skip4570gov/hypergrok-trading-desk",
       "license": "MIT",
       "keywords": ["hyperliquid", "trading-desk", "agents", "grok-bot"]
     }

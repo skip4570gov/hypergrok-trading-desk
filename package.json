@@ -1,7 +1,7 @@
 {
   "name": "hypergrok-trading-desk",
   "version": "1.7.1",
-  "description": "HyperGrok instructions, seventeen skills, seven role profiles and read-only Python tools for a user-approved Hyperliquid trading desk.",
+  "description": "HyperGrok instructions, seventeen skills, six role profiles and read-only Python tools for a paper-only Hyperliquid desk.",
   "license": "MIT",
   "author": {
     "name": "Galleon Labs",
@@ -9,11 +9,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/galleonlabs/hypergrok-trading-desk.git"
+    "url": "git+https://github.com/skip4570gov/hypergrok-trading-desk.git"
   },
-  "homepage": "https://github.com/galleonlabs/hypergrok-trading-desk#readme",
+  "homepage": "https://github.com/skip4570gov/hypergrok-trading-desk#readme",
   "bugs": {
-    "url": "https://github.com/galleonlabs/hypergrok-trading-desk/issues"
+    "url": "https://github.com/skip4570gov/hypergrok-trading-desk/issues"
   },
   "keywords": [
     "grok-bot",
@@ -37,10 +37,10 @@
     "GEMINI.md",
     "LICENSE",
     "README.md",
+    "REVERT.md",
     "SECURITY.md",
     "SETUP.md",
     "agents/desk-lead.md",
-    "agents/execution-trader.md",
     "agents/market-analyst.md",
     "agents/research-analyst.md",
     "agents/risk-manager.md",
@@ -67,35 +67,31 @@
     "docs/hyperliquid-cursor.md",
     "docs/hyperliquid-gemini-cli.md",
     "docs/hyperliquid-grok-build.md",
+    "config/paper.json",
     "gemini-extension.json",
     "hooks/exchange-write-gate.json",
     "hooks/exchange_write_gate.py",
+    "install-manifest.json",
     "plugin.json",
     "rules/hypergrok-team.mdc",
-    "scripts/account_read.py",
     "scripts/check.sh",
     "scripts/check_grok_template.py",
     "scripts/check_manifests.py",
     "scripts/check_npm_package.py",
     "scripts/check_public_template.py",
-    "scripts/cli_contract.py",
-    "scripts/cli_journeys.py",
-    "scripts/desk_doctor.py",
-    "scripts/opening_bell.py",
+    "scripts/install_pin.py",
+    "scripts/verify_install.py",
+    "scripts/market_data.py",
+    "scripts/paper_sim.py",
     "scripts/release_bump.py",
-    "scripts/research_dataset.py",
-    "scripts/stop_cost.py",
     "scripts/test_check_grok_template.py",
     "scripts/test_check_manifests.py",
     "scripts/test_check_npm_package.py",
     "scripts/test_check_public_template.py",
-    "scripts/test_desk_doctor.py",
     "scripts/test_exchange_write_gate.py",
-    "scripts/test_opening_bell.py",
     "scripts/test_order_rounding.py",
+    "scripts/test_paper_only.py",
     "scripts/test_release_bump.py",
-    "scripts/test_research_dataset.py",
-    "scripts/test_stop_cost.py",
     "skills/README.md",
     "skills/desk-execution-protocol/ATTRIBUTION.md",
     "skills/desk-execution-protocol/LICENSE",
@@ -151,8 +147,8 @@
     "template/grok-bot.json"
   ],
   "scripts": {
-    "test": "bash scripts/check.sh",
-    "prepack": "bash scripts/check.sh"
+    "test": "python3 scripts/verify_install.py && python3 scripts/test_paper_only.py",
+    "prepack": "python3 scripts/verify_install.py && python3 scripts/test_paper_only.py"
   },
   "publishConfig": {
     "access": "public",

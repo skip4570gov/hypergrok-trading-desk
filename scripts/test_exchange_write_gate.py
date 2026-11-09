@@ -24,8 +24,8 @@ class ExchangeWriteGateTest(unittest.TestCase):
         self.assertIsNotNone(decision, event["tool_input"])
         output = decision["hookSpecificOutput"]
         self.assertEqual(output["hookEventName"], "PreToolUse")
-        self.assertEqual(output["permissionDecision"], "ask")
-        self.assertIn("ticket", output["permissionDecisionReason"])
+        self.assertEqual(output["permissionDecision"], "deny")
+        self.assertIn("blocked", output["permissionDecisionReason"])
         return output["permissionDecisionReason"]
 
     def test_python_sdk_writes_ask(self):
@@ -81,10 +81,9 @@ class ExchangeWriteGateTest(unittest.TestCase):
 
     def test_reads_and_research_pass_through(self):
         for command in (
-            "python3 scripts/opening_bell.py --json",
-            "python3 scripts/desk_doctor.py --offline",
-            "python3 scripts/research_dataset.py --verify data/eth-1h --json",
-            "bash scripts/check.sh",
+            "python3 scripts/paper_sim.py reset --state /home/hypergrok/state",
+            "python3 scripts/verify_install.py",
+            "python3 scripts/market_data.py",
             'curl -s https://api.hyperliquid.xyz/info -H "Content-Type: application/json" -d \'{"type":"allMids"}\'',
             "python3 -c 'info.user_state(ADDR); info.open_orders(ADDR)'",
             "grep -rn 'exchange endpoint' skills/",
@@ -106,7 +105,7 @@ class ExchangeWriteGateTest(unittest.TestCase):
 
     def test_hook_process_contract(self):
         ask = subprocess.run([sys.executable, GATE], input=json.dumps(bash("python3 -c 'exchange.order(c, True, 1, 2, t)'")), capture_output=True, text=True, check=True)
-        self.assertEqual(json.loads(ask.stdout)["hookSpecificOutput"]["permissionDecision"], "ask")
+        self.assertEqual(json.loads(ask.stdout)["hookSpecificOutput"]["permissionDecision"], "deny")
         quiet = subprocess.run([sys.executable, GATE], input=json.dumps(bash("ls")), capture_output=True, text=True, check=True)
         self.assertEqual(quiet.stdout, "")
         garbage = subprocess.run([sys.executable, GATE], input="not json", capture_output=True, text=True, check=True)

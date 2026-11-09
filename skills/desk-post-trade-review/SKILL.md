@@ -14,18 +14,17 @@ The journal is the desk's memory; the review is how the desk learns. Both come f
 
 ## 1. Journal
 
-`/workspace/trading-desk/journal/YYYY-MM-DD.md`, one file per active day, appended in time order. Entry types:
+`$HYPERGROK_STATE/journal/YYYY-MM-DD.md`, one file per active day, appended in time order. Entry types:
 
 ```
 14:02 UTC  HG-20260816-01 opened   ETH-PERP long idea (user); status evidence
-14:12 UTC  HG-20260816-01 risk     PASS 0.4827 ETH, stop 2,900, 0.5% risk stressed (risk-limits v3)
+14:12 UTC  HG-20260816-01 risk     PASS, trail and target, at most 1% of the $100 journal
 14:29 UTC  HG-20260816-01 approval "approve HG-20260816-01" (user)
-14:31 UTC  HG-20260816-01 sent     buy 0.4827 @ 3,000 Gtc + sl 2,900 (normalTpsl); cloid 0x9f3e...; oid 1839201122, sl waitingForFill
-16:05 UTC  HG-20260816-01 fill     0.4827 @ 3,000.0 maker, fee $0.29
-09:12 UTC  HG-20260816-01 closed   tp 3,089.6, fee $1.44; position flat; sl 2,900 cancelled 09:13
-10:00 UTC  limits                  risk-limits v3 -> v4: max positions 3 -> 4 (user, reason: adding HYPE)
-11:40 UTC  incident INC-20260817-01 send timeout on HG-20260817-02; not on exchange, waited out expiresAfter 11:41, re-checked clean, re-approved and sent 11:47
-18:00 UTC  note                    maker entries at 10 bps depth filled within 2h on both attempts this week
+14:31 UTC  HG-20260816-01 paper    scripts/paper_sim.py submit, journal hash recorded
+09:12 UTC  HG-20260816-01 closed   target fill in the journal; fee recorded
+10:00 UTC  limits                  stricter paper cap only; symbols stay BTC and ETH
+11:40 UTC  incident INC-20260817-01 journal mismatch; no new submit
+18:00 UTC  note                    both paper entries this week kept a trailing stop
 ```
 
 Rules: append only; corrections are new lines with `correction:`; every line has a UTC time and an id where one exists; no opinions in the journal (those go in reviews).
@@ -34,24 +33,11 @@ Rules: append only; corrections are new lines with `correction:`; every line has
 
 Trigger: a proposal reaches `closed`, or the user asks. Inputs, always listed with timestamps:
 
-- the proposal file (ticket, PASS, approval, execution, reconciliation)
-- `userFills` / `userFillsByTime` for the window: price, size, fee, side, `crossed`
-- `historicalOrders` and `orderStatus` by cloid: what rested when, what cancelled
-- `userFunding` for the holding window
-- optionally the Market Analyst's depth read at send time for expected slippage
+- the proposal file
+- the paper journal open, trail, stop, target, and close events: price, size, fee, side, and feed
+- the quote recorded on those events
 
-Compute:
-
-| Measure | How |
-| --- | --- |
-| Entry slippage | (fill avg - ticket price) / ticket price in bps, signed against the trade |
-| Exit slippage | same for the exit versus its ticket or trigger price |
-| Fees | sum of fill fees in USD and as bps of notional; note maker vs taker |
-| Funding | sum of funding payments over the window, USD |
-| Net result | realised PnL after fees and funding, in USD and in R (R from the ticket) |
-| Protection | was a reduce-only stop resting on the exchange for the entire life of the position? gaps in minutes |
-| Lifecycle | each stage present, in order, with timestamps; approval by id; single send; reconciled |
-| Holding time | fill to flat |
+Compute entry and exit from the journal fills, fees from the journal, and whether a trailing stop was present the whole time. There is no exchange fill record and no funding payment to sum. Net result is journal PnL after fees.
 
 Grade:
 
@@ -77,7 +63,7 @@ No recommendations about what to trade. If the user asks, hand strategy question
 
 ## 4. Incident review
 
-For each `INC-YYYYMMDD-NN`: timeline (journal + exchange record), what the desk did, what the controls did, exposure during the incident, root cause where knowable, one corrective action with an owner and a date. Blameless in tone, exact in fact. Written to `/workspace/trading-desk/journal/incidents/<id>.md` and linked from the daily journal.
+For each `INC-YYYYMMDD-NN`: timeline (journal + exchange record), what the desk did, what the controls did, exposure during the incident, root cause where knowable, one corrective action with an owner and a date. Blameless in tone, exact in fact. Written to `$HYPERGROK_STATE/journal/incidents/<id>.md` and linked from the daily journal.
 
 ## Pitfalls
 

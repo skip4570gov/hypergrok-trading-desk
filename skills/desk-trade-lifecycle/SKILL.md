@@ -1,6 +1,6 @@
 ---
 name: desk-trade-lifecycle
-description: The end-to-end procedure for one trade on the HyperGrok desk - from an idea to a reviewed, journaled result - with the ticket format, who owns each stage, and what "done" looks like. Use whenever the user wants to open, adjust or close a position, or whenever any Bot is about to touch the exchange write path.
+description: The end-to-end procedure for one paper trade - from an idea to a journaled result - with the ticket format and who runs scripts/paper_sim.py. Use whenever the user wants a paper position. There is no exchange write path.
 license: MIT
 metadata:
   version: "1.1.2"
@@ -13,19 +13,19 @@ metadata:
 Every position change on the desk goes through the same seven stages, in order. Skipping one is a defect, not a shortcut. The Desk Lead keeps the lifecycle moving; the owner of each stage does the work.
 
 ```
-idea -> evidence -> risk sign-off -> user approval -> execution -> reconciliation -> review
- DL       MA/RA        RM              user            ET            ET               TR
+idea -> evidence -> risk sign-off -> user approval -> paper submit -> journal -> review
+ DL       MA/RA        RM              user            RM             TR             TR
 ```
 
 ## 0. Open a proposal
 
-**Owner: Desk Lead.** As soon as a trade idea appears (from the user, the Strategist, or a routine), assign an id `HG-YYYYMMDD-NN` (NN increments per day) and create `/workspace/trading-desk/proposals/<id>.md`:
+**Owner: Desk Lead.** As soon as a trade idea appears (from the user, the Strategist, or a routine), assign an id `HG-YYYYMMDD-NN` (NN increments per day) and create `$HYPERGROK_STATE/proposals/<id>.md`:
 
 ```markdown
 # HG-20260816-01
 
 - opened: 2026-08-16 14:02 UTC by user
-- market: ETH-PERP  network: mainnet  account: 0xabc...def
+- market: ETH  book: paper journal
 - idea: long ETH on a retest of 3,000 with invalidation below 2,900 (user's idea)
 - status: evidence
 
@@ -43,28 +43,25 @@ Every later stage appends under its heading. The file is the single record of th
 
 **Owner: Market Analyst, and Research Analyst when the idea depends on anything beyond exchange data.**
 
-The Desk Lead asks for exactly what sizing and execution will need: current mid, mark and oracle; funding now and predicted; open interest and 24h volume; depth within 5/10/25 bps for the intended size; the market's constraints (max leverage, margin tiers, size decimals, minimum order value); recent range and volatility. Research adds anything scheduled or breaking that touches the market. Both write their blocks under `## evidence` with sources and UTC times.
+The Desk Lead asks for the quote, funding, open interest, volume, and depth the paper ticket needs. Research adds anything scheduled that touches BTC or ETH. Both write their blocks under `## evidence` with sources and UTC times.
 
 Done when: the Risk Manager has every input it needs and nothing is older than a few minutes.
 
 ## 2. Risk sign-off
 
-**Owner: Risk Manager.** Reads `risk-limits.md`, reads live account state, computes size from the user's stop and risk budget, checks every gate, and writes PASS or REJECT with exact ticket fields under `## risk` (procedure and arithmetic in `desk-risk-limits`).
+**Owner: Risk Manager.** Reads `risk-limits.md` and the paper journal, sizes from the $100 starting equity and later journal equity, and writes PASS or REJECT under `## risk`. The procedure is `desk-risk-limits`. BTC and ETH only.
 
 A PASS produces the **ticket**:
 
 ```
-TICKET HG-20260816-01 | mainnet | account 0xabc...def
-market: ETH-PERP (asset 1)      side: buy      size: 0.4827 ETH (~$1,448)
-entry: limit 3,000.0 Gtc        reduce-only: no
-stop: sell 0.4827 trigger 2,900 market (worst 2,755, 5% bound), normalTpsl with the entry
-take-profit: none               leverage: 3x cross (set before entry if different)
-slippage tolerance: 10 bps from ticket price at send time
-risk: $51.00 = 0.5% of equity $10,200.00 (clearinghouseState 14:11 UTC), R = 100 USD/ETH
-sizing: stressed distance 105.65 USD/ETH (stop 100 + slippage 3.00 + fees 2.65)
-risk sign-off: PASS 14:12 UTC, risk-limits.md v3
-expires: 14:42 UTC
+TICKET HG-20260816-01 | paper
+market: ETH   side: buy   size: 0.001
+entry: inside the quote   trailing distance: 1   target: above the fill
+risk: at most 1% of journal equity after fees and slippage
+reward-to-risk: at least 2:1
+risk sign-off: PASS
 approve with: "approve HG-20260816-01"
+submit: scripts/paper_sim.py
 ```
 
 A REJECT names one failed gate and what would have to change. A REJECT ends the lifecycle for that proposal unless the user changes the idea (new evidence, new stop, new size) - then it goes back to stage 1 under the same id with a note.
@@ -77,13 +74,13 @@ The approval must come from the user's own turn in the conversation. No Bot writ
 
 If the ticket expires before approval, it is void; a fresh Risk sign-off is needed because prices and the book have moved.
 
-## 4. Execution
+## 4. Paper submit
 
-**Owner: Execution Trader.** Before every send, verifies that the native approval gate described in `desk-operating-model` covers the actual SDK, script or direct HTTP write route. If that cannot be verified, the desk remains research-only and does not send on either network. Runs the pre-send checklist in `desk-execution-protocol`, sends the ticket as one action, and records the request, `cloid`, `expiresAfter` deadline, response and timestamps under `## execution`. Anything other than a clean response is handled per `desk-incident-response`.
+**Owner: Risk Manager.** Runs `scripts/paper_sim.py submit` once, as `desk-execution-protocol` describes. Records the JSON under `## execution`. A reject is not retried against any other tool.
 
-## 5. Reconciliation
+## 5. Journal
 
-**Owner: Execution Trader.** Confirms from the exchange record - `orderStatus` by cloid, `openOrders`, `userFills`, `clearinghouseState` - what happened, and writes it under `## reconciliation`. Posts the execution report on the floor and DMs the Trade Reviewer. Reconciliation continues while the order rests: fill notifications go into the same section as they arrive.
+**Owner: Trade Reviewer.** Confirms the append-only journal line and writes it under `## reconciliation`. There is no exchange order id.
 
 ## 6. Review
 
@@ -91,15 +88,15 @@ If the ticket expires before approval, it is void; a fresh Risk sign-off is need
 
 ## Adjustments and exits are trades too
 
-Moving a stop, adding to a position, reducing, closing, changing leverage: each is a new ticket under the same proposal id with a suffix (`HG-20260816-01-B`). Begin every adjustment ticket with the parent proposal id and the original proposal's `- idea:` text, then state what is changing and why. This retains the user's original context when an adjustment is read on its own.
+Moving a stop, adding, reducing, or closing: each is a new paper ticket under the same proposal id with a suffix (`HG-20260816-01-B`). There is no leverage change.
 
 Each adjustment receives fresh evidence and a new Risk Manager PASS, the exact suffixed ticket id for user approval, and its own expiry. Earlier approval or Risk PASS does not carry forward. Closing a position at market needs a ticket stating the reduce-only size read live from the account and the slippage bound. Execute once within expiry, then reconcile the adjustment against the exchange record under the parent proposal.
 
-The only exception is a pre-authorised protective action the user has written into `desk.md` (for example "the Execution Trader may cancel orphaned stops after a position closes without asking"). Even then, the action is journaled.
+There is no standing approval that skips the simulator. A paper adjustment is a new ticket and a new `scripts/paper_sim.py` submit.
 
-## Paper trading and testnet
+## Paper trading
 
-The lifecycle is identical on testnet. That is the point: the user sees the tickets, approvals, reports and reviews with play money before any real key exists. Strategist-generated signals enter at stage 0 as proposals like any other idea.
+This lifecycle is the paper simulator. Strategist-generated signals enter at stage 0 as proposals like any other idea. There is no testnet rehearsal and no live send.
 
 ## Definitions of done
 
@@ -111,8 +108,8 @@ The lifecycle is identical on testnet. That is the point: the user sees the tick
 
 | Symptom | Fix |
 | --- | --- |
-| The user asks the Execution Trader directly to "just buy some" | Execution Trader routes to the Desk Lead; a proposal is opened; the lifecycle runs. It can be quick, but it runs. |
+| The user asks a Bot to "just buy some" | That Bot routes to the Desk Lead; a proposal is opened; the lifecycle runs. It can be quick, but it runs. |
 | Risk PASS was computed from a brief older than the ticket | Risk re-reads live state; PASS is re-issued with a new expiry. |
 | Approval given with "yes" | Desk Lead re-asks for the phrase with the id. |
 | Two Bots each think they own the next step | The proposal file's `status` line names the stage; the stage owner acts. |
-| Ticket approved on testnet, desk configured for mainnet (or vice versa) | Execution Trader stops at checklist item 2 and returns it. |
+| A ticket names a symbol other than BTC or ETH, or omits the trailing stop | Risk Manager rejects it. The simulator would reject it too. |

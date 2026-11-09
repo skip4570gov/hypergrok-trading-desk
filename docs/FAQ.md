@@ -1,43 +1,43 @@
 # FAQ
 
 **What do I actually get?**
-The release contains seven role profiles, seventeen skills and read-only Python tools. In Grok Bot, setup builds seven Bots, a six-Bot Trading Floor and a desk record. Other runtimes load the roles as subagents or labelled passes. Ask for a market brief, a sized ticket, a backtest or a review; each role reports its evidence.
+The release contains six role profiles, seventeen skills and the paper simulator. In Grok Bot, setup builds those six Bots, a five-Bot Trading Floor and a desk record. Other runtimes load the roles as subagents or labelled passes. Ask for a market brief, a sized ticket, or a review; each role reports its evidence.
 
 **What do I need to start?**
-For a terminal demo, run the [keyless Opening Bell](../README.md#try-it-now-no-keys) with Python 3. For the Grok Bot desk, add the [public HyperGrok Desk Lead template](https://x.ai/bot/2GeaOwIsmTEOD_WGzmghC), then send **Start the desk.** It carries the 1.7.1 bootstrap. The [pinned bootstrap in the README](../README.md#start) is also available; see [publication evidence](GROK_BOT_TEMPLATE.md). The desk starts in research mode and proves public market access without asking for a key. Add a testnet API wallet only when you want to practise; add a mainnet one when you decide to trade real money.
+For a terminal demo, run the [simulator flow](../README.md#try-it-now-no-keys) with Python 3. For the desk, follow the bootstrap in the [README](../README.md#start). It uses public market data and the local simulator. Do not provision a key.
 
-**What does the desk doctor inspect?**
-The release version and tag pin, all agent and skill files, the desk folders and record, and a public Hyperliquid `allMids` response. It never reads environment variables, keys or account state, and never calls the exchange write endpoint.
+**What does readiness check?**
+`python3 scripts/verify_install.py` checks `install-manifest.json` and, when `.git` is present, the reviewed ancestor. `python3 scripts/test_paper_only.py` checks the simulator. Neither reads a key or calls an exchange write.
 
 **How does the desk trade?**
-Through a Hyperliquid API (agent) wallet you create in the Hyperliquid app and hand over through Grok Bot's secure secret card. It can place, modify and cancel orders. Withdrawals, transfers and bridging stay in the app with your main wallet.
+Only in the local paper simulator, on a $100 journal, for BTC and ETH. It does not use a Hyperliquid API wallet. Do not create one for this checkout.
 
 **How do I approve a trade?**
-The Risk Manager posts a ticket with an id like `HG-20260816-01`. You type `approve HG-20260816-01`. The phrase records your approval of that exact ticket. A separate Grok Bot Auto-review **Ask first** rule must cover the exchange write path, because Bots can also write chat messages. Setup verifies that control before provisioning an API wallet. No Bot may type, quote forward or infer your approval.
+The Risk Manager posts a paper ticket with an id like `HG-20260816-01`. You type `approve HG-20260816-01`. The simulator still checks the quote, trailing stop, payoff and risk. No Bot may type, quote forward or infer your approval. Do not provision a key.
 
 **Where do the ideas come from?**
-From you. The Strategist turns your idea into rules and tests it on Hyperliquid history with fees, funding and an out-of-sample split; the desk then paper-trades it on testnet if you like. The Market and Research Analysts give you the picture; you decide.
+From you. The Strategist turns your idea into rules and tests it on public history. A forward test uses the local simulator. The Market and Research Analysts give you the picture; you decide.
 
 **Can I verify the history behind a backtest?**
-Yes. The [research dataset tool](RESEARCH_DATASETS.md) saves requests, decoded responses, CSVs and a manifest with file hashes and coverage gaps. `--verify` replays that bundle offline. A missing candle or funding hour prevents complete coverage; absent funding is never assumed to be zero. Integrity and coverage do not prove source authenticity, strategy edge or exact USD funding costs without historical oracle prices.
+This checkout does not collect exchange history. See [Research datasets](RESEARCH_DATASETS.md). A backtest uses only files already under `$HYPERGROK_STATE/data`. Missing rows stay missing.
 
 **Why do the Bots use a "computer"?**
-That is Grok Bot's cloud VM, shared by your Bots. Public reads use `/info`; the Execution Trader uses an SDK there to sign approved orders with the API wallet. The browser reads pages; it does not execute trades.
+That is Grok Bot's cloud VM, shared by your Bots. Public reads use the allowlisted info URL. Paper orders stay in the local simulator. The browser reads pages; it does not execute trades.
 
-**Why six on the floor and one off it?**
-Grok Bot group chats hold six Bots. The Trade Reviewer receives execution reports by DM and reviews them from the journal and exchange records.
+**Why is the Trade Reviewer off the floor?**
+Five Bots sit on the Trading Floor. The Trade Reviewer reads the simulator journal by DM.
 
 **Can I rename the Bots or add my own?**
-Yes. Names and avatars are yours. To add a role, copy the shape of a file in `agents/`. Keep one writer: only one Bot has the exchange write skills.
+Yes. Names and avatars are yours. To add a role, copy the shape of a file in `agents/`. Only the Risk Manager runs `scripts/paper_sim.py`.
 
 **Can it run while I sleep?**
-Routines can brief you, watch prices and funding, check the book and alert you. Sending always waits for your approval by id.
+Routines can brief you from the quote feed and alert you. A paper order still waits for your approval by id.
 
 **Which network does market data come from?**
-The default public research source is mainnet, even when execution uses testnet. The Python tools accept `--testnet` for an explicit testnet read. Every report names its source network; testnet data never substitutes for mainnet execution checks.
+Public reads use the pinned info host. Scripts do not accept another origin. Paper orders use the simulator journal.
 
 **What if a send times out?**
-The Execution Trader treats the result as unknown and does not resend. It checks by client order id; a missing order is insufficient because the original request may still arrive. It waits until the send's `expiresAfter` deadline has passed, checks again and reports whether execution is confirmed or remains unconfirmed. Any replacement requires fresh approval. Without an expiry, it cannot prove the original is incapable of arriving.
+The paper simulator either appends a journal line or rejects the order. It does not retry against an exchange, because this checkout has no exchange write.
 
 **How do I set Grok Bot's own approvals?**
 Settings, General, Auto-review: add an **Ask first** rule for financial actions and for commands that call the Hyperliquid exchange endpoint. **Ask first** wins over **Allow automatically**.
@@ -49,7 +49,7 @@ Yes. Use the guide for [Claude Code](hyperliquid-claude-code.md), [Cursor](hyper
 HyperGrok has no token and will not launch one. Coins using the name were launched by third parties and are not part of this project.
 
 **Where can I get help or report a bug?**
-Check the runtime guide and run `python3 scripts/desk_doctor.py --offline --json`. [Open an issue](https://github.com/galleonlabs/hypergrok-trading-desk/issues/new/choose) with your release, runtime, failing command and sanitized output. Follow the [security policy](../SECURITY.md) for sensitive reports.
+Check the runtime guide and run `python3 scripts/verify_install.py` and `python3 scripts/test_paper_only.py`. [Open an issue](https://github.com/skip4570gov/hypergrok-trading-desk/issues/new/choose) with your release, runtime, failing command and sanitized output. Follow the [security policy](../SECURITY.md) for sensitive reports.
 
 **Is this financial advice?**
 It is documentation and instructions. Perpetual futures can liquidate an account.

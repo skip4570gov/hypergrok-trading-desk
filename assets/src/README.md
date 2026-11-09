@@ -1,5 +1,9 @@
 # Graphic sources
 
+The SVG and PNG pictures are historical artwork from before this paper-only checkout. Their captions now say so. They are not an order path.
+
+
+
 `build_graphics.py` writes the README's animated graphics from one data model:
 
 | File | What it shows |

@@ -1,6 +1,6 @@
 ---
 name: desk-incident-response
-description: What the desk does when something goes wrong on Hyperliquid - unknown send results, unexpected fills or positions, unprotected positions, stuck or orphaned orders, API outages, rate limiting, and suspected API wallet compromise. Contain first, reconcile from the exchange record, act only through approved tickets, then review. Use the moment anything does not match the ticket.
+description: What the paper desk does when the journal, a quote, or a public read goes wrong. Contain first, replay the journal, and do not invent an exchange send. Use the moment anything does not match the ticket.
 license: MIT
 metadata:
   version: "1.1.2"
@@ -17,41 +17,35 @@ An incident is any moment when the exchange record and the desk's expectation di
 Any Bot can declare an incident. Post on the floor:
 
 ```
-INCIDENT INC-20260817-01 | 11:40 UTC | HG-20260817-02 | send timeout, result unknown | owner: Execution Trader
+INCIDENT INC-20260817-01 | 11:40 UTC | HG-20260817-02 | paper journal mismatch | owner: Risk Manager
 ```
 
-The Desk Lead confirms an owner (usually the Execution Trader for order/position incidents, the Risk Manager for exposure incidents, the Desk Lead for access incidents). New proposals pause until the incident is contained.
+The Desk Lead confirms an owner (the Risk Manager for a paper position, the Desk Lead for access). New proposals pause until the incident is contained. There is no exchange send to recover.
 
 ## Playbooks
 
-### A. Unknown send result (timeout, 5xx, exception after send)
+### A. Journal does not match the last paper submit
 
-1. Do not resend.
-2. `orderStatus` by cloid; `openOrders`; `userFills` since the send; `clearinghouseState`.
-3. Found: continue reconciliation as normal; journal that the response was lost.
-4. Not found: that is not proof. Wait until the signed `expiresAfter` deadline has passed, then reconcile again. Expiry prevents later acceptance; it does not cancel an order accepted before the deadline or remove its fills.
-5. Without expiry, follow `desk-execution-protocol`: a `noop` needs an exact recovery ticket, Risk PASS, approval by id and native-gate coverage, and must use the original exact signed nonce, the same API wallet signer and network. Only the Execution Trader sends it, once. Confirm noop acceptance and reconcile the original; a newer nonce cannot invalidate it, and a nonce-reuse rejection does not prove what happened. Missing original nonce or an unconfirmed noop leaves the send reserved and new risk paused; escalate to the Desk Lead and user.
-6. A replacement waits until later acceptance is impossible and existing exposure is reconciled, then needs a fresh ticket, Risk PASS and approval by id. If the exchange later shows the original order after a second one was sent: the desk has double exposure. Go to playbook C.
+1. Do not submit again.
+2. Read the paper journal and check its hash chain.
+3. If the chain fails, stop and tell the user. Do not reset unless they ask, and a reset must be the explicit command.
+4. If the chain is intact, report the last event. There is no exchange order to look up.
 
-### B. Rejected order or partial fill
+### B. Simulator reject
 
-- Rejection string in the response (`error`): quote it, map it via `hyperliquid-api-reference` (price precision, minimum notional, insufficient margin, reduce-only would increase position, invalid tif...). Fix is a new ticket, not a tweak-and-resend.
-- Partial fill on an IOC: the unfilled remainder is gone and the position is smaller than the ticket. Any `normalTpsl` children were **never placed** (children appear only when the parent fills fully, or is partially filled and then margin-cancelled), so the filled part is unprotected: report the actual size and get a stop for that size placed at priority (playbook D).
-- Partial fill on a resting order: normal; reconciliation continues.
+- Quote the reject code. A bad target, a missing trailing stop, or risk over 1% needs a new ticket.
+- Do not retry the same order against any other tool.
 
-### C. Position does not match expectation (too big, wrong side, unexpected market)
+### C. Paper position does not match the ticket
 
-1. Read `clearinghouseState` and `userFills` for the last hour; establish the exact state.
-2. Risk Manager computes exposure and liquidation distance now.
-3. If exposure breaches limits: an **emergency reduce ticket** (reduce-only IOC at a slippage bound for the excess size) is written by the Risk Manager, approved by the user by id, sent by the Execution Trader. Priority handling, same protocol.
-4. Journal what happened and why the mismatch occurred once known.
+1. Replay the journal and compare it with the ticket.
+2. The Risk Manager stops new risk if open risk is already over the cap.
+3. This checkout cannot send an order to an exchange. Journal the mismatch.
 
-### D. Unprotected position (no resting stop)
+### D. Paper order with no trailing stop
 
-1. Risk Manager flags it; the Desk Lead treats it as priority.
-2. Protective stop ticket (trigger, reduce-only, correct side, sized to the position read live) through Risk PASS and user approval. This is also the path after any partial fill of an entry that carried `normalTpsl` children.
-3. If the user has pre-authorised protective stops in `desk.md`, the Execution Trader places it under that standing approval and journals it. This is the one standing approval the desk actively recommends the user grant at setup, on every network, because it can only ever reduce risk.
-4. Without that pre-authorisation the desk cannot act, and an unprotected position does not become safe while it waits. Do not alert indefinitely: state the exposure and the distance to liquidation in the first alert, escalate on a deadline the user set in `desk.md` (fifteen minutes is a reasonable default), and when that passes, tell the user plainly that the fastest fix is theirs - close or protect the position in the Hyperliquid app - rather than continuing to ping a channel nobody is reading.
+1. The Risk Manager rejects it. The simulator rejects it too.
+2. Nothing is placed on an exchange.
 
 ### E. Orphaned or stuck orders
 
@@ -65,17 +59,17 @@ The Desk Lead confirms an owner (usually the Execution Trader for order/position
 - Blind with open positions: the user is told plainly that stops resting **on the exchange** still work while the desk cannot see; that is why stops are mandatory.
 - Connectivity returning is only the start of recovery. Follow `hyperliquid-websocket`'s gap/restart procedure: restore account and detailed order snapshots, recover overlapping fills, reconcile reservations and protection, then let Risk recheck capacity before new risk resumes. A successful public price read or a restarted process cannot lift the account pause. Protection and exits still use verified live state and the normal approval gates.
 
-### G. Suspected API wallet compromise or misuse
+### G. A secret appeared on the computer
 
-Signs: orders or fills the desk did not send, leverage changes nobody approved, unfamiliar `cloid`s.
+Signs: a journal event the desk did not submit, or a hash chain that fails.
 
-1. The user revokes the API wallet immediately in the Hyperliquid app (the API page, `/API`) - the desk cannot do this for them and must not delay them.
-2. Once revoked, the desk's key is dead; the Execution Trader confirms sends fail.
-3. Read the full `historicalOrders` and `userFills` since the last known-good time; Risk Manager assesses exposure; emergency reduce or protection tickets as needed after the user creates a fresh API wallet and re-provisions it through the secure secret store.
+1. Stop. This checkout has no key to use or replace. The user removes the secret from the computer.
+2. This checkout has no key to revoke and no send to confirm.
+3. Read the paper journal. Do not create or store a replacement key.
 4. Rotate: new key through the secure secret card only; nothing pasted in chat; journal the rotation time.
 5. Incident review with a timeline.
 
-Remember the shared computer: every Bot could read the key's environment; that is why only an API wallet key (trade-only, cannot withdraw) is ever provisioned, and why testnet comes first.
+Remember the shared computer: every Bot can read the same files. That is why this checkout stores no key.
 
 ### H. Daily loss stop hit
 

@@ -6,19 +6,19 @@ Seventeen skills in the portable `SKILL.md` format (`name` and `description` fro
 
 | Skill | What it teaches | Primary users |
 | --- | --- | --- |
-| [hypergrok-bootstrap](hypergrok-bootstrap/SKILL.md) | Pinned install, zero-key Opening Bell, team creation, desk doctor and evidence receipt | Desk Lead |
+| [hypergrok-bootstrap](hypergrok-bootstrap/SKILL.md) | Verifier, paper tests, simulator reset, team creation and evidence receipt | Desk Lead |
 
 ## Hyperliquid skills (how to work with the exchange)
 
 | Skill | What it teaches | Writes to the exchange? | Primary users |
 | --- | --- | --- | --- |
-| [hyperliquid-setup](hyperliquid-setup/SKILL.md) | Networks, SDK install, connectivity check, API wallet provisioning through the secure secret store, readiness check, rotation | no | Desk Lead, Execution Trader |
+| [hyperliquid-setup](hyperliquid-setup/SKILL.md) | Paper-only checkout, allowlisted public info URL, no key | no | Desk Lead |
 | [hyperliquid-market-data](hyperliquid-market-data/SKILL.md) | Prices, book depth, funding, OI, volume, candles, spot and HIP-3 metadata, dataset saving | no | Market Analyst, Strategist, Risk Manager |
-| [hyperliquid-account](hyperliquid-account/SKILL.md) | Positions, margin, balances, open orders with trigger detail, fills, funding paid, ledger, order status, portfolio, fees, rate limit | no | Risk Manager, Execution Trader, Trade Reviewer |
-| [hyperliquid-orders](hyperliquid-orders/SKILL.md) | Limit, IOC, TP/SL with grouping, cloid, cancel, modify, rounding, response statuses, error strings | **yes** | Execution Trader |
-| [hyperliquid-positions](hyperliquid-positions/SKILL.md) | Leverage and margin mode, isolated margin, margin tiers, liquidation, closing, protection checks | **yes** (leverage, closes) | Execution Trader, Risk Manager (reads) |
-| [hyperliquid-websocket](hyperliquid-websocket/SKILL.md) | Live subscriptions, watch processes, heartbeat and supervision | no | Market Analyst, Execution Trader, Strategist |
-| [hyperliquid-advanced](hyperliquid-advanced/SKILL.md) | Dead-man's switch, TWAP, spot orders, expiresAfter, agent approval from code, sub-accounts, HIP-3, what the desk does not do | **yes** (some) | Execution Trader |
+| [hyperliquid-account](hyperliquid-account/SKILL.md) | Public account reads through the allowlisted info URL | no | Risk Manager, Trade Reviewer |
+| [hyperliquid-orders](hyperliquid-orders/SKILL.md) | Local paper submit only: trailing stop, 2:1, 1% of $100, BTC and ETH | no | Risk Manager |
+| [hyperliquid-positions](hyperliquid-positions/SKILL.md) | Paper journal positions; no leverage or close on an exchange | no | Risk Manager |
+| [hyperliquid-websocket](hyperliquid-websocket/SKILL.md) | Poll the public info feed; no client SDK and no socket order path | no | Market Analyst, Strategist |
+| [hyperliquid-advanced](hyperliquid-advanced/SKILL.md) | Actions this checkout refuses: transfer, withdrawal, agent approval, TWAP | no | Risk Manager |
 | [hyperliquid-api-reference](hyperliquid-api-reference/SKILL.md) | Request and action reference, statuses, asset ids, tick/lot, rate limits, WS types, error strings, docs links | no | everyone |
 
 ## Desk skills (how the team works)
@@ -28,11 +28,11 @@ Seventeen skills in the portable `SKILL.md` format (`name` and `description` fro
 | [desk-operating-model](desk-operating-model/SKILL.md) | Roles, seats, workspace, engagement levels, evidence standard, approval model, handoff format | everyone |
 | [desk-trade-lifecycle](desk-trade-lifecycle/SKILL.md) | The seven stages of a trade, the proposal file, the ticket, approval by id, definitions of done | Desk Lead, everyone |
 | [desk-risk-limits](desk-risk-limits/SKILL.md) | The limits file, sizing arithmetic, margin tiers, book check, veto rules | Risk Manager |
-| [desk-execution-protocol](desk-execution-protocol/SKILL.md) | Pre-send checklist, single send, unknown results, reconciliation, rehearsal rule | Execution Trader |
+| [desk-execution-protocol](desk-execution-protocol/SKILL.md) | One paper submit after approval, then the journal | Risk Manager |
 | [desk-monitoring](desk-monitoring/SKILL.md) | Routines, the desk brief, watches and alert conditions | Desk Lead, Risk Manager, Market Analyst |
 | [desk-post-trade-review](desk-post-trade-review/SKILL.md) | Journal format, trade review, weekly review, incident review | Trade Reviewer |
-| [desk-incident-response](desk-incident-response/SKILL.md) | Playbooks for unknown sends, mismatches, unprotected positions, outages, key compromise | Execution Trader, Risk Manager, Desk Lead |
-| [desk-strategy-lab](desk-strategy-lab/SKILL.md) | Rules first, honest backtests, sanity checks, paper trading on testnet | Strategist |
+| [desk-incident-response](desk-incident-response/SKILL.md) | Playbooks for a bad paper journal, bad quotes, and public-info outages | Risk Manager, Desk Lead |
+| [desk-strategy-lab](desk-strategy-lab/SKILL.md) | Rules first, honest backtests, sanity checks, local paper trading | Strategist |
 
 ## Conventions
 

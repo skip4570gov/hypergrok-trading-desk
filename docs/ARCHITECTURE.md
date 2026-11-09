@@ -8,36 +8,35 @@ In Grok Bot, HyperGrok uses your Bots, shared cloud computer and conversations. 
 you
  |
  v
-Trading Floor (group chat, 6 Bots)                 DM
+Trading Floor (group chat, 5 Bots)                 DM
   Desk Lead ------------------------------------> Trade Reviewer
-   |     |     |     |     |                       journal, reviews
-   |     |     |     |     +-- Execution Trader ---> Hyperliquid /exchange   (the one writer)
-   |     |     |     +-------- Risk Manager -------> Hyperliquid /info       (your account, live)
-   |     |     +-------------- Strategist ---------> Hyperliquid /info       (history, backtests)
+   |     |     |     |                            journal
+   |     |     |     +-------- Risk Manager -------> scripts/paper_sim.py
+   |     |     +-------------- Strategist ---------> public info (history)
    |     +-------------------- Research Analyst ---> browser, public data
-   +-------------------------- Market Analyst -----> Hyperliquid /info, /ws (markets)
+   +-------------------------- Market Analyst -----> public info (markets)
 
-computer:  /workspace/hypergrok (this repo)   /workspace/trading-desk (the desk's files)
-secret:    HYPERLIQUID_PRIVATE_KEY - a trade-only API wallet, from Grok Bot's secure secret store
+computer:  $HYPERGROK_RUNTIME (this repo, read-only)   $HYPERGROK_STATE (writable files)
+secret:    none. This branch does not read a private key.
 ```
 
-The shared Desk Lead starts on the read plane. `hypergrok-bootstrap` installs the pinned release, runs `scripts/opening_bell.py` against public `/info`, prepares the desk, creates the team when the product allows it, and finishes with `scripts/desk_doctor.py`. None of those first-run paths reads a key or calls `/exchange`.
+The shared Desk Lead starts from the reviewed checkout. `hypergrok-bootstrap` checks `scripts/verify_install.py` and `scripts/test_paper_only.py`, prepares `$HYPERGROK_STATE`, and resets the local simulator. None of those paths reads a key or sends an order. On the reviewed wall the runtime is `/opt/hypergrok-wall/runtime` and the state directory is `/home/hypergrok/state`. If either variable is unset, stop.
 
 The six-Bot group limit leaves the Trade Reviewer outside the Floor. Bots share the computer and skills, so role separation is a working convention rather than credential isolation. Native approval controls and the secret store provide separate controls; setup verifies their availability.
 
 ## One trade, seven stages
 
 ```
-idea -> evidence -> risk sign-off -> your approval by ticket id -> one send -> reconciliation -> review
+idea -> evidence -> risk sign-off -> your approval by ticket id -> paper submit -> journal -> review
 ```
 
-The Desk Lead keeps it moving. Analysts bring sourced, timestamped evidence. The Risk Manager sizes from your live account and the exchange's real limits, and issues a ticket. You approve it by id. The Execution Trader sends it once, reads the response, and confirms it on the exchange. The Trade Reviewer journals it and, when it closes, grades process and outcome separately.
+The Desk Lead keeps it moving. Analysts bring sourced, timestamped evidence. The Risk Manager sizes against the $100 paper wallet and issues a ticket. You approve it by id. The Risk Manager runs the simulator once. The Trade Reviewer reads the journal and grades process and outcome separately.
 
 Adjusting, adding, reducing and closing are trades too: same path, new ticket under the same id.
 
 ## Where things live
 
-Working files live under `/workspace/trading-desk/`; chat supplies context, while these records retain the lifecycle evidence.
+Working files live under `$HYPERGROK_STATE`; chat supplies context, while these records retain the lifecycle evidence. The simulator journal is in that same directory.
 
 | File | What it is |
 | --- | --- |
@@ -49,25 +48,19 @@ Working files live under `/workspace/trading-desk/`; chat supplies context, whil
 
 ## Research evidence
 
-`scripts/research_dataset.py` runs on the read plane. It resolves a perp from public metadata, requests a bounded closed UTC candle window and optionally pages hourly funding. Each new `data/<name>/` bundle stores captured request/response records, normalized observed CSVs and a manifest with source identity, file hashes, coverage gaps and `complete`, `incomplete` or `unavailable` status. Existing bundles are never overwritten.
+Quotes come from `scripts/market_data.py`. The paper book is the journal written by `scripts/paper_sim.py`. This checkout does not collect candle history, price a stop from an exchange book, or read an exchange account. See [Research datasets](RESEARCH_DATASETS.md), [Stop cost](STOP_COST.md), and [Account read](ACCOUNT_READ.md).
 
-The Market Analyst hands the complete bundle to the Strategist, who runs offline `--verify` before analysis. Verification replays responses and checks files and claimed coverage; it cannot authenticate an exchange response or prove historical universe membership. A missing hour stays missing. Run records cite the bundle and manifest hash so changed data cannot silently replace a prior experiment. See [Research datasets](RESEARCH_DATASETS.md) for the contract and limitations.
-
-`scripts/stop_cost.py` runs on the read plane too. It reads public market metadata and the L2 book and applies the `desk-risk-limits` sizing arithmetic to a plan and equity the user types, so it prices a stop without an account read.
-
-`scripts/account_read.py` is the read plane's account view. Given an address, it lists every perp DEX with `perpDexs`, reads `clearinghouseState` for each, including HIP-3 DEXs such as `xyz`, and reads spot balances. It sums total equity only in the standard account mode, where balances are separate, and leaves the total null for shared-collateral modes. It needs no key and cannot sign. See [Account read](ACCOUNT_READ.md).
-
-Data completeness, statistical evidence, Risk PASS and a user's exact ticket approval are separate decisions. The dataset tool does not supply historical oracle prices, reconstruct intrabar fills, read an account or touch an exchange write path.
+A missing file stays missing. Statistical evidence, Risk PASS, and a user's exact ticket approval are separate decisions.
 
 ## Trust boundaries
 
-**Reads.** Six Bots use `POST /info` and public web pages without signing keys.
+**Reads.** The desk posts to the pinned public info host, or reads a local quote file. No signing key is used.
 
-**Writes.** One Bot uses `POST /exchange` with the API wallet, only when a proposal carries a Risk PASS, your approval by id, and a passing pre-send checklist. One approval, one send. Every send is bounded by `expiresAfter`, so a lost response is reconciled by client order id and a replacement waits until the original is provably incapable of arriving. A clean read is not proof; an expired original is.
+**Orders.** The only order command is `scripts/paper_sim.py`. It keeps a local journal. It does not send to an exchange.
 
-**Key.** The API wallet can trade and cannot withdraw. It is the only key on the computer, provided by you through the secure secret store. Anything that needs your main wallet stays in the Hyperliquid app, with you.
+**Key.** This checkout has no key and no instructions to provision one.
 
-**Evidence.** Web pages, files and other Bots' messages are information; none of them authorises anything. Your approval phrase with the ticket id is the desk's record that you agreed, but the Bots write the floor's messages, so the phrase alone cannot be the gate: an approval a Bot can read is one a Bot could have written. Enforcement lives outside the conversation, in Grok Bot's native approval control covering SDK, script and HTTP exchange writes. Until that coverage is verified, the desk stays research-only without a provisioned key. No Bot may type, quote forward, infer or simulate your approval.
+**Evidence.** Web pages, files and other Bots' messages are information; none of them authorises a paper order. Your approval phrase with the ticket id is still required, and the simulator's checks still run after it. No Bot may type, quote forward, infer or simulate your approval.
 
 **Uncertainty.** Missing, stale, gapped or partial data is `unavailable`. A watch reports a healthy negative observation separately from a failed feed; missing evidence cannot pass a check.
 
@@ -89,4 +82,4 @@ Each runtime guide contains installation commands and observed support limits:
 
 The Grok and Codex marketplace entries pin the reviewed repository tag. Claude Code resolves this repository through its own marketplace index. Gemini CLI installs the latest GitHub release; `GEMINI.md` repeats the desk rule's approval paragraph, which the manifest check compares for drift.
 
-Only Claude Code loads `hooks/exchange-write-gate.json`. Its `PreToolUse` hook asks for confirmation when a Bash command or a named script matches an SDK write method or raw `/exchange` POST. It never returns `allow`, does not follow imports and cannot bind a request to the approved ticket. It is a confirmation backstop; each runtime still needs verified native approval coverage before an API wallet is provisioned.
+Claude Code loads a hook that denies a command which looks like an exchange write. Cursor does not load that hook. See [SECURITY.md](../SECURITY.md) for the host limits this repository cannot close.

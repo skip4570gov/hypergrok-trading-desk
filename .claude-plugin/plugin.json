@@ -1,13 +1,13 @@
 {
   "name": "hypergrok",
-  "description": "Turn your agent into a Hyperliquid trading desk: seven specialist roles with full system prompts and seventeen skills for research, risk, execution and review.",
+  "description": "Turn your agent into a paper-only Hyperliquid desk: six specialist roles with full system prompts and seventeen skills for research, risk, and review.",
   "version": "1.7.1",
   "author": {
     "name": "Galleon Labs",
     "url": "https://galleonlabs.io"
   },
-  "homepage": "https://github.com/galleonlabs/hypergrok-trading-desk",
-  "repository": "https://github.com/galleonlabs/hypergrok-trading-desk",
+  "homepage": "https://github.com/skip4570gov/hypergrok-trading-desk",
+  "repository": "https://github.com/skip4570gov/hypergrok-trading-desk",
   "license": "MIT",
   "keywords": ["hyperliquid", "trading-desk", "agents", "grok-bot", "agent-skills"],
   "hooks": "./hooks/exchange-write-gate.json"

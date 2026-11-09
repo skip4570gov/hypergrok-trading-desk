@@ -1,5 +1,9 @@
 # Provenance
 
+Historical notes about how the upstream desk was checked. They are not install instructions and they are not permission to sign or send.
+
+
+
 Everything here is original prose and original snippets, written against public documentation and open-source SDK code. The initial API verification was on 2026-08-16; later checks and their limits are recorded below.
 
 | Source | Used for | Licence |

@@ -2,17 +2,24 @@
 
 Use GitHub's **Report a vulnerability** flow to open a private security advisory. Do not put keys, signatures, wallet exports, account payloads or exploitable details in a public issue.
 
-What "vulnerability" means for a repository of instructions: any prose or snippet that could lead a Bot to send an order without the user's approval by ticket id, to handle a main-wallet key or seed phrase, to move funds, to resend an unknown-result order, or to print a secret. Those are bugs; report them.
+What "vulnerability" means for this paper-only branch: any prose or snippet that could lead a Bot to send a live order, to handle a key or seed phrase, or to move funds. Those are bugs; report them.
 
 Operating reminders that live in the skills:
 
-+ Only a trade-only Hyperliquid API wallet key ever reaches the desk computer, provisioned through Grok Bot's secure secret store, never through chat.
-+ All Bots for one user share a computer and sign-ins, so Bot identity is not a credential boundary; the key's permissions and the ticket protocol are.
-+ The native approval control must cover the actual SDK, script and HTTP send paths. If coverage is unverified, remain research-only and do not provision a key. A chat phrase, mutable proposal file or regex hook does not enforce approval.
-+ In Claude Code, the plugin's [exchange write gate](hooks/exchange_write_gate.py) asks the user before any Bash command, or script it names, that looks like a signed `/exchange` request. It never approves anything and cannot bind a send to an account, network, ticket or expiry, so it is a backstop and does not count as native approval coverage.
-+ Resting entries and unknown sends retain risk and margin reservations until terminal reconciliation. A restart, old ticket expiry or cancel acknowledgement cannot free dispatched capacity; a feed reconnect requires account recovery before new risk resumes.
-+ If a send times out or errors after leaving the machine, do not retry. Reconcile the client order id first, and treat a replacement as unsafe until the original send's expiry has passed and a further check is clean - not finding an order is not proof it will never arrive.
-+ Suspected key misuse: the user revokes the API wallet in the Hyperliquid app first, then the desk investigates.
++ This checkout reads no private key and stores none.
++ All Bots for one user share a computer, so Bot identity is not a boundary. The simulator's checks are.
++ In Claude Code, the plugin's [exchange write gate](hooks/exchange_write_gate.py) denies a Bash command, or script it names, that looks like a signed exchange write. It never approves anything.
+
+## Host limits this repository cannot close
+
++ Installing this repository does not provide host isolation. The deployment wall must be verified separately. Nothing in this checkout can prove that the machine, the agent runtime, or the network will refuse a program that is not part of this tree.
++ A stop that gaps through its level fills at the gapped mark, not at the stop. The 1% check is the planned trail when the order is accepted. A later gap can lose more than that, and the cap is not a real-world guarantee.
++ A reviewed host may isolate one subprocess with `sudo /opt/hypergrok-wall/hg-run`. This repository does not install that wall. The wall is subprocess isolation only, not whole-bot isolation. Privileged Shell, sudo, and trading connectors stay outside it. Inside that subprocess the read-only runtime is `/opt/hypergrok-wall/runtime` and the writable state is `/home/hypergrok/state`. `/workspace` is hidden. Set `HYPERGROK_RUNTIME` and `HYPERGROK_STATE` to those paths. If either is unset, stop.
++ The host TLS relay allows `api.hyperliquid.xyz:443`. It does not filter `/info` from `/exchange`. `/exchange` is reachable by the host. This checkout still posts only to `https://api.hyperliquid.xyz/info` and has no signer. Do not claim the host blocks `/exchange`.
++ A person at a shell can still run their own HTTP client. This checkout does not contain a signer, a key path, or an order client, and it cannot stop a program that was never part of the repo.
++ Cursor loads no hook. The deny hook is a Claude Code file. It does not see Cursor tool calls.
++ This process disables urllib environment proxies and refuses redirects off `api.hyperliquid.xyz`. A host that intercepts traffic outside the process is outside this fix.
++ Deleting the state directory removes history the process cannot restore. Submit then refuses until an explicit `reset`, which writes a reset record. The operating system can still delete files.
 
 Supported versions:
 

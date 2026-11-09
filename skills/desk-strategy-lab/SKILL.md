@@ -1,6 +1,6 @@
 ---
 name: desk-strategy-lab
-description: How the Strategist works with the user to turn their own trading idea into explicit rules, backtest it honestly on Hyperliquid candle and funding history, and paper-trade it on testnet through the desk lifecycle. Method only - the desk ships no strategies and makes no return claims. Use when the user wants to design, test, compare or paper-trade an idea.
+description: How the Strategist works with the user to turn their own trading idea into explicit rules, backtest it honestly on public candle history, and paper-trade it through the local simulator. Method only - the desk ships no strategies and makes no return claims. Use when the user wants to design, test, compare or paper-trade an idea.
 license: MIT
 metadata:
   version: "1.2.0"
@@ -15,13 +15,13 @@ The lab exists so the user can find out whether their idea holds up before riski
 ## Workspace
 
 ```
-/workspace/trading-desk/strategies/<name>/
+$HYPERGROK_STATE/strategies/<name>/
   RULES.md          the rules, in words, agreed with the user before any code
   data.md           bundle paths, manifest hashes, requests, coverage and verification
   backtest.py       readable, single-file backtest
   runs/YYYY-MM-DD-HHMM.md   one file per run: parameters, results, caveats
   POSTMORTEM.md     if the idea is abandoned: why, in one paragraph
-/workspace/trading-desk/data/<unique-name>/   immutable research bundle: manifest, sources and CSVs
+$HYPERGROK_STATE/data/<unique-name>/   immutable research bundle: manifest, sources and CSVs
 ```
 
 ## 1. Rules first
@@ -31,7 +31,7 @@ Interview the user until every field is unambiguous. Write `RULES.md`:
 ```markdown
 # funding-fade-v1
 
-- universe: ETH, BTC, SOL perps on Hyperliquid
+- universe: BTC and ETH only
 - data: 4h candles (close), hourly funding from fundingHistory
 - entry: when the average hourly funding over the last 8 hours is above +0.005%/h, sell at the next 4h open
 - exit: when funding <= 0, or after 72h, or stop hit
@@ -63,9 +63,7 @@ Anything the source does not supply is missing, not implied. If the source canno
 
 ## 2. Data
 
-Use `scripts/research_dataset.py` from the pinned checkout, following `hyperliquid-market-data` and [Research datasets](../../docs/RESEARCH_DATASETS.md). Freeze an aligned UTC `[start,end)` range and interval before fetching; pass `--with-funding` whenever the experiment needs funding. The tool stores requests and decoded source responses, observed candles and funding, file hashes and coverage gaps. It never creates missing observations. A valid request within 5,000 candle slots can still reach outside exchange retention or precede listing; current metadata is not a historical universe.
-
-Before analysis, run `python3 scripts/research_dataset.py --verify <bundle> --json` offline. In `data.md`, record the bundle path, manifest SHA-256, canonical coin/DEX, origin/network, range, collection times, `result.status`, coverage and verification result. Cite the same bundle and manifest hash in each run. Only `complete` coverage with successful verification supports the experiment's claimed period. Consistently replayed incomplete data remains incomplete.
+This checkout does not collect exchange history. A backtest uses only files the user already placed under `$HYPERGROK_STATE/data`. Record that path in `data.md`. If the files do not cover the agreed period, stop the experiment. Do not shorten it, fill a gap, or fetch the missing rows with another client. See [Research datasets](../../docs/RESEARCH_DATASETS.md).
 
 If the required history is incomplete or unavailable, report the missing ranges and stop that experiment. Do not silently shorten it, forward-fill candles, invent zero funding or drop a failed market. A narrower test needs an explicit revised rule and new bundle before viewing results; keep the original evidence. A `complete` dataset is not a strategy PASS, Risk PASS or proof of an unbiased universe.
 
@@ -88,7 +86,7 @@ trades 58 (IS) / 6 (OOS) | win 41% / 50% | avg win 1.9R / 1.6R | avg loss 1.0R /
 expectancy 0.19R / 0.30R | max DD 9.4% / 2.1% | fees+funding 31% of gross PnL
 expectancy 5th pct 0.02R (block bootstrap, 2000 resamples, 10-trade blocks) | profit factor 1.31
 trials 9 (3 stop multipliers x 3 markets) | holdout reads 1 | verdict: WEAK - forward test before believing
-caveats: stop multiplier chosen from {1.5, 2, 3}; slippage 5 bps assumed; SOL history shorter than others
+caveats: stop multiplier chosen from {1.5, 2, 3}; slippage 5 bps assumed; BTC and ETH only
 ```
 
 No annualised return headline. Distributions and costs are the result.
@@ -106,9 +104,9 @@ No annualised return headline. Distributions and costs are the result.
 
 Write what you checked into the run file.
 
-## 5. Paper trade on testnet
+## 5. Paper trade on the simulator
 
-When the user wants to see it live: the Strategist runs the rules on live data (polling or WebSocket per `hyperliquid-websocket`) and posts each signal as a **proposal** (`HG-...`) with the rules file cited as the idea. The Risk Manager sizes it, the user approves it, the Execution Trader sends it on **testnet**, the Trade Reviewer reviews it. The Strategist never sends orders and never asks another Bot to skip a stage "because the rules said so".
+When the user wants to see it run: the Strategist posts each signal as a **proposal** (`HG-...`) with the rules file cited as the idea. The Risk Manager sizes it, the user approves it, and the Risk Manager submits it to `scripts/paper_sim.py`. The Trade Reviewer reviews the journal. The Strategist never submits orders and never asks another Bot to skip a stage "because the rules said so".
 
 After a set number of paper trades agreed with the user (20 is a common choice), the Trade Reviewer's numbers and the backtest are compared side by side.
 

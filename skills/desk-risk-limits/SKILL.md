@@ -10,7 +10,7 @@ metadata:
 
 # Risk limits and sizing
 
-The user sets the desk's limits, in writing, once; the Risk Manager enforces them on every ticket using live data. Hyperliquid's own constraints (max leverage per market, margin tiers, size decimals, minimum order value) always apply on top.
+The user sets any stricter limits in writing. The Risk Manager enforces the paper simulator on every ticket: $100 starting equity, BTC and ETH only, a trailing stop, and at least 2:1 after fees and slippage.
 
 ## 0. Desk ceilings
 
@@ -18,138 +18,79 @@ These ceilings reject limits files that exceed the desk's bounds. They are maxim
 
 | Ceiling | Value |
 | --- | --- |
-| max risk per trade | 2% of equity |
-| max total open risk | 6% of equity |
-| max leverage on any market | 20x, and never above the exchange or tier max |
-| daily loss stop | -10% of start-of-day equity |
-| exchange-resting stop on every entry | mandatory |
-| standing approval for a mainnet send that can open or increase exposure | never |
+| paper wallet | $100, fixed in `scripts/paper_sim.py` |
+| symbols | BTC and ETH only |
+| max risk per order and total open paper risk | 1% of that equity |
+| reward-to-risk | at least 2:1 |
+| trailing stop | mandatory on every order |
+| live or testnet send | impossible in this checkout |
 
-The one send a standing approval may cover on any network is **reduce-only protection**: placing or resizing a stop for a position that has none. It can only ever reduce exposure, and the alternative is an unprotected position waiting on a human. Entries, adds, leverage increases and anything that can open or grow a position always need approval by id, on every network.
+These numbers are hardcoded in the simulator. A limits file cannot loosen them, and a missing trailing stop is a reject rather than a warning. The Risk Manager submits only through `scripts/paper_sim.py` after the user approves the exact ticket id.
 
 The user's limits file may only be **stricter** than these. A file that sets a value looser than a ceiling is not applied: the Risk Manager REJECTs with `gate failed: limits file exceeds desk ceiling <name>`, keeps enforcing the ceiling, and asks the user to edit the file. The desk never edits the file itself, and no Bot may raise a ceiling.
 
 ## 1. Write the limits file (setup, or on change)
 
-Interview the user, one question at a time, then write `/workspace/trading-desk/risk-limits.md`. Version it (`v1`, `v2`...) and date every change. Only the user changes it, in chat; the Risk Manager records who, when and why.
+Interview the user, one question at a time, then write `$HYPERGROK_STATE/risk-limits.md`. Version it (`v1`, `v2`...) and date every change. Only the user changes it, in chat; the Risk Manager records who, when and why.
 
 ```markdown
 # Risk limits v1 - 2026-08-16 - set by user
 
-- network: testnet            # testnet | mainnet
-- account: 0xabc...def        # the account the API wallet acts for
-- equity basis: accountValue from clearinghouseState (cross margin summary), read live
-- max risk per trade: 0.5% of equity      # loss if the stop is hit
-- max total open risk: 2% of equity       # positions plus reserved risk for pending entries
-- max leverage per market: 3x             # never above the exchange max, and never above this
-- max positions: 3
-- allowed markets: BTC, ETH, SOL, HYPE     # perps; spot needs an explicit entry
-- stops: mandatory on every entry, on the exchange, not "mental"
-- daily loss stop: -2% of start-of-day equity -> no new risk until the user resets in writing
-- max slippage tolerance at send: 10 bps  # Execution Trader stops if mid moved further
-- correlated cluster limit: majors (BTC, ETH, SOL) count as one cluster; max 2 positions per cluster
-- standing approvals: none          # recommended: protective stops (reduce-only), any network
-- unprotected position deadline: 15m  # then tell the user to fix it in the Hyperliquid app
+- book: paper simulator journal
+- equity basis: replayed from the journal after the explicit reset
+- symbols: BTC, ETH
+- max risk per trade: 1% of journal equity
+- max total open risk: 1% of journal equity
+- trailing stop: mandatory, and it must move with the mark inside scripts/paper_sim.py
+- take-profit: required, finite, and on the profitable side of the fill
+- reward-to-risk: at least 2:1 after fees and slippage
 - notes:
 ```
 
-Sensible starting points for someone new to perps: 0.25-0.5% per trade, 3x or lower, testnet first. Do not argue the user up or down; record what they choose and enforce it, within the ceilings in section 0.
+Record what the user chooses only when it is stricter than the simulator. Do not add another symbol, a missing target, or a live book.
 
-## 2. Size a trade
+## 2. Size a paper trade
 
-Inputs you need before you start: entry price, stop price, side, market, the current limits file, and live state. If any input is missing or stale, REJECT with "missing input", do not guess.
+Inputs: symbol (BTC or ETH), side, entry inside the current quote, trailing distance, and a finite target. Equity and open risk come from the paper journal, which starts at $100 after `scripts/paper_sim.py reset`. If the journal is missing, reject and ask for an explicit reset. Do not guess.
 
-### 2.1 Read live state (never from memory)
+### 2.1 Read the journal and the quote
 
-- Account: `clearinghouseState` for equity (`marginSummary.accountValue`), free margin (`accountValue - totalMarginUsed`), positions (`assetPositions[].position`: `coin`, `szi`, `entryPx`, `leverage`, `liquidationPx`, `marginUsed`, `unrealizedPnl`) and open orders via `openOrders` / `frontendOpenOrders`; and `activeAssetData` for the market, whose `availableToTrade` (buy, sell) and `maxTradeSzs` are the exchange's own figures for what can be opened at the account's current leverage setting. Skill: `hyperliquid-account`.
-- Market: `meta` for the asset's `szDecimals`, `maxLeverage` and its margin table; `metaAndAssetCtxs` for mark and mid; `l2Book` depth from the Market Analyst's evidence. Skill: `hyperliquid-market-data`.
-- Day PnL: start-of-day equity from the journal or `portfolio`, current equity now.
+- Equity and open positions: replay the journal in the paper state directory. Do not read `clearinghouseState` or an account balance.
+- Quote: `scripts/market_data.py` for that symbol. The entry must sit inside the bid/ask. Record the feed identity.
+- A stale quote, a missing trailing stop, or a target that is zero, negative, or on the wrong side of the fill is a reject.
 
-Read `userAbstraction` before choosing the equity and margin basis. Use the account-mode rules in `hyperliquid-account`; adding spot USDC to a perp summary can count the same collateral twice. An unsupported or unclear basis is `missing input`, not permission to use whichever balance is larger.
+### 2.2 Arithmetic
 
-Record each request's account, network, exchange time where supplied, and local request/receipt times. These reads are separate responses, not an atomic account snapshot. If fills or order changes arrive between them, refresh the affected reads before a PASS; stale, future-dated or conflicting state cannot establish capacity.
+Planned loss uses the trailing distance plus the simulator's fees and slippage. Size so that planned loss is at most 1% of journal equity, including risk already open. Reward to the target must be at least twice that planned loss. BTC and ETH only. There is no leverage and no $10,200 account.
 
-### 2.2 Arithmetic (show every line in the PASS)
+A stop that later gaps through fills at the gapped mark. The 1% figure is the plan at entry, not a promise that a crash loses only 1%. There is no leverage.
 
-```
-risk_usd          = equity x max_risk_pct
-stop_distance     = |entry - stop|                     (must be > 0)
-slip_stop         = assumed slippage on a triggered stop, in price units
-                    (at least the market's current spread; widen it on thin l2Book depth for this size)
-stop_fill         = stop - slip_stop  (long)   |   stop + slip_stop  (short)
-taker_fee         = the account's taker rate from `userFees` (a stop is a market exit; it pays taker)
-fees_per_unit     = (entry + stop_fill) x taker_fee    (entry leg and exit leg)
-stressed_distance = |entry - stop_fill| + fees_per_unit
-raw_size          = risk_usd / stressed_distance       (never risk_usd / stop_distance)
-size              = round_down(raw_size, szDecimals)   (never round up)
-notional          = size x entry
-check             notional >= 10 USD                   (Hyperliquid minimum order value)
-check             size >= 1 lot at szDecimals          (else REJECT: risk budget too small for this stop)
-tier              = margin tier for existing + pending entry + candidate notional
-max_lev_here      = min(ceiling 20x, limits.max_leverage, tier max leverage)
-margin_needed     = notional / requested_leverage      (requested_leverage <= max_lev_here)
-check             margin_needed + pending_margin <= free_margin x 0.8
-                    (20% headroom; tighter if the user says so)
-open_risk_after   = sum(stressed risk of open positions) + pending_risk + risk_usd
-check             open_risk_after <= equity x max_total_open_risk
-check             open_risk_after <= equity x 6%       (desk ceiling, section 0)
-check             risk_usd <= equity x 2%              (desk ceiling, section 0)
-check             positions_after <= max_positions ; cluster count within cluster limit
-check             market in allowed list ; stop present ; daily loss stop not hit
-```
+### 2.3 Output
 
-`R` for the ticket is `stop_distance` in USD per unit, and targets are quoted in R by the user, never invented by the desk. Size, though, comes from `stressed_distance`, so the ticket carries both and says which did what.
-
-**Why the stress.** A triggered stop can fill beyond its trigger price, partially fill or leave a remainder when liquidity does not reach its price bound. Fees and adverse fills increase the loss beyond the nominal `stop_distance`. Size from the stressed distance and state the `slip_stop` assumption and its source in the PASS. Stale depth cannot justify a smaller stress; refresh the evidence before sizing.
-
-Worked example from `agents/risk-manager.md`: equity $10,200, 0.5% budget, ETH long at 3,000 with the stop at 2,900, assumed stop slippage 3.00 (10 bps of the 3,000 ticket price) and 0.045% taker fees on both legs. Stressed distance is 105.65365 USD/ETH, displayed as 105.65. Rounding size down gives 0.4827 ETH and an assumed loss of $50.9990, displayed as $51.00. Sizing on the nominal 100-point stop gives 0.51 ETH and an assumed loss of $53.88, or 0.528% of equity.
-
-Stress is a sizing assumption, not a maximum loss. A gap, partial fill or unfilled stop can exceed it. The daily loss stop pauses new risk after a loss threshold; it does not cap losses on existing positions.
-
-**Reserve capacity before the fill.** `pending_risk` and `pending_margin` cover other live ticket reservations, resting entry remainders, and sends whose outcomes are unknown, across this account and network. The Risk Manager allocates capacity in order and records the ticket revision, reserved risk and margin under `## risk` before issuing a PASS; the next ticket includes that reservation. Do not let two parallel proposals each spend the same free capacity. Exclude this candidate's own reservation from the `pending_*` sums, then include its risk and margin once in the checks above.
-
-For a confirmed partial fill, count the filled portion in positions and keep the unfilled portion reserved; an $80 reservation split into $30 filled risk and $50 pending risk still consumes $80. For an unknown result keep the full reservation until reconciliation establishes the split. Any unidentifiable open entry, missing stop assumption or incomplete history blocks new risk rather than receiving a zero estimate. Count markets and correlated clusters after all pending entries could fill, and include their notional when selecting margin tiers. Reduce-only exits do not create new capacity until their fills are reconciled.
-
-A never-sent ticket releases its reservation when explicitly voided or expired. A dispatched ticket does not release on ticket expiry, a cancel request, a missing WebSocket update, an empty `openOrders` read or elapsed time. Establish the remaining order's terminal state (or the original send's proven expiry per `desk-execution-protocol`), reconcile fills and resulting positions, then release only the unused capacity. Keep a conservative reservation when the evidence is incomplete. Compare the result with fresh `activeAssetData` capacity as well; an exchange figure is an additional constraint, not a replacement for the desk's risk limit. Avoid deducting an exchange hold twice only when its coverage is demonstrated.
-
-Example: equity $10,000 and a 2% total-risk limit allow $200. Positions risk $40 and a resting entry reserves $80; another $100 ticket would consume $220 and is REJECTed even though the resting order has not filled.
-
-### 2.3 Margin tiers matter
-
-Max leverage on Hyperliquid is per market and **tiered by position notional**: the headline max applies only up to the first tier's notional; larger positions get lower max leverage. Read the market's margin table from `meta` (`marginTables`, matched via the asset's `marginTableId`) and use the tier that the post-trade notional lands in. A size that fits at the headline leverage may not fit at the tier it actually lands in. Say which tier applied.
-
-For isolated-margin positions the position's own margin, not account free margin, is what stands between the position and liquidation; check `liquidationPx` after the fact when the position exists.
-
-### 2.4 Output
-
-PASS: the block in `agents/risk-manager.md` (inputs, sizing, leverage and tier, book after, gates, exact ticket fields, next owner). REJECT: same header, `gate failed: <one gate, the numbers>`. Write it under `## risk` in the proposal file and post it on the floor.
+PASS: journal equity, quote, trail, target, planned loss, and `scripts/paper_sim.py submit`. REJECT: one failed gate and the numbers. Write it under `## risk`.
 
 ## 3. Book check ("how's the book")
 
-From `clearinghouseState`, `openOrders`/`frontendOpenOrders`, `metaAndAssetCtxs`:
+Replay the paper journal. That is the book.
 
-- equity, free margin, `crossMaintenanceMarginUsed`, margin ratio (`crossMaintenanceMarginUsed / crossMarginSummary.accountValue`), and the distance from mark to `liquidationPx` per position in percent
-- positions: coin, side, size, entry, mark, unrealised PnL, leverage and mode, margin used
-- open risk to stop per position, pending risk and margin by ticket, and the combined risk versus limits
-- protection: for each position, is there a reduce-only stop resting on the exchange (trigger order, `reduceOnly: true`, correct side, and either size at least the position size or a position-tied stop with `sz: 0.0` and `isPositionTpsl: true`, which closes the whole position)? If not: **unprotected**, flagged as an incident to the Desk Lead
-- open orders that no longer belong to a position (orphans)
-- day PnL versus the daily loss stop
-- funding paid so far today from `userFunding` when relevant
+- equity after the explicit reset and later fills, fees, and closes
+- open paper positions: symbol (BTC or ETH), side, size, fill, trailing stop, target, and unrealised result versus the latest quote
+- open risk versus 1% of journal equity
+- a position whose journal event has no trailing stop: reject new risk and treat it as an incident
+- day change in journal equity
 
-Timestamp everything. Save a copy under `/workspace/trading-desk/briefs/YYYY-MM-DD-book.md` when the user asks for a written check.
+Timestamp the quote and the journal hash you read. Save a copy under `$HYPERGROK_STATE/briefs/YYYY-MM-DD-book.md` when the user asks for a written check. Do not read an exchange account.
 
 ## 4. When the desk hits a limit
 
 - Daily loss stop hit: post it once on the floor, set `status: no-new-risk` in `desk.md`, and REJECT new proposals with that gate until the user resets in writing. Exits and protection are still allowed.
-- Unprotected position discovered: alert the Desk Lead and Execution Trader immediately; a protective stop ticket goes through the lifecycle at priority. If the user pre-authorised protective stops, it goes straight out under that standing approval. If not, the alert carries the exposure and the distance to liquidation, and once the deadline in `desk.md` passes the desk tells the user to close or protect the position in the Hyperliquid app themselves (`desk-incident-response` playbook D).
+- Paper order missing a trailing stop: reject it. The simulator rejects it too. A real exchange position is outside this checkout; tell the user to handle it themselves.
 - Limits file missing or unversioned: the desk is a research desk until it exists.
 
 ## Pitfalls
 
-- Sizing from a desired profit or from "what the margin allows" instead of from the stop. The stop defines the size.
-- Sizing off the nominal stop distance as if a triggered stop fills at its trigger price. It does not. Use `stressed_distance`.
-- Reading a failed, empty or stale account call as a clean book. A read that did not arrive is **unavailable**, not "no positions" and not "no open risk": REJECT with `missing input` and never size against remembered numbers.
-- Using account leverage or headline max leverage instead of the tier that applies.
-- Counting correlated positions as independent.
-- Treating a plan file, a chat message or a screenshot as an open order. Only the exchange record is.
-- Rounding size up to reach the minimum notional. If the minimum notional implies more risk than the budget, that is a REJECT.
+- Sizing from a desired profit instead of from the trailing distance.
+- Treating a gap fill as if it happened at the stop. The simulator fills a gapped stop at the mark.
+- Reading a missing journal as a fresh $100 wallet. It is not. Ask for an explicit reset.
+- Treating a chat message as an open paper position. Only the journal is.
+- Adding a symbol other than BTC or ETH.

@@ -28,19 +28,18 @@ Delegate independent market and research work to the smallest useful set of avai
 | Market Analyst | Live Hyperliquid market data and briefs | Trading Floor | no |
 | Research Analyst | Fundamentals, news, catalysts, counter-evidence | Trading Floor | no |
 | Strategist | Turns the user's ideas into testable rules; backtests; paper trades | Trading Floor | no |
-| Risk Manager | Risk limits, sizing, book oversight, veto | Trading Floor | no |
-| Execution Trader | The only Bot that sends to `/exchange` | Trading Floor | **yes** |
+| Risk Manager | Risk limits, sizing, veto, and the only `scripts/paper_sim.py` submit | Trading Floor | no |
 | Trade Reviewer | Journal, post-trade and incident review | off-floor (DM) | no |
 
-**Trading Floor** is one Grok Bot group chat with the six floor Bots (Grok Bot group chats hold up to six Bots). The Trade Reviewer works from its own conversation and receives handoffs by direct message. The user talks to the Desk Lead for most things, and to any Bot directly when they want to.
+There is no Execution Trader and no exchange writer. **Trading Floor** is one group chat with the five floor Bots. The Trade Reviewer works from its own conversation. The user talks to the Desk Lead for most things, and to any Bot directly when they want to.
 
 ## Shared computer and workspace
 
 All Bots share one cloud computer, one browser and one filesystem. Bot names are not a security boundary; the desk's rules are.
 
 ```
-/workspace/hypergrok/                 this repository (read-only reference: agents, skills, docs)
-/workspace/trading-desk/              the desk's working files
+$HYPERGROK_RUNTIME/                 this repository (read-only reference: agents, skills, docs)
+$HYPERGROK_STATE/              the desk's working files and the simulator journal
   desk.md                             desk record: network, account, engagement level, bots, chats, standing instructions
   risk-limits.md                      owned by the Risk Manager; changed only by the user, in writing
   proposals/HG-YYYYMMDD-NN.md         one file per trade idea, appended through its lifecycle
@@ -51,23 +50,21 @@ All Bots share one cloud computer, one browser and one filesystem. Bot names are
   journal/YYYY-MM-DD.md               desk journal, owned by the Trade Reviewer
 ```
 
-Secrets never live in `/workspace`. The Hyperliquid API wallet key goes in through Grok Bot's secure secret store and is read from the environment by scripts; see `hyperliquid-setup`.
+Set both variables before any command. `HYPERGROK_RUNTIME` is the read-only checkout. On the reviewed wall it is `/opt/hypergrok-wall/runtime`. `HYPERGROK_STATE` is the writable directory. On the reviewed wall it is `/home/hypergrok/state`. If either is unset, stop. Do not create `/workspace` and do not choose another directory when state is missing. The simulator `--state` value is `$HYPERGROK_STATE`.
+
+This checkout reads no private key and no API-wallet file. `hyperliquid-setup` does not provision one.
 
 ## Engagement levels
 
-The desk works at whichever level the user chooses, recorded in `desk.md`:
+The desk has one level, recorded in `desk.md`:
 
-1. **Research desk** - no key, no account. Briefs, research, strategy lab on public data.
-2. **Testnet desk** - a testnet API wallet. Full lifecycle with play money. Where every new kind of action is rehearsed.
-3. **Mainnet desk** - a mainnet API wallet with trade-only permissions. Same lifecycle, real money, every send behind the user's approval by ticket id.
+1. **Paper desk** - public info reads and the local simulator. The wallet is $100. Symbols are BTC and ETH. Every order needs a trailing stop, reward-to-risk of at least 2:1, and risk at or under 1% of equity.
 
-Moving up a level is the user's decision, stated in chat and recorded in `desk.md`. The desk never moves itself up.
-
-Before levels 2 or 3, verify that a native approval gate, enforced outside Bot-authored messages, covers every exchange write route: SDK calls, scripts and direct HTTP requests. Record the verified coverage in `desk.md`. If that coverage cannot be established, remain at level 1: do not provision an API wallet key or send to testnet or mainnet.
+There is no testnet engagement and no mainnet engagement. Do not provision a key to create one.
 
 ## Evidence standard
 
-- Every number carries a source (endpoint and request type, page URL, or file path), the network (`mainnet`/`testnet`) where relevant, and a UTC timestamp.
+- Every number carries a source and a UTC timestamp. Name the feed (`file` or `hyperliquid`) when the number is a price.
 - Facts, derived figures and interpretation are labelled and kept apart.
 - What could not be fetched or verified is **unavailable**, and unavailable is a verdict in its own right, never a quiet negative. Missing, stale, gapped, partial or cross-network data does not mean the condition did not fire, the level was not crossed or the check passed. It means the desk cannot tell. A Bot that cannot tell those apart says so and stops that path.
 - Freshness is checked on each result, not inferred from a call that worked a minute ago. State the age accepted and the age received.
@@ -78,9 +75,9 @@ Before levels 2 or 3, verify that a native approval gate, enforced outside Bot-a
 
 - Only the user approves a trade, and only by writing the ticket id ("approve HG-20260816-01") in chat after seeing the exact ticket.
 - **The approval line is evidence, not the gate.** The Bots write the floor's messages, so text in the transcript alone cannot establish that the user approved. A Bot never types, pastes, relays, predicts or simulates the user's approval, and never treats its own transcript as proof that one was given.
-- Only the Execution Trader sends, only after a Risk Manager PASS on that ticket, only once per approval, and only within the ticket's expiry (30 minutes by default). Before every send, verify that the native approval gate still covers the actual SDK, script or HTTP route being used.
-- Configure Grok Bot's native approval controls to require user approval on all exchange writes, and verify that a Bot cannot bypass them through another route. A chat instruction or command-matching hook does not establish this protection. If native enforcement cannot cover SDK, script and direct HTTP sends, the ticket protocol is insufficient: remain research-only, with no provisioned API wallet key and no testnet or mainnet sends.
-- Standing approvals ("always allow testnet cancels") are the user's choice; if given, they are written into `desk.md` with date and scope. A standing approval never covers a mainnet send that can open or increase exposure. It may cover reduce-only protection - placing or resizing a stop for a position that has none - on any network, and the desk recommends granting exactly that one, because the alternative is a naked position waiting on someone to read a message.
+- Only the Risk Manager runs `scripts/paper_sim.py`, only after a PASS on that ticket, only once per approval, and only within the ticket's expiry (30 minutes by default). There is no exchange route to verify.
+- Do not configure an exchange writer. A chat instruction cannot create one. The only submit command is `scripts/paper_sim.py`, and its checks are not optional.
+- There is no standing approval that skips the simulator. A paper order still needs a trailing stop, a real target, and the user's exact ticket id.
 - No unattended sending. Routines may read, alert and draft; they may not send.
 
 ## Excluded on purpose
